@@ -1,0 +1,150 @@
+// Copyright 2015 The gRPC Authors
+// protoc -I . --go_out=plugins=grpc:. ./core.proto   不用
+
+// protoc -I ./ --go_out=. ./core/core.proto
+// protoc -I ./ --go-grpc_out=. core/core.proto
+syntax = "proto3";
+
+package core;
+
+import "api/api.proto";
+
+option go_package = "./core;core";
+
+service LicenseService {
+  rpc GetFileLicense (api.QueryRequest) returns (api.Response) {}
+  rpc UseLicense (api.QueryRequest) returns (api.Response) {}
+  rpc GetDriverLicense (api.GetOrDeleteRequest) returns (api.Response) {}
+}
+
+service AppService {
+  rpc GetToken (api.TokenRequest) returns (api.Response) {}
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+  rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
+}
+
+service LogService {
+  rpc Create (api.CreateRequest) returns (api.Response) {}
+  rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
+}
+
+service UserService {
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+  rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc Delete (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc Update (api.UpdateRequest) returns (api.Response) {}
+  rpc Replace (api.UpdateRequest) returns (api.Response) {}
+  rpc Create (api.CreateRequest) returns (api.Response) {}
+  rpc GetCurrentUserInfo(LoginUserRequest) returns (api.Response) {}
+}
+
+service TableSchemaService {
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+  rpc QueryDeviceByDriverAndGroup (GetDeviceRequest) returns (api.Response) {}
+  rpc QueryEmulator (api.QueryRequest) returns (api.Response) {}
+  rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc Delete (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc Update (api.UpdateRequest) returns (api.Response) {}
+  rpc Replace (api.UpdateRequest) returns (api.Response) {}
+  rpc Create (api.CreateRequest) returns (api.Response) {}
+}
+
+service TableDataService {
+  rpc Query (QueryDataRequest) returns (api.Response) {}
+  rpc QueryByTableId (QueryDataRequest) returns (api.Response) {}
+  rpc Get (GetOrDeleteDataRequest) returns (api.Response) {}
+  rpc Delete (GetOrDeleteDataRequest) returns (api.Response) {}
+  rpc DeleteMany (QueryDataRequest) returns (api.Response) {}
+  rpc Update (UpdateDataRequest) returns (api.Response) {}
+  rpc Replace (UpdateDataRequest) returns (api.Response) {}
+  rpc Create (CreateDataRequest) returns (api.Response) {}
+  rpc CreateMany (CreateDataRequest) returns (api.Response) {}
+  rpc FindTableDataDeptByDeptIDs (api.CreateRequest) returns (api.Response) {}
+  rpc UpdateMany (MultiUpdateDataRequest) returns (api.Response) {}
+  rpc GetWarningFilterIDs (api.EmptyRequest) returns (api.Response) {}
+}
+
+service TableRecordService {
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+  rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc Delete (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc Update (api.UpdateRequest) returns (api.Response) {}
+  rpc Replace (api.UpdateRequest) returns (api.Response) {}
+  rpc Create (api.CreateRequest) returns (api.Response) {}
+}
+
+service MessageService {
+  rpc Create (api.CreateRequest) returns (api.Response) {}
+}
+
+service DataQueryService {
+  rpc PostLatest (api.CreateRequest) returns (api.Response) {}
+  rpc GetQuery (api.QueryRequest) returns (api.Response) {}
+  rpc PostQuery (api.CreateRequest) returns (api.Response) {}
+}
+
+service RoleService {
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+  rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc AdminRoleCheck (api.EmptyRequest) returns (api.Response) {}
+}
+
+service CatalogService {
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+  rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
+}
+
+service DeptService {
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+  rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
+}
+
+service SettingService {
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+}
+
+service SystemVariableService {
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+  rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
+}
+
+message GetDeviceRequest {
+  string driver = 1;
+  string group = 2;
+}
+
+message GetRequestName {
+  string name = 1;
+}
+
+
+message QueryDataRequest {
+  string table = 1;
+  bytes query = 2;
+}
+
+message GetOrDeleteDataRequest {
+  string table = 1;
+  string id = 2;
+}
+
+message UpdateDataRequest {
+  string table = 1;
+  string id = 2;
+  bytes data = 3;
+}
+
+message MultiUpdateDataRequest {
+  string table = 1;
+  bytes query = 2;
+  bytes data = 3;
+}
+
+message CreateDataRequest {
+  string table = 1;
+  bytes data = 2;
+}
+
+message LoginUserRequest {
+  string token = 1;
+}

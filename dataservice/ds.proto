@@ -1,0 +1,23 @@
+// Copyright 2015 The gRPC Authors
+// protoc -I . --go_out=plugins=grpc:. ./ds.proto
+
+// protoc -I ./ --go_out=. ./dataService/ds.proto
+// protoc -I ./ --go-grpc_out=. dataService/ds.proto
+
+syntax = "proto3";
+
+package dataService;
+
+import "api/api.proto";
+
+option go_package = "./dataservice;dataservice";
+
+service DataService {
+  rpc Proxy (Request) returns (api.Response) {}
+}
+
+message Request {
+  string key = 1;
+  bytes data = 2;
+}
+

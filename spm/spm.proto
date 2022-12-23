@@ -1,0 +1,32 @@
+// Copyright 2015 The gRPC Authors
+// protoc -I . --go_out=plugins=grpc:. ./spm.proto
+
+// protoc -I ./ --go_out=. ./spm/spm.proto
+// protoc -I ./ --go-grpc_out=. spm/spm.proto
+
+// 生成 client 源码
+// kratos proto client -p ./grpc grpc/spm/spm.proto
+// 生成 server 源码
+// kratos proto server grpc/spm/spm.proto -t grpc/spm
+
+syntax = "proto3";
+
+package spm;
+
+import "api/api.proto";
+
+option go_package = "./spm;spm";
+
+//service AppService {
+//  rpc GetToken (TokenRequest) returns (api.Response) {}
+//}
+
+service ProjectService {
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+  rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc Delete (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc Update (api.UpdateRequest) returns (api.Response) {}
+  rpc UpdateLicense (api.UpdateRequest) returns (api.Response) {}
+  rpc Replace (api.UpdateRequest) returns (api.Response) {}
+  rpc Create (api.CreateRequest) returns (api.Response) {}
+}

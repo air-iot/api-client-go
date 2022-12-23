@@ -1,0 +1,28 @@
+// Copyright 2015 The gRPC Authors
+// protoc -I . --go_out=plugins=grpc:. ./flow.proto
+
+// protoc -I ./ --go_out=. ./flow/flow.proto
+// protoc -I ./ --go-grpc_out=. flow/flow.proto
+
+syntax = "proto3";
+
+package flow;
+
+import "api/api.proto";
+
+option go_package = "./flow;flow";
+
+service FlowTaskService {
+  rpc Create (api.CreateRequest) returns (api.Response) {}
+  rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
+}
+
+service FlowService {
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+  rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc Update (api.UpdateRequest) returns (api.Response) {}
+}
+
+service FlowTriggerRecordService {
+  rpc Create (api.CreateRequest) returns (api.Response) {}
+}

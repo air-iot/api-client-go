@@ -1,0 +1,53 @@
+// Copyright 2015 The gRPC Authors
+// protoc -I . --go_out=plugins=grpc:. ./core.proto
+
+// protoc -I ./api --go_out=. ./api/api.proto
+// protoc -I ./api --go-grpc_out=. ./api/api.proto
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/air-iot/api-client-go/v4/api;api";
+
+message TokenRequest {
+  string ak = 1;
+  string sk = 2;
+}
+
+message TokenResponse {
+  string tokenType = 1;
+  int64  expiresAt = 2;
+  string accessToken = 3;
+}
+
+message EmptyRequest {
+}
+
+message QueryRequest {
+  bytes query = 1;
+}
+
+message GetOrDeleteRequest {
+  string id = 1;
+}
+
+message GetRequestName {
+  string name = 1;
+}
+
+message UpdateRequest {
+  string id = 1;
+  bytes data = 2;
+}
+
+message CreateRequest {
+  bytes data = 1;
+}
+
+message Response {
+  bool status = 1;
+  int32 code = 2;
+  string info = 3;
+  string detail = 4;
+  bytes result = 5;
+}
