@@ -50,9 +50,6 @@ func (c *Client) createConn() error {
 	if err != nil {
 		return fmt.Errorf("grpc.Dial error: %s", err)
 	}
-	if err != nil {
-		return fmt.Errorf("grpc.Dial error: %s", err)
-	}
 	c.conn = createConn
 	c.projectClient = NewProjectServiceClient(createConn)
 	return nil

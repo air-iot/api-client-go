@@ -63,9 +63,6 @@ func (c *Client) createConn() error {
 	if err != nil {
 		return fmt.Errorf("grpc.Dial error: %s", err)
 	}
-	if err != nil {
-		return fmt.Errorf("grpc.Dial error: %s", err)
-	}
 	c.conn = cc
 	c.engineServiceClient = NewEngineServiceClient(cc)
 	return nil

@@ -14,22 +14,39 @@ package driver;
 import "api/api.proto";
 
 option go_package = "./driver;driver";
+option java_package = "cn.airiot.sdk.driver.grpc";
+option java_multiple_files = true;
+option java_generate_equals_and_hash = true;
+option java_generic_services = false;
 
 service DriverService {
-
-//  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse) {}
-//  rpc Event (Request) returns (api.Response) {}
-//  rpc CommandLog (Request) returns (api.Response) {}
-//  rpc UpdateTableData (Request) returns (api.Response) {}
-//  rpc SchemaStream (stream SchemaResult) returns (stream SchemaRequest) {}
-//  rpc StartStream (stream StartResult) returns (stream StartRequest) {}
-//  rpc RunStream (stream RunResult) returns (stream RunRequest) {}
-//  rpc WriteTagStream (stream RunResult) returns (stream RunRequest) {}
-//  rpc BatchRunStream (stream BatchRunResult) returns (stream BatchRunRequest) {}
-//  rpc DebugStream (stream Debug) returns (stream Debug) {}
+  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse) {}
+  rpc Event (Request) returns (Response) {}
+  rpc CommandLog (Request) returns (Response) {}
+  rpc UpdateTableData (Request) returns (Response) {}
+  rpc SchemaStream (stream SchemaResult) returns (stream SchemaRequest) {}
+  rpc StartStream (stream StartResult) returns (stream StartRequest) {}
+  rpc RunStream (stream RunResult) returns (stream RunRequest) {}
+  rpc WriteTagStream (stream RunResult) returns (stream RunRequest) {}
+  rpc BatchRunStream (stream BatchRunResult) returns (stream BatchRunRequest) {}
+  rpc DebugStream (stream Debug) returns (stream Debug) {}
 
   rpc BatchCommand (api.CreateRequest) returns (api.Response) {}
   rpc ChangeCommand (api.UpdateRequest) returns (api.Response) {}
+}
+
+
+message UpdateRequest {
+  string id = 1;
+  bytes data = 2;
+}
+
+message Response {
+  bool status = 1;
+  int32 code = 2;
+  string info = 3;
+  string detail = 4;
+  bytes result = 5;
 }
 
 message HealthCheckRequest {
