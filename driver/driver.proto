@@ -17,16 +17,16 @@ option go_package = "./driver;driver";
 
 service DriverService {
 
-  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse) {}
-  rpc Event (Request) returns (api.Response) {}
-  rpc CommandLog (Request) returns (api.Response) {}
-  rpc UpdateTableData (Request) returns (api.Response) {}
-  rpc SchemaStream (stream SchemaResult) returns (stream SchemaRequest) {}
-  rpc StartStream (stream StartResult) returns (stream StartRequest) {}
-  rpc RunStream (stream RunResult) returns (stream RunRequest) {}
-  rpc WriteTagStream (stream RunResult) returns (stream RunRequest) {}
-  rpc BatchRunStream (stream BatchRunResult) returns (stream BatchRunRequest) {}
-  rpc DebugStream (stream Debug) returns (stream Debug) {}
+//  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse) {}
+//  rpc Event (Request) returns (api.Response) {}
+//  rpc CommandLog (Request) returns (api.Response) {}
+//  rpc UpdateTableData (Request) returns (api.Response) {}
+//  rpc SchemaStream (stream SchemaResult) returns (stream SchemaRequest) {}
+//  rpc StartStream (stream StartResult) returns (stream StartRequest) {}
+//  rpc RunStream (stream RunResult) returns (stream RunRequest) {}
+//  rpc WriteTagStream (stream RunResult) returns (stream RunRequest) {}
+//  rpc BatchRunStream (stream BatchRunResult) returns (stream BatchRunRequest) {}
+//  rpc DebugStream (stream Debug) returns (stream Debug) {}
 
   rpc BatchCommand (api.CreateRequest) returns (api.Response) {}
   rpc ChangeCommand (api.UpdateRequest) returns (api.Response) {}
