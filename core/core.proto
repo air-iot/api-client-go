@@ -106,8 +106,11 @@ service SettingService {
 service SystemVariableService {
   rpc Query (api.QueryRequest) returns (api.Response) {}
   rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc Delete (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc Update (api.UpdateRequest) returns (api.Response) {}
+  rpc Replace (api.UpdateRequest) returns (api.Response) {}
+  rpc Create (api.CreateRequest) returns (api.Response) {}
 }
-
 message GetDeviceRequest {
   string driver = 1;
   string group = 2;

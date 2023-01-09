@@ -688,15 +688,28 @@ var file_core_core_proto_rawDesc = []byte{
 	0x76, 0x69, 0x63, 0x65, 0x12, 0x2b, 0x0a, 0x05, 0x51, 0x75, 0x65, 0x72, 0x79, 0x12, 0x11, 0x2e,
 	0x61, 0x70, 0x69, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
 	0x1a, 0x0d, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
-	0x00, 0x32, 0x75, 0x0a, 0x15, 0x53, 0x79, 0x73, 0x74, 0x65, 0x6d, 0x56, 0x61, 0x72, 0x69, 0x61,
-	0x62, 0x6c, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x2b, 0x0a, 0x05, 0x51, 0x75,
-	0x65, 0x72, 0x79, 0x12, 0x11, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x52,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x2f, 0x0a, 0x03, 0x47, 0x65, 0x74, 0x12, 0x17,
-	0x2e, 0x61, 0x70, 0x69, 0x2e, 0x47, 0x65, 0x74, 0x4f, 0x72, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65,
+	0x00, 0x32, 0xb7, 0x02, 0x0a, 0x15, 0x53, 0x79, 0x73, 0x74, 0x65, 0x6d, 0x56, 0x61, 0x72, 0x69,
+	0x61, 0x62, 0x6c, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x2b, 0x0a, 0x05, 0x51,
+	0x75, 0x65, 0x72, 0x79, 0x12, 0x11, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79,
 	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x0d, 0x5a, 0x0b, 0x2e, 0x2f, 0x63, 0x6f,
-	0x72, 0x65, 0x3b, 0x63, 0x6f, 0x72, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x2f, 0x0a, 0x03, 0x47, 0x65, 0x74, 0x12,
+	0x17, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x47, 0x65, 0x74, 0x4f, 0x72, 0x44, 0x65, 0x6c, 0x65, 0x74,
+	0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x32, 0x0a, 0x06, 0x44, 0x65, 0x6c,
+	0x65, 0x74, 0x65, 0x12, 0x17, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x47, 0x65, 0x74, 0x4f, 0x72, 0x44,
+	0x65, 0x6c, 0x65, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x61,
+	0x70, 0x69, 0x2e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x2d, 0x0a,
+	0x06, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x12, 0x12, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x55, 0x70,
+	0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x61, 0x70,
+	0x69, 0x2e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x2e, 0x0a, 0x07,
+	0x52, 0x65, 0x70, 0x6c, 0x61, 0x63, 0x65, 0x12, 0x12, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x55, 0x70,
+	0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x61, 0x70,
+	0x69, 0x2e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x2d, 0x0a, 0x06,
+	0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x12, 0x12, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65,
+	0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x61, 0x70, 0x69,
+	0x2e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x0d, 0x5a, 0x0b, 0x2e,
+	0x2f, 0x63, 0x6f, 0x72, 0x65, 0x3b, 0x63, 0x6f, 0x72, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x33,
 }
 
 var (
@@ -785,63 +798,71 @@ var file_core_core_proto_depIdxs = []int32{
 	8,  // 52: core.SettingService.Query:input_type -> api.QueryRequest
 	8,  // 53: core.SystemVariableService.Query:input_type -> api.QueryRequest
 	9,  // 54: core.SystemVariableService.Get:input_type -> api.GetOrDeleteRequest
-	14, // 55: core.LicenseService.GetFileLicense:output_type -> api.Response
-	14, // 56: core.LicenseService.UseLicense:output_type -> api.Response
-	14, // 57: core.LicenseService.GetDriverLicense:output_type -> api.Response
-	14, // 58: core.AppService.GetToken:output_type -> api.Response
-	14, // 59: core.AppService.Query:output_type -> api.Response
-	14, // 60: core.AppService.Get:output_type -> api.Response
-	14, // 61: core.LogService.Create:output_type -> api.Response
-	14, // 62: core.LogService.Get:output_type -> api.Response
-	14, // 63: core.UserService.Query:output_type -> api.Response
-	14, // 64: core.UserService.Get:output_type -> api.Response
-	14, // 65: core.UserService.Delete:output_type -> api.Response
-	14, // 66: core.UserService.Update:output_type -> api.Response
-	14, // 67: core.UserService.Replace:output_type -> api.Response
-	14, // 68: core.UserService.Create:output_type -> api.Response
-	14, // 69: core.UserService.GetCurrentUserInfo:output_type -> api.Response
-	14, // 70: core.TableSchemaService.Query:output_type -> api.Response
-	14, // 71: core.TableSchemaService.QueryDeviceByDriverAndGroup:output_type -> api.Response
-	14, // 72: core.TableSchemaService.QueryEmulator:output_type -> api.Response
-	14, // 73: core.TableSchemaService.Get:output_type -> api.Response
-	14, // 74: core.TableSchemaService.Delete:output_type -> api.Response
-	14, // 75: core.TableSchemaService.Update:output_type -> api.Response
-	14, // 76: core.TableSchemaService.Replace:output_type -> api.Response
-	14, // 77: core.TableSchemaService.Create:output_type -> api.Response
-	14, // 78: core.TableDataService.Query:output_type -> api.Response
-	14, // 79: core.TableDataService.QueryByTableId:output_type -> api.Response
-	14, // 80: core.TableDataService.Get:output_type -> api.Response
-	14, // 81: core.TableDataService.Delete:output_type -> api.Response
-	14, // 82: core.TableDataService.DeleteMany:output_type -> api.Response
-	14, // 83: core.TableDataService.Update:output_type -> api.Response
-	14, // 84: core.TableDataService.Replace:output_type -> api.Response
-	14, // 85: core.TableDataService.Create:output_type -> api.Response
-	14, // 86: core.TableDataService.CreateMany:output_type -> api.Response
-	14, // 87: core.TableDataService.FindTableDataDeptByDeptIDs:output_type -> api.Response
-	14, // 88: core.TableDataService.UpdateMany:output_type -> api.Response
-	14, // 89: core.TableDataService.GetWarningFilterIDs:output_type -> api.Response
-	14, // 90: core.TableRecordService.Query:output_type -> api.Response
-	14, // 91: core.TableRecordService.Get:output_type -> api.Response
-	14, // 92: core.TableRecordService.Delete:output_type -> api.Response
-	14, // 93: core.TableRecordService.Update:output_type -> api.Response
-	14, // 94: core.TableRecordService.Replace:output_type -> api.Response
-	14, // 95: core.TableRecordService.Create:output_type -> api.Response
-	14, // 96: core.MessageService.Create:output_type -> api.Response
-	14, // 97: core.DataQueryService.PostLatest:output_type -> api.Response
-	14, // 98: core.DataQueryService.GetQuery:output_type -> api.Response
-	14, // 99: core.DataQueryService.PostQuery:output_type -> api.Response
-	14, // 100: core.RoleService.Query:output_type -> api.Response
-	14, // 101: core.RoleService.Get:output_type -> api.Response
-	14, // 102: core.RoleService.AdminRoleCheck:output_type -> api.Response
-	14, // 103: core.CatalogService.Query:output_type -> api.Response
-	14, // 104: core.CatalogService.Get:output_type -> api.Response
-	14, // 105: core.DeptService.Query:output_type -> api.Response
-	14, // 106: core.DeptService.Get:output_type -> api.Response
-	14, // 107: core.SettingService.Query:output_type -> api.Response
-	14, // 108: core.SystemVariableService.Query:output_type -> api.Response
-	14, // 109: core.SystemVariableService.Get:output_type -> api.Response
-	55, // [55:110] is the sub-list for method output_type
-	0,  // [0:55] is the sub-list for method input_type
+	9,  // 55: core.SystemVariableService.Delete:input_type -> api.GetOrDeleteRequest
+	12, // 56: core.SystemVariableService.Update:input_type -> api.UpdateRequest
+	12, // 57: core.SystemVariableService.Replace:input_type -> api.UpdateRequest
+	11, // 58: core.SystemVariableService.Create:input_type -> api.CreateRequest
+	14, // 59: core.LicenseService.GetFileLicense:output_type -> api.Response
+	14, // 60: core.LicenseService.UseLicense:output_type -> api.Response
+	14, // 61: core.LicenseService.GetDriverLicense:output_type -> api.Response
+	14, // 62: core.AppService.GetToken:output_type -> api.Response
+	14, // 63: core.AppService.Query:output_type -> api.Response
+	14, // 64: core.AppService.Get:output_type -> api.Response
+	14, // 65: core.LogService.Create:output_type -> api.Response
+	14, // 66: core.LogService.Get:output_type -> api.Response
+	14, // 67: core.UserService.Query:output_type -> api.Response
+	14, // 68: core.UserService.Get:output_type -> api.Response
+	14, // 69: core.UserService.Delete:output_type -> api.Response
+	14, // 70: core.UserService.Update:output_type -> api.Response
+	14, // 71: core.UserService.Replace:output_type -> api.Response
+	14, // 72: core.UserService.Create:output_type -> api.Response
+	14, // 73: core.UserService.GetCurrentUserInfo:output_type -> api.Response
+	14, // 74: core.TableSchemaService.Query:output_type -> api.Response
+	14, // 75: core.TableSchemaService.QueryDeviceByDriverAndGroup:output_type -> api.Response
+	14, // 76: core.TableSchemaService.QueryEmulator:output_type -> api.Response
+	14, // 77: core.TableSchemaService.Get:output_type -> api.Response
+	14, // 78: core.TableSchemaService.Delete:output_type -> api.Response
+	14, // 79: core.TableSchemaService.Update:output_type -> api.Response
+	14, // 80: core.TableSchemaService.Replace:output_type -> api.Response
+	14, // 81: core.TableSchemaService.Create:output_type -> api.Response
+	14, // 82: core.TableDataService.Query:output_type -> api.Response
+	14, // 83: core.TableDataService.QueryByTableId:output_type -> api.Response
+	14, // 84: core.TableDataService.Get:output_type -> api.Response
+	14, // 85: core.TableDataService.Delete:output_type -> api.Response
+	14, // 86: core.TableDataService.DeleteMany:output_type -> api.Response
+	14, // 87: core.TableDataService.Update:output_type -> api.Response
+	14, // 88: core.TableDataService.Replace:output_type -> api.Response
+	14, // 89: core.TableDataService.Create:output_type -> api.Response
+	14, // 90: core.TableDataService.CreateMany:output_type -> api.Response
+	14, // 91: core.TableDataService.FindTableDataDeptByDeptIDs:output_type -> api.Response
+	14, // 92: core.TableDataService.UpdateMany:output_type -> api.Response
+	14, // 93: core.TableDataService.GetWarningFilterIDs:output_type -> api.Response
+	14, // 94: core.TableRecordService.Query:output_type -> api.Response
+	14, // 95: core.TableRecordService.Get:output_type -> api.Response
+	14, // 96: core.TableRecordService.Delete:output_type -> api.Response
+	14, // 97: core.TableRecordService.Update:output_type -> api.Response
+	14, // 98: core.TableRecordService.Replace:output_type -> api.Response
+	14, // 99: core.TableRecordService.Create:output_type -> api.Response
+	14, // 100: core.MessageService.Create:output_type -> api.Response
+	14, // 101: core.DataQueryService.PostLatest:output_type -> api.Response
+	14, // 102: core.DataQueryService.GetQuery:output_type -> api.Response
+	14, // 103: core.DataQueryService.PostQuery:output_type -> api.Response
+	14, // 104: core.RoleService.Query:output_type -> api.Response
+	14, // 105: core.RoleService.Get:output_type -> api.Response
+	14, // 106: core.RoleService.AdminRoleCheck:output_type -> api.Response
+	14, // 107: core.CatalogService.Query:output_type -> api.Response
+	14, // 108: core.CatalogService.Get:output_type -> api.Response
+	14, // 109: core.DeptService.Query:output_type -> api.Response
+	14, // 110: core.DeptService.Get:output_type -> api.Response
+	14, // 111: core.SettingService.Query:output_type -> api.Response
+	14, // 112: core.SystemVariableService.Query:output_type -> api.Response
+	14, // 113: core.SystemVariableService.Get:output_type -> api.Response
+	14, // 114: core.SystemVariableService.Delete:output_type -> api.Response
+	14, // 115: core.SystemVariableService.Update:output_type -> api.Response
+	14, // 116: core.SystemVariableService.Replace:output_type -> api.Response
+	14, // 117: core.SystemVariableService.Create:output_type -> api.Response
+	59, // [59:118] is the sub-list for method output_type
+	0,  // [0:59] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name
