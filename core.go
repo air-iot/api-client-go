@@ -1743,3 +1743,142 @@ func (c *Client) GetSystemVariable(ctx context.Context, projectId, id string, re
 	}
 	return nil
 }
+
+func (c *Client) DeleteSystemVariable(ctx context.Context, projectId, id string, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if id == "" {
+		return fmt.Errorf("id为空")
+	}
+	cli, err := c.CoreClient.GetSystemVariableServiceClient()
+	if err != nil {
+		return fmt.Errorf("获取客户端错误,%s", err)
+	}
+	token, err := c.Token(projectId)
+	if err != nil {
+		return fmt.Errorf("查询token错误, %s", err)
+	}
+	res, err := cli.Delete(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		&api.GetOrDeleteRequest{Id: id})
+	if err != nil {
+		return fmt.Errorf("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return fmt.Errorf("响应不成功, %s", res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return fmt.Errorf("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) UpdateSystemVariable(ctx context.Context, projectId, id string, updateData, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if id == "" {
+		return fmt.Errorf("id为空")
+	}
+	if updateData == nil {
+		return fmt.Errorf("更新数据为空")
+	}
+
+	cli, err := c.CoreClient.GetSystemVariableServiceClient()
+	if err != nil {
+		return fmt.Errorf("获取客户端错误,%s", err)
+	}
+	token, err := c.Token(projectId)
+	if err != nil {
+		return fmt.Errorf("查询token错误, %s", err)
+	}
+	bts, err := json.Marshal(updateData)
+	if err != nil {
+		return fmt.Errorf("marshal 更新数据为空")
+	}
+	res, err := cli.Update(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		&api.UpdateRequest{Id: id, Data: bts})
+	if err != nil {
+		return fmt.Errorf("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return fmt.Errorf("响应不成功, %s", res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return fmt.Errorf("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) ReplaceSystemVariable(ctx context.Context, projectId, id string, updateData, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if id == "" {
+		return fmt.Errorf("id为空")
+	}
+	if updateData == nil {
+		return fmt.Errorf("更新数据为空")
+	}
+	cli, err := c.CoreClient.GetSystemVariableServiceClient()
+	if err != nil {
+		return fmt.Errorf("获取客户端错误,%s", err)
+	}
+	token, err := c.Token(projectId)
+	if err != nil {
+		return fmt.Errorf("查询token错误, %s", err)
+	}
+	bts, err := json.Marshal(updateData)
+	if err != nil {
+		return fmt.Errorf("marshal 更新数据为空")
+	}
+	res, err := cli.Replace(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		&api.UpdateRequest{Id: id, Data: bts})
+	if err != nil {
+		return fmt.Errorf("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return fmt.Errorf("响应不成功, %s", res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return fmt.Errorf("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) CreateSystemVariable(ctx context.Context, projectId string, createData, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if createData == nil {
+		return fmt.Errorf("插入数据为空")
+	}
+	cli, err := c.CoreClient.GetSystemVariableServiceClient()
+	if err != nil {
+		return fmt.Errorf("获取客户端错误,%s", err)
+	}
+	token, err := c.Token(projectId)
+	if err != nil {
+		return fmt.Errorf("查询token错误, %s", err)
+	}
+	bts, err := json.Marshal(createData)
+	if err != nil {
+		return fmt.Errorf("marshal 插入数据为空")
+	}
+	res, err := cli.Create(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		&api.CreateRequest{Data: bts})
+	if err != nil {
+		return fmt.Errorf("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return fmt.Errorf("响应不成功, %s", res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return fmt.Errorf("解析请求结果错误, %s", err)
+	}
+	return nil
+}
