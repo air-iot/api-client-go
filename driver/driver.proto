@@ -61,6 +61,20 @@ message HealthCheckResponse {
     SERVICE_UNKNOWN = 3;  // Used only by the Watch method.
   }
   ServingStatus status = 1;
+  repeated Error errors = 2;
+}
+
+message Error {
+  enum ErrorCode {
+    Schema = 0;
+    Start = 1;
+    Run = 2;
+    Write = 3;  // Used only by the Watch method.
+    BatchRun = 4;  // Used only by the Watch method.
+    Debug = 5;  // Used only by the Watch method.
+  }
+  ErrorCode code = 1;
+  string message = 2;
 }
 
 message Request {
