@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type EngineServiceClient interface {
-	Run(ctx context.Context, in *RunRequest, opts ...grpc.CallOption) (*FlowRunResponse, error)
+	Run(ctx context.Context, in *RunRequest, opts ...grpc.CallOption) (*RunResponse, error)
 	Resume(ctx context.Context, in *ResumeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Fail(ctx context.Context, in *FailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -36,8 +36,8 @@ func NewEngineServiceClient(cc grpc.ClientConnInterface) EngineServiceClient {
 	return &engineServiceClient{cc}
 }
 
-func (c *engineServiceClient) Run(ctx context.Context, in *RunRequest, opts ...grpc.CallOption) (*FlowRunResponse, error) {
-	out := new(FlowRunResponse)
+func (c *engineServiceClient) Run(ctx context.Context, in *RunRequest, opts ...grpc.CallOption) (*RunResponse, error) {
+	out := new(RunResponse)
 	err := c.cc.Invoke(ctx, "/engine.EngineService/Run", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func (c *engineServiceClient) Fail(ctx context.Context, in *FailRequest, opts ..
 // All implementations must embed UnimplementedEngineServiceServer
 // for forward compatibility
 type EngineServiceServer interface {
-	Run(context.Context, *RunRequest) (*FlowRunResponse, error)
+	Run(context.Context, *RunRequest) (*RunResponse, error)
 	Resume(context.Context, *ResumeRequest) (*emptypb.Empty, error)
 	Fail(context.Context, *FailRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedEngineServiceServer()
@@ -77,7 +77,7 @@ type EngineServiceServer interface {
 type UnimplementedEngineServiceServer struct {
 }
 
-func (UnimplementedEngineServiceServer) Run(context.Context, *RunRequest) (*FlowRunResponse, error) {
+func (UnimplementedEngineServiceServer) Run(context.Context, *RunRequest) (*RunResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Run not implemented")
 }
 func (UnimplementedEngineServiceServer) Resume(context.Context, *ResumeRequest) (*emptypb.Empty, error) {

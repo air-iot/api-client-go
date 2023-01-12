@@ -8,7 +8,7 @@ import (
 	"github.com/air-iot/json"
 )
 
-func (c *Client) Run(ctx context.Context, projectId, config string, elementB []byte, variables map[string]interface{}) (result *engine.FlowRunResponse, err error) {
+func (c *Client) Run(ctx context.Context, projectId, config string, elementB []byte, variables map[string]interface{}) (result *engine.RunResponse, err error) {
 	b, err := json.Marshal(variables)
 	if err != nil {
 		return nil, fmt.Errorf("序列化变量错误,%s", err)
@@ -29,7 +29,7 @@ func (c *Client) Run(ctx context.Context, projectId, config string, elementB []b
 		Element:   elementB,
 	})
 	if res != nil {
-		result = &engine.FlowRunResponse{Job: res.Job}
+		result = &engine.RunResponse{Job: res.Job}
 	}
 	if err != nil {
 		return result, fmt.Errorf("流程执行错误,%s", err)

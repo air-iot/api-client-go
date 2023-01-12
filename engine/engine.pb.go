@@ -145,7 +145,7 @@ func (x *RunResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use FlowRunResponse.ProtoReflect.Descriptor instead.
+// Deprecated: Use RunResponse.ProtoReflect.Descriptor instead.
 func (*RunResponse) Descriptor() ([]byte, []int) {
 	return file_engine_engine_proto_rawDescGZIP(), []int{1}
 }
@@ -362,7 +362,7 @@ func file_engine_engine_proto_rawDescGZIP() []byte {
 var file_engine_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_engine_engine_proto_goTypes = []interface{}{
 	(*RunRequest)(nil),    // 0: engine.RunRequest
-	(*RunResponse)(nil),   // 1: engine.FlowRunResponse
+	(*RunResponse)(nil),   // 1: engine.RunResponse
 	(*ResumeRequest)(nil), // 2: engine.ResumeRequest
 	(*FailRequest)(nil),   // 3: engine.FailRequest
 	(*emptypb.Empty)(nil), // 4: google.protobuf.Empty
@@ -371,7 +371,7 @@ var file_engine_engine_proto_depIdxs = []int32{
 	0, // 0: engine.EngineService.Run:input_type -> engine.RunRequest
 	2, // 1: engine.EngineService.Resume:input_type -> engine.ResumeRequest
 	3, // 2: engine.EngineService.Fail:input_type -> engine.FailRequest
-	1, // 3: engine.EngineService.Run:output_type -> engine.FlowRunResponse
+	1, // 3: engine.EngineService.Run:output_type -> engine.RunResponse
 	4, // 4: engine.EngineService.Resume:output_type -> google.protobuf.Empty
 	4, // 5: engine.EngineService.Fail:output_type -> google.protobuf.Empty
 	3, // [3:6] is the sub-list for method output_type
