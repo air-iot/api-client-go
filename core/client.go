@@ -77,6 +77,7 @@ func (c *Client) createConn() error {
 	c.catalogClient = NewCatalogServiceClient(cc)
 	c.deptClient = NewDeptServiceClient(cc)
 	c.settingClient = NewSettingServiceClient(cc)
+	c.systemVariablServiceClient = NewSystemVariableServiceClient(cc)
 	return nil
 }
 
