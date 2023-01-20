@@ -34,7 +34,7 @@ func (c *Client) CreateFlowTask(ctx context.Context, projectId string, createDat
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s", res.GetInfo())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return fmt.Errorf("解析请求结果错误, %s", err)
@@ -61,7 +61,7 @@ func (c *Client) GetFlowTask(ctx context.Context, projectId, id string, result i
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s", res.GetInfo())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return fmt.Errorf("解析请求结果错误, %s", err)
@@ -90,7 +90,7 @@ func (c *Client) QueryFlow(ctx context.Context, projectId string, query, result 
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s", res.GetInfo())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return fmt.Errorf("解析请求结果错误, %s", err)
@@ -117,7 +117,7 @@ func (c *Client) GetFlow(ctx context.Context, projectId, id string, result inter
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s", res.GetInfo())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return fmt.Errorf("解析请求结果错误, %s", err)
@@ -151,7 +151,7 @@ func (c *Client) UpdateFlow(ctx context.Context, projectId, id string, updateDat
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s", res.GetInfo())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return fmt.Errorf("解析请求结果错误, %s", err)
@@ -183,7 +183,7 @@ func (c *Client) CreateFlowTriggerRecord(ctx context.Context, projectId string, 
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s", res.GetInfo())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return fmt.Errorf("解析请求结果错误, %s", err)

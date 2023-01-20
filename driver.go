@@ -34,7 +34,7 @@ func (c *Client) BatchCommand(ctx context.Context, projectId string, data interf
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s", res.GetInfo())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return fmt.Errorf("解析请求结果错误, %s", err)
@@ -69,7 +69,7 @@ func (c *Client) ChangeCommand(ctx context.Context, projectId, id string, data, 
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s", res.GetInfo())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return fmt.Errorf("解析请求结果错误, %s", err)

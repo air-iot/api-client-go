@@ -32,7 +32,7 @@ func (c *Client) QueryWarn(ctx context.Context, projectId, token, archive string
 		return 0, fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return 0, fmt.Errorf("响应不成功, %s", res.GetInfo())
+		return 0, fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return 0, fmt.Errorf("解析请求结果错误, %s", err)
@@ -67,7 +67,7 @@ func (c *Client) GetWarn(ctx context.Context, projectId, archive, id string, res
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s", res.GetInfo())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return fmt.Errorf("解析请求结果错误, %s", err)
@@ -96,7 +96,7 @@ func (c *Client) QueryRule(ctx context.Context, projectId string, query interfac
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s", res.GetInfo())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return fmt.Errorf("解析请求结果错误, %s", err)
@@ -127,7 +127,7 @@ func (c *Client) CreateWarn(ctx context.Context, projectId string, createData, r
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s", res.GetInfo())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return fmt.Errorf("解析请求结果错误, %s", err)
