@@ -14,7 +14,7 @@ package driver;
 import "api/api.proto";
 
 option go_package = "./driver;driver";
-option java_package = "cn.airiot.sdk.driver.grpc";
+option java_package = "cn.airiot.sdk.driver.grpc.driver";
 option java_multiple_files = true;
 option java_generate_equals_and_hash = true;
 option java_generic_services = false;

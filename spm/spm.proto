@@ -11,6 +11,10 @@ package spm;
 import "api/api.proto";
 
 option go_package = "./spm;spm";
+option java_package = "cn.airiot.sdk.client.dubbo.grpc.spm";
+option java_multiple_files = true;
+option java_generate_equals_and_hash = true;
+option java_generic_services = true;
 
 service UserService {
   rpc GetToken (api.TokenRequest) returns (api.TokenResponse) {}

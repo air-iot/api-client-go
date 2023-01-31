@@ -10,6 +10,10 @@ package core;
 import "api/api.proto";
 
 option go_package = "./core;core";
+option java_package = "cn.airiot.sdk.client.dubbo.grpc.core";
+option java_multiple_files = true;
+option java_generate_equals_and_hash = true;
+option java_generic_services = true;
 
 service LicenseService {
   rpc GetFileLicense (api.QueryRequest) returns (api.Response) {}
