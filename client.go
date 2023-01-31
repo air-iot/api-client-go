@@ -97,31 +97,40 @@ type AuthToken struct {
 func (c *Client) GetToken(key string) (a *AuthToken, err error) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
-	var res *api.Response
+	//var res *api.Response
+	var authToken AuthToken
 	if key == string(config.Tenant) {
 		cli, err := c.SpmClient.GetUserServiceClient()
 		if err != nil {
 			return nil, errors.NewMsg("获取客户端错误,%s", err)
 		}
-		res, err = cli.GetToken(context.Background(), &api.TokenRequest{Ak: c.Config.AK, Sk: c.Config.SK})
+		res, err := cli.GetToken(context.Background(), &api.TokenRequest{Ak: c.Config.AK, Sk: c.Config.SK})
+		if err != nil {
+			return nil, errors.NewMsg("请求错误, %s", err)
+		}
+		if !res.GetStatus() {
+			return nil, errors.NewMsg("响应不成功, %s %s", res.GetInfo(), res.GetDetail())
+		}
+		if err := json.Unmarshal(res.GetResult(), &authToken); err != nil {
+			return nil, errors.NewMsg("解析 token 请求结果错误, %s", err)
+		}
+
 	} else {
 		cli, err := c.CoreClient.GetAppServiceClient()
 		if err != nil {
 			return nil, errors.NewMsg("获取客户端错误,%s", err)
 		}
-		res, err = cli.GetToken(
-			metadata.GetGrpcContext(context.Background(), map[string]string{config.XRequestProject: key}),
+		res, err := cli.GetToken(metadata.GetGrpcContext(context.Background(), map[string]string{config.XRequestProject: key}),
 			&api.TokenRequest{Ak: c.Config.AK, Sk: c.Config.SK})
-	}
-	if err != nil {
-		return nil, errors.NewMsg("请求错误, %s", err)
-	}
-	if !res.GetStatus() {
-		return nil, errors.NewMsg("响应不成功, %s %s", res.GetInfo(), res.GetDetail())
-	}
-	var authToken AuthToken
-	if err := json.Unmarshal(res.GetResult(), &authToken); err != nil {
-		return nil, errors.NewMsg("解析 token 请求结果错误, %s", err)
+		if err != nil {
+			return nil, errors.NewMsg("请求错误, %s", err)
+		}
+		if !res.GetStatus() {
+			return nil, errors.NewMsg("响应不成功, %s %s", res.GetInfo(), res.GetDetail())
+		}
+		if err := json.Unmarshal(res.GetResult(), &authToken); err != nil {
+			return nil, errors.NewMsg("解析 token 请求结果错误, %s", err)
+		}
 	}
 	c.tokens.Store(key, &authToken)
 	return &authToken, nil

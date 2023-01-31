@@ -70,9 +70,36 @@ func TestClient_QueryProject(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer clean()
-	var arr []map[string]interface{}
-	if err := cli.QueryProject(context.Background(), map[string]interface{}{}, &arr); err != nil {
+	for i := 0; i < 10; i++ {
+		var arr []map[string]interface{}
+		if err := cli.QueryProject(context.Background(), map[string]interface{}{}, &arr); err != nil {
+			t.Fatal(err)
+		}
+		t.Log(arr)
+	}
+}
+
+func TestClient_QueryTableSchema(t *testing.T) {
+	cli, clean, err := NewClient(clientEtcd, config.Config{
+		Metadata: map[string]string{"env": "aliyun"},
+		Services: map[string]config.Service{
+			"spm":  {Metadata: map[string]string{"env": "local1"}},
+			"core": {Metadata: map[string]string{"env": "local1"}},
+		},
+		Type:    "tenant",
+		AK:      "138dd03b-d3ee-4230-d3d2-520feb580bfe",
+		SK:      "138dd03b-d3ee-4230-d3d2-520feb580bfd",
+		Timeout: 60,
+	})
+	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(arr)
+	defer clean()
+	for i := 0; i < 1; i++ {
+		var arr []map[string]interface{}
+		if err := cli.QueryTableSchema(context.Background(), "625f6dbf5433487131f09ff8", map[string]interface{}{}, &arr); err != nil {
+			t.Fatal(err)
+		}
+		t.Log(arr)
+	}
 }

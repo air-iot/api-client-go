@@ -16,7 +16,7 @@ type MetaData struct {
 func GetMetaData(ctx context.Context) (*MetaData, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, fmt.Errorf("无法获取数据")
+		return nil, fmt.Errorf("无法获取元数据")
 	}
 	res := new(MetaData)
 	tokenHeaders := md.Get(config.XRequestHeaderAuthorization)
