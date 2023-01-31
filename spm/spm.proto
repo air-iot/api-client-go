@@ -17,7 +17,7 @@ option java_generate_equals_and_hash = true;
 option java_generic_services = true;
 
 service UserService {
-  rpc GetToken (api.TokenRequest) returns (api.TokenResponse) {}
+  rpc GetToken (api.TokenRequest) returns (api.Response) {}
 }
 
 service ProjectService {

@@ -20,6 +20,7 @@ type Client struct {
 	registry      *etcd.Registry
 	config        config.Config
 	projectClient ProjectServiceClient
+	userClient    UserServiceClient
 }
 
 func NewClient(cfg config.Config, registry *etcd.Registry) (*Client, func(), error) {
@@ -52,6 +53,7 @@ func (c *Client) createConn() error {
 	}
 	c.conn = createConn
 	c.projectClient = NewProjectServiceClient(createConn)
+	c.userClient = NewUserServiceClient(createConn)
 	return nil
 }
 
@@ -65,4 +67,16 @@ func (c *Client) GetProjectServiceClient() (ProjectServiceClient, error) {
 		return nil, fmt.Errorf("客户端是空")
 	}
 	return c.projectClient, nil
+}
+
+func (c *Client) GetUserServiceClient() (UserServiceClient, error) {
+	if c.conn == nil {
+		if err := c.createConn(); err != nil {
+			return nil, err
+		}
+	}
+	if c.userClient == nil {
+		return nil, fmt.Errorf("客户端是空")
+	}
+	return c.userClient, nil
 }

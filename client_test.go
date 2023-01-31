@@ -5,28 +5,36 @@ import (
 	"github.com/air-iot/api-client-go/v4/config"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc"
+	"log"
 	"testing"
 	"time"
 )
 
-func TestClient_GetTableSchema(t *testing.T) {
+var clientEtcd *clientv3.Client
+
+func TestMain(m *testing.M) {
+	log.Println("begin")
+	//dsn := "host=airiot.tech user=root password=dell123 dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
 	client, err := clientv3.New(clientv3.Config{
-		Endpoints:   []string{"localhost:2379"},
+		Endpoints:   []string{"121.89.244.23:2379"},
 		DialTimeout: time.Second * time.Duration(60),
 		DialOptions: []grpc.DialOption{grpc.WithBlock()},
 		Username:    "root",
 		Password:    "dell123",
 	})
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
-	defer func() {
-		if err := client.Close(); err != nil {
-			t.Fatal(err)
-		}
-	}()
+	clientEtcd = client
+	m.Run()
+	if err := client.Close(); err != nil {
+		log.Fatal(err)
+	}
+	log.Println("end")
+}
 
-	cli, clean, err := NewClient(client, config.Config{
+func TestClient_GetTableSchema(t *testing.T) {
+	cli, clean, err := NewClient(clientEtcd, config.Config{
 		Metadata: map[string]string{"env": "aliyun"},
 		Services: nil,
 		AK:       "",
@@ -45,4 +53,26 @@ func TestClient_GetTableSchema(t *testing.T) {
 		t.Log(obj)
 	}
 
+}
+
+func TestClient_QueryProject(t *testing.T) {
+	cli, clean, err := NewClient(clientEtcd, config.Config{
+		Metadata: map[string]string{"env": "aliyun"},
+		Services: map[string]config.Service{
+			"spm": {Metadata: map[string]string{"env": "local1"}},
+		},
+		Type:    "tenant",
+		AK:      "138dd03b-d3ee-4230-d3d2-520feb580bfe",
+		SK:      "138dd03b-d3ee-4230-d3d2-520feb580bfd",
+		Timeout: 60,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer clean()
+	var arr []map[string]interface{}
+	if err := cli.QueryProject(context.Background(), map[string]interface{}{}, &arr); err != nil {
+		t.Fatal(err)
+	}
+	t.Log(arr)
 }

@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
-	GetToken(ctx context.Context, in *api.TokenRequest, opts ...grpc.CallOption) (*api.TokenResponse, error)
+	GetToken(ctx context.Context, in *api.TokenRequest, opts ...grpc.CallOption) (*api.Response, error)
 }
 
 type userServiceClient struct {
@@ -34,8 +34,8 @@ func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 	return &userServiceClient{cc}
 }
 
-func (c *userServiceClient) GetToken(ctx context.Context, in *api.TokenRequest, opts ...grpc.CallOption) (*api.TokenResponse, error) {
-	out := new(api.TokenResponse)
+func (c *userServiceClient) GetToken(ctx context.Context, in *api.TokenRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
 	err := c.cc.Invoke(ctx, "/spm.UserService/GetToken", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (c *userServiceClient) GetToken(ctx context.Context, in *api.TokenRequest, 
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
-	GetToken(context.Context, *api.TokenRequest) (*api.TokenResponse, error)
+	GetToken(context.Context, *api.TokenRequest) (*api.Response, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -55,7 +55,7 @@ type UserServiceServer interface {
 type UnimplementedUserServiceServer struct {
 }
 
-func (UnimplementedUserServiceServer) GetToken(context.Context, *api.TokenRequest) (*api.TokenResponse, error) {
+func (UnimplementedUserServiceServer) GetToken(context.Context, *api.TokenRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetToken not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
