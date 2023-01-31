@@ -22,7 +22,7 @@ func (c *Client) QueryProject(ctx context.Context, query, result interface{}) er
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(), res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return fmt.Errorf("解析请求结果错误, %s", err)
@@ -43,7 +43,7 @@ func (c *Client) GetProject(ctx context.Context, id string, result interface{}) 
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(), res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return fmt.Errorf("解析请求结果错误, %s", err)
@@ -64,7 +64,7 @@ func (c *Client) DeleteProject(ctx context.Context, id string, result interface{
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(), res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return fmt.Errorf("解析请求结果错误, %s", err)
@@ -92,7 +92,7 @@ func (c *Client) UpdateProject(ctx context.Context, id string, updateData, resul
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(), res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return fmt.Errorf("解析请求结果错误, %s", err)
@@ -120,7 +120,7 @@ func (c *Client) UpdateProjectLicense(ctx context.Context, id string, updateData
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(), res.GetDetail())
 	}
 	//if err := json.Unmarshal(res.GetResult(), result); err != nil {
 	//	return fmt.Errorf("解析请求结果错误, %s", err)
@@ -149,7 +149,7 @@ func (c *Client) ReplaceProject(ctx context.Context, id string, updateData, resu
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(), res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return fmt.Errorf("解析请求结果错误, %s", err)
@@ -174,7 +174,7 @@ func (c *Client) CreateProject(ctx context.Context, createData, result interface
 		return fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
+		return fmt.Errorf("响应不成功, %s %s", res.GetInfo(), res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return fmt.Errorf("解析请求结果错误, %s", err)

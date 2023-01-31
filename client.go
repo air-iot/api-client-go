@@ -116,7 +116,7 @@ func (c *Client) GetToken(projectId string) (*AuthToken, error) {
 		return nil, fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return nil, fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
+		return nil, fmt.Errorf("响应不成功, %s %s", res.GetInfo(), res.GetDetail())
 	}
 	var authToken AuthToken
 	if err := json.Unmarshal(res.GetResult(), &authToken); err != nil {

@@ -35,7 +35,7 @@ func (c *Client) DataInterfaceProxy(ctx context.Context, projectId, key string, 
 		return nil, fmt.Errorf("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return nil, fmt.Errorf("响应不成功, %s %s", res.GetInfo(),res.GetDetail())
+		return nil, fmt.Errorf("响应不成功, %s %s", res.GetInfo(), res.GetDetail())
 	}
 	if result == nil {
 		return res.GetResult(), nil
