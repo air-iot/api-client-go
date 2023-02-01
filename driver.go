@@ -26,12 +26,8 @@ func (c *Client) BatchCommand(ctx context.Context, projectId string, data interf
 	if err != nil {
 		return errors.NewMsg("marshal 插入数据为空")
 	}
-	token, err := c.Token(projectId)
-	if err != nil {
-		return errors.NewMsg("查询token错误, %s", err)
-	}
 	res, err := cli.BatchCommand(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -57,10 +53,6 @@ func (c *Client) ChangeCommand(ctx context.Context, projectId, id string, data, 
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	token, err := c.Token(projectId)
-	if err != nil {
-		return errors.NewMsg("查询token错误, %s", err)
-	}
 	if data == nil {
 		return errors.NewMsg("更新数据为空")
 	}
@@ -69,7 +61,7 @@ func (c *Client) ChangeCommand(ctx context.Context, projectId, id string, data, 
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.ChangeCommand(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)

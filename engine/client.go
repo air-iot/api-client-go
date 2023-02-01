@@ -1,17 +1,15 @@
 package engine
 
 import (
-	"fmt"
 	"sync"
-
-	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
-	"google.golang.org/grpc"
-	_ "google.golang.org/grpc/health"
-
-	"github.com/air-iot/logger"
 
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/conn"
+	"github.com/air-iot/api-client-go/v4/errors"
+	"github.com/air-iot/logger"
+	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
+	"google.golang.org/grpc"
+	_ "google.golang.org/grpc/health"
 )
 
 //
@@ -40,7 +38,9 @@ func NewClient(cfg config.Config, registry *etcd.Registry) (*Client, func(), err
 		registry: registry,
 		config:   cfg,
 	}
-
+	if err := c.createConn(); err != nil {
+		return nil, nil, err
+	}
 	cleanFunc := func() {
 		if c.conn != nil {
 			if err := c.conn.Close(); err != nil {
@@ -61,10 +61,10 @@ func (c *Client) createConn() error {
 	logger.Infof("flow-engine grpc client cc, %+v", c.config)
 	cc, err := conn.CreateConn(serviceName, c.config, c.registry)
 	if err != nil {
-		return fmt.Errorf("grpc.Dial error: %s", err)
+		return errors.NewMsg("grpc.Dial error: %s", err)
 	}
-	c.conn = cc
 	c.engineServiceClient = NewEngineServiceClient(cc)
+	c.conn = cc
 	return nil
 }
 
@@ -75,7 +75,7 @@ func (c *Client) GetDataServiceClient() (EngineServiceClient, error) {
 		}
 	}
 	if c.engineServiceClient == nil {
-		return nil, fmt.Errorf("客户端是空")
+		return nil, errors.NewMsg("客户端是空")
 	}
 	return c.engineServiceClient, nil
 }

@@ -2,12 +2,13 @@ package api_client_go
 
 import (
 	"context"
-	"github.com/air-iot/api-client-go/v4/config"
-	clientv3 "go.etcd.io/etcd/client/v3"
-	"google.golang.org/grpc"
 	"log"
 	"testing"
 	"time"
+
+	"github.com/air-iot/api-client-go/v4/config"
+	clientv3 "go.etcd.io/etcd/client/v3"
+	"google.golang.org/grpc"
 )
 
 var clientEtcd *clientv3.Client
@@ -71,13 +72,14 @@ func TestClient_QueryProject(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer clean()
-	for i := 0; i < 1000; i++ {
+	//time.Sleep(time.Second * 10)
+	for i := 0; i < 1; i++ {
 		var arr []map[string]interface{}
 		if err := cli.QueryProject(context.Background(), map[string]interface{}{}, &arr); err != nil {
 			t.Error(err)
 		}
 		t.Log(arr)
-		time.Sleep(time.Second * 3)
+		//time.Sleep(time.Second * 3)
 	}
 }
 
@@ -97,6 +99,7 @@ func TestClient_QueryTableSchema(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer clean()
+	//time.Sleep(time.Second * 2)
 	for i := 0; i < 1; i++ {
 		var arr []map[string]interface{}
 		if err := cli.QueryTableSchema(context.Background(), "625f6dbf5433487131f09ff8", map[string]interface{}{}, &arr); err != nil {
@@ -104,4 +107,5 @@ func TestClient_QueryTableSchema(t *testing.T) {
 		}
 		t.Log(arr)
 	}
+	//time.Sleep(time.Second * 5)
 }

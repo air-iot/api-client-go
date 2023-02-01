@@ -24,7 +24,7 @@ import (
 //	//Timeout int
 //}
 
-func CreateConn(serviceName string, cfg config.Config, r *etcd.Registry) (*ggrpc.ClientConn, error) {
+func CreateConn(serviceName string, cfg config.Config, r *etcd.Registry, opts ...ggrpc.DialOption) (*ggrpc.ClientConn, error) {
 	metadataTmp := cfg.Metadata
 	if srv, ok := cfg.Services[serviceName]; ok {
 		if srv.Metadata != nil && len(srv.Metadata) > 0 {
@@ -42,7 +42,7 @@ func CreateConn(serviceName string, cfg config.Config, r *etcd.Registry) (*ggrpc
 		grpc.WithMiddleware(
 			recovery.Recovery(),
 		),
-		//grpc.WithOptions(ggrpc.WithBlock()),
+		grpc.WithOptions(opts...),
 		grpc.WithNodeFilter(filter.Metadata(metadataTmp)),
 		grpc.WithTimeout(time.Second*time.Duration(cfg.Timeout)),
 	)

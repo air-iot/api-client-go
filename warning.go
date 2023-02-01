@@ -2,7 +2,6 @@ package api_client_go
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	"github.com/air-iot/api-client-go/v4/api"
@@ -60,12 +59,8 @@ func (c *Client) GetWarn(ctx context.Context, projectId, archive, id string, res
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	token, err := c.Token(projectId)
-	if err != nil {
-		return errors.NewMsg("查询token错误, %s", err)
-	}
 	res, err := cli.Get(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&warning.GetOrDeleteWarningRequest{Id: id, Archive: archive})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -88,16 +83,12 @@ func (c *Client) QueryRule(ctx context.Context, projectId string, query interfac
 	if err != nil {
 		return errors.NewMsg("序列化查询参数为空, %s", err)
 	}
-	token, err := c.Token(projectId)
-	if err != nil {
-		return errors.NewMsg("查询token错误, %s", err)
-	}
 	cli, err := c.WarningClient.GetRuleServiceClient()
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -122,22 +113,18 @@ func (c *Client) CreateWarn(ctx context.Context, projectId string, createData, r
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	token, err := c.Token(projectId)
-	if err != nil {
-		return errors.NewMsg("查询token错误, %s", err)
-	}
 	bts, err := json.Marshal(createData)
 	if err != nil {
 		return errors.NewMsg("序列化插入数据为空")
 	}
 	res, err := cli.Create(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(fmt.Errorf("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)

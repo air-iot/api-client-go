@@ -22,16 +22,12 @@ func (c *Client) CreateFlowTask(ctx context.Context, projectId string, createDat
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	token, err := c.Token(projectId)
-	if err != nil {
-		return errors.NewMsg("查询token错误, %s", err)
-	}
 	bts, err := json.Marshal(createData)
 	if err != nil {
 		return errors.NewMsg("序列化插入数据为空")
 	}
 	res, err := cli.Create(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -56,12 +52,8 @@ func (c *Client) GetFlowTask(ctx context.Context, projectId, id string, result i
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	token, err := c.Token(projectId)
-	if err != nil {
-		return errors.NewMsg("查询token错误, %s", err)
-	}
 	res, err := cli.Get(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -88,12 +80,8 @@ func (c *Client) QueryFlow(ctx context.Context, projectId string, query, result 
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	token, err := c.Token(projectId)
-	if err != nil {
-		return errors.NewMsg("查询token错误, %s", err)
-	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -118,12 +106,8 @@ func (c *Client) GetFlow(ctx context.Context, projectId, id string, result inter
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	token, err := c.Token(projectId)
-	if err != nil {
-		return errors.NewMsg("查询token错误, %s", err)
-	}
 	res, err := cli.Get(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -151,16 +135,12 @@ func (c *Client) UpdateFlow(ctx context.Context, projectId, id string, updateDat
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	token, err := c.Token(projectId)
-	if err != nil {
-		return errors.NewMsg("查询token错误, %s", err)
-	}
 	bts, err := json.Marshal(updateData)
 	if err != nil {
 		return errors.NewMsg("序列化更新数据为空")
 	}
 	res, err := cli.Update(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -186,16 +166,13 @@ func (c *Client) CreateFlowTriggerRecord(ctx context.Context, projectId string, 
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	token, err := c.Token(projectId)
-	if err != nil {
-		return errors.NewMsg("查询token错误, %s", err)
-	}
+
 	bts, err := json.Marshal(createData)
 	if err != nil {
 		return errors.NewMsg("序列化插入数据为空")
 	}
 	res, err := cli.Create(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)

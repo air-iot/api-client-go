@@ -1,12 +1,11 @@
 package errors
 
 import (
-	"fmt"
 	"testing"
 )
 
 func TestNewError(t *testing.T) {
-	e := NewError(fmt.Errorf("err1"))
+	e := NewError(NewMsg("err1"))
 	t.Log(e.Error())
 }
 
@@ -16,7 +15,7 @@ func TestNewMsg(t *testing.T) {
 }
 
 func TestNewErrorMsg(t *testing.T) {
-	e := NewErrorMsg(fmt.Errorf("err1"), "a,%d", 2)
+	e := NewErrorMsg(NewMsg("err1"), "a,%d", 2)
 	t.Log(e.Error())
 
 	e = NewErrorMsg(NewMsg("err2"), "2,%d", 3)
