@@ -89,11 +89,13 @@ func (a *Client) Token() (token string, err error) {
 			return "", err
 		}
 	} else {
-		if authToken.ExpiresAt <= time.Now().Unix() {
+		if a.authToken.ExpiresAt <= time.Now().Unix() {
 			authToken, err = a.getToken()
 			if err != nil {
 				return "", err
 			}
+		} else {
+			authToken = &a.authToken
 		}
 	}
 	return authToken.AccessToken, nil

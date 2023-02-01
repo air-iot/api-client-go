@@ -73,7 +73,7 @@ func TestClient_QueryProject(t *testing.T) {
 	}
 	defer clean()
 	//time.Sleep(time.Second * 10)
-	for i := 0; i < 1; i++ {
+	for i := 0; i < 3; i++ {
 		var arr []map[string]interface{}
 		if err := cli.QueryProject(context.Background(), map[string]interface{}{}, &arr); err != nil {
 			t.Error(err)

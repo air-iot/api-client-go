@@ -17,6 +17,8 @@ const (
 // customCredential 自定义认证
 type customCredential struct {
 	f *GetAuthClient
+
+	cli *Client
 }
 
 type GetAuthClient func() *Client
@@ -40,8 +42,10 @@ func (c *customCredential) GetRequestMetadata(ctx context.Context, uri ...string
 		path == "/warning.WarnService/Query" {
 		return map[string]string{}, nil
 	}
-	f := *c.f
-	token, err := f().Token()
+	if c.cli == nil {
+		c.cli = (*c.f)()
+	}
+	token, err := c.cli.Token()
 	if err != nil {
 		return nil, err
 	}
