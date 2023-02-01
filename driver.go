@@ -26,7 +26,10 @@ func (c *Client) BatchCommand(ctx context.Context, projectId string, data interf
 	if err != nil {
 		return errors.NewMsg("marshal 插入数据为空")
 	}
-	token := ""
+	token, err := c.Token(projectId)
+	if err != nil {
+		return errors.NewMsg("查询token错误, %s", err)
+	}
 	res, err := cli.BatchCommand(
 		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
 		&api.CreateRequest{Data: bts})
@@ -54,7 +57,10 @@ func (c *Client) ChangeCommand(ctx context.Context, projectId, id string, data, 
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	token := ""
+	token, err := c.Token(projectId)
+	if err != nil {
+		return errors.NewMsg("查询token错误, %s", err)
+	}
 	if data == nil {
 		return errors.NewMsg("更新数据为空")
 	}

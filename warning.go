@@ -60,7 +60,10 @@ func (c *Client) GetWarn(ctx context.Context, projectId, archive, id string, res
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	token := ""
+	token, err := c.Token(projectId)
+	if err != nil {
+		return errors.NewMsg("查询token错误, %s", err)
+	}
 	res, err := cli.Get(
 		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
 		&warning.GetOrDeleteWarningRequest{Id: id, Archive: archive})
@@ -85,7 +88,10 @@ func (c *Client) QueryRule(ctx context.Context, projectId string, query interfac
 	if err != nil {
 		return errors.NewMsg("序列化查询参数为空, %s", err)
 	}
-	token := ""
+	token, err := c.Token(projectId)
+	if err != nil {
+		return errors.NewMsg("查询token错误, %s", err)
+	}
 	cli, err := c.WarningClient.GetRuleServiceClient()
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
@@ -116,7 +122,10 @@ func (c *Client) CreateWarn(ctx context.Context, projectId string, createData, r
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	token := ""
+	token, err := c.Token(projectId)
+	if err != nil {
+		return errors.NewMsg("查询token错误, %s", err)
+	}
 	bts, err := json.Marshal(createData)
 	if err != nil {
 		return errors.NewMsg("序列化插入数据为空")

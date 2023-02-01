@@ -2,29 +2,31 @@ package api_client_go
 
 import (
 	"context"
+	"github.com/air-iot/api-client-go/v4/config"
+	"github.com/air-iot/api-client-go/v4/metadata"
 
 	"github.com/air-iot/api-client-go/v4/engine"
 	"github.com/air-iot/api-client-go/v4/errors"
 	"github.com/air-iot/json"
 )
 
-func (c *Client) Run(ctx context.Context, projectId, config string, elementB []byte, variables map[string]interface{}) (result *engine.RunResponse, err error) {
+func (c *Client) Run(ctx context.Context, projectId, flowConfig string, elementB []byte, variables map[string]interface{}) (result *engine.RunResponse, err error) {
 	b, err := json.Marshal(variables)
 	if err != nil {
 		return nil, errors.NewMsg("序列化变量错误,%s", err)
 	}
-	//elementB, err := json.Marshal(element)
-	//if err != nil {
-	//	return nil, errors.NewMsg( "json.Marshal element error,%s", err)
-	//}
+	token, err := c.Token(projectId)
+	if err != nil {
+		return nil, errors.NewMsg("查询token错误, %s", err)
+	}
 
 	cli, err := c.FlowEngineClient.GetDataServiceClient()
 	if err != nil {
 		return nil, errors.NewMsg("获取客户端错误,%s", err)
 	}
-	res, err := cli.Run(ctx, &engine.RunRequest{
+	res, err := cli.Run(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}), &engine.RunRequest{
 		ProjectId: projectId,
-		Config:    config,
+		Config:    flowConfig,
 		Variables: b,
 		Element:   elementB,
 	})
@@ -46,7 +48,11 @@ func (c *Client) Resume(ctx context.Context, projectId, jobId, elementId string,
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	if _, err := cli.Resume(ctx, &engine.ResumeRequest{
+	token, err := c.Token(projectId)
+	if err != nil {
+		return errors.NewMsg("查询token错误, %s", err)
+	}
+	if _, err := cli.Resume(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}), &engine.ResumeRequest{
 		ProjectId: projectId,
 		JobId:     jobId,
 		ElementId: elementId,
@@ -62,7 +68,11 @@ func (c *Client) Fail(ctx context.Context, projectId, jobId, elementId, errMessa
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	if _, err := cli.Fail(ctx, &engine.FailRequest{
+	token, err := c.Token(projectId)
+	if err != nil {
+		return errors.NewMsg("查询token错误, %s", err)
+	}
+	if _, err := cli.Fail(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}), &engine.FailRequest{
 		ProjectId:    projectId,
 		JobId:        jobId,
 		ElementId:    elementId,

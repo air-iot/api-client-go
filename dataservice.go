@@ -28,7 +28,10 @@ func (c *Client) DataInterfaceProxy(ctx context.Context, projectId, key string, 
 	if err != nil {
 		return nil, errors.NewMsg("序列化请求数据错误,%s", err)
 	}
-	token := ""
+	token, err := c.Token(projectId)
+	if err != nil {
+		return nil, errors.NewMsg("查询token错误, %s", err)
+	}
 	res, err := cli.Proxy(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
 		&dataservice.Request{Key: key, Data: bts})
 	if err != nil {

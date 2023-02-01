@@ -34,7 +34,11 @@ func (c *Client) UseLicense(ctx context.Context, projectId string, result interf
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	res, err := cli.UseLicense(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &api.QueryRequest{})
+	token, err := c.Token(projectId)
+	if err != nil {
+		return errors.NewMsg("查询token错误, %s", err)
+	}
+	res, err := cli.UseLicense(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}), &api.QueryRequest{})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
 	}
@@ -52,7 +56,11 @@ func (c *Client) GetDriverLicense(ctx context.Context, projectId, driverId strin
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	res, err := cli.GetDriverLicense(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &api.GetOrDeleteRequest{
+	token, err := c.Token(projectId)
+	if err != nil {
+		return errors.NewMsg("查询token错误, %s", err)
+	}
+	res, err := cli.GetDriverLicense(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}), &api.GetOrDeleteRequest{
 		Id: driverId,
 	})
 	if err != nil {
@@ -371,11 +379,10 @@ func (c *Client) QueryTableSchemaDeviceByDriverAndGroup(ctx context.Context, pro
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	//token, err := c.Token(projectId)
-	//if err != nil {
-	//	return errors.NewMsg( "查询token错误, %s", err)
-	//}
-	token := ""
+	token, err := c.Token(projectId)
+	if err != nil {
+		return errors.NewMsg("查询token错误, %s", err)
+	}
 	res, err := cli.QueryDeviceByDriverAndGroup(
 		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
 		&core.GetDeviceRequest{Driver: driverId, Group: groupId})
@@ -399,11 +406,10 @@ func (c *Client) QueryEmulator(ctx context.Context, projectId string, result int
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	//token, err := c.Token(projectId)
-	//if err != nil {
-	//	return errors.NewMsg( "查询token错误, %s", err)
-	//}
-	token := ""
+	token, err := c.Token(projectId)
+	if err != nil {
+		return errors.NewMsg("查询token错误, %s", err)
+	}
 	res, err := cli.QueryEmulator(
 		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
 		&api.QueryRequest{})

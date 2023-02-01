@@ -16,7 +16,8 @@ func TestMain(m *testing.M) {
 	log.Println("begin")
 	//dsn := "host=airiot.tech user=root password=dell123 dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
 	client, err := clientv3.New(clientv3.Config{
-		Endpoints:   []string{"121.89.244.23:2379"},
+		Endpoints: []string{"121.89.244.23:2379"},
+		//Endpoints:   []string{"localhost:2379"},
 		DialTimeout: time.Second * time.Duration(60),
 		DialOptions: []grpc.DialOption{grpc.WithBlock()},
 		Username:    "root",
@@ -70,12 +71,13 @@ func TestClient_QueryProject(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer clean()
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 1000; i++ {
 		var arr []map[string]interface{}
 		if err := cli.QueryProject(context.Background(), map[string]interface{}{}, &arr); err != nil {
-			t.Fatal(err)
+			t.Error(err)
 		}
 		t.Log(arr)
+		time.Sleep(time.Second * 3)
 	}
 }
 
