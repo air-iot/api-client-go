@@ -40,8 +40,9 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 	if err != nil {
 		return nil, nil, err
 	}
+	authCli := auth.NewClient(cfg, spmClient, coreClient)
 	f = func() *auth.Client {
-		return auth.NewClient(cfg, spmClient, coreClient)
+		return authCli
 	}
 	flowClient, cleanFlow, err := flow.NewClient(cfg, r)
 	if err != nil {
