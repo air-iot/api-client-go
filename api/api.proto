@@ -54,4 +54,5 @@ message Response {
   string info = 3;
   string detail = 4;
   bytes result = 5;
+  int64 count = 6;
 }
