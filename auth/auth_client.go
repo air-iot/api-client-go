@@ -30,17 +30,18 @@ type Client struct {
 	coreClient *core.Client
 }
 
-func NewClient(cfg config.Config, spmClient *spm.Client, coreClient *core.Client) *Client {
+func NewClient(cfg config.Config) *Client {
 	return &Client{
-		cfg:        cfg,
-		spmClient:  spmClient,
-		coreClient: coreClient,
+		cfg: cfg,
 	}
 }
 
+func (a *Client) SetClient(spmClient *spm.Client, coreClient *core.Client) {
+	a.spmClient = spmClient
+	a.coreClient = coreClient
+}
+
 func (a *Client) getToken() (*Token, error) {
-	a.lock.Lock()
-	defer a.lock.Unlock()
 	var authToken Token
 	switch a.cfg.Type {
 	case config.Tenant:
@@ -82,6 +83,8 @@ func (a *Client) getToken() (*Token, error) {
 }
 
 func (a *Client) Token() (token string, err error) {
+	a.lock.Lock()
+	defer a.lock.Unlock()
 	var authToken *Token
 	if !a.hasToken {
 		authToken, err = a.getToken()

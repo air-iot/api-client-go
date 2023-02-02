@@ -30,8 +30,11 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 		cfg.Timeout = 120
 	}
 	r := etcd.New(cli)
-	var f auth.GetAuthClient
-	cred := grpc.WithPerRPCCredentials(auth.NewCustomCredential(&f))
+	authCli := auth.NewClient(cfg)
+	f := func() *auth.Client {
+		return authCli
+	}
+	cred := grpc.WithPerRPCCredentials(auth.NewCustomCredential(f))
 	spmClient, cleanSpm, err := spm.NewClient(cfg, r, cred)
 	if err != nil {
 		return nil, nil, err
@@ -40,10 +43,8 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 	if err != nil {
 		return nil, nil, err
 	}
-	authCli := auth.NewClient(cfg, spmClient, coreClient)
-	f = func() *auth.Client {
-		return authCli
-	}
+	authCli.SetClient(spmClient, coreClient)
+
 	flowClient, cleanFlow, err := flow.NewClient(cfg, r)
 	if err != nil {
 		return nil, nil, err
