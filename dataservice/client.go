@@ -14,18 +14,19 @@ import (
 const serviceName = "data-service"
 
 type Client struct {
-	lock     sync.RWMutex
-	config   config.Config
-	registry *etcd.Registry
-	conn     *grpc.ClientConn
-
+	lock              sync.RWMutex
+	config            config.Config
+	registry          *etcd.Registry
+	conn              *grpc.ClientConn
+	opts              []grpc.DialOption
 	dataServiceClient DataServiceClient
 }
 
-func NewClient(cfg config.Config, registry *etcd.Registry) (*Client, func(), error) {
+func NewClient(cfg config.Config, registry *etcd.Registry, opts ...grpc.DialOption) (*Client, func(), error) {
 	c := &Client{
 		registry: registry,
 		config:   cfg,
+		opts:     opts,
 	}
 	if err := c.createConn(); err != nil {
 		return nil, nil, err
@@ -48,7 +49,7 @@ func (c *Client) createConn() error {
 		return nil
 	}
 	logger.Infof("data-service grpc client conn, %+v", c.config)
-	cc, err := conn.CreateConn(serviceName, c.config, c.registry)
+	cc, err := conn.CreateConn(serviceName, c.config, c.registry, c.opts...)
 	if err != nil {
 		return errors.NewMsg("grpc.Dial error: %s", err)
 	}

@@ -45,23 +45,23 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 	}
 	authCli.SetClient(spmClient, coreClient)
 
-	flowClient, cleanFlow, err := flow.NewClient(cfg, r)
+	flowClient, cleanFlow, err := flow.NewClient(cfg, r, cred)
 	if err != nil {
 		return nil, nil, err
 	}
-	warningClient, cleanWarning, err := warning.NewClient(cfg, r)
+	warningClient, cleanWarning, err := warning.NewClient(cfg, r, cred)
 	if err != nil {
 		return nil, nil, err
 	}
-	driverClient, cleanDriver, err := driver.NewClient(cfg, r)
+	driverClient, cleanDriver, err := driver.NewClient(cfg, r, cred)
 	if err != nil {
 		return nil, nil, err
 	}
-	dataServiceClient, cleanDataService, err := dataservice.NewClient(cfg, r)
+	dataServiceClient, cleanDataService, err := dataservice.NewClient(cfg, r, cred)
 	if err != nil {
 		return nil, nil, err
 	}
-	flowEngineClient, cleanFlowEngine, err := engine.NewClient(cfg, r)
+	flowEngineClient, cleanFlowEngine, err := engine.NewClient(cfg, r, cred)
 	return &Client{
 			SpmClient:         spmClient,
 			CoreClient:        coreClient,

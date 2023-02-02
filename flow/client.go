@@ -18,16 +18,18 @@ type Client struct {
 	config   config.Config
 	registry *etcd.Registry
 	conn     *ggrpc.ClientConn
+	opts     []ggrpc.DialOption
 
 	flowTaskClient                 FlowTaskServiceClient
 	flowClient                     FlowServiceClient
 	flowTriggerRecordServiceClient FlowTriggerRecordServiceClient
 }
 
-func NewClient(cfg config.Config, registry *etcd.Registry) (*Client, func(), error) {
+func NewClient(cfg config.Config, registry *etcd.Registry, opts ...ggrpc.DialOption) (*Client, func(), error) {
 	c := &Client{
 		config:   cfg,
 		registry: registry,
+		opts:     opts,
 	}
 	if err := c.createConn(); err != nil {
 		return nil, nil, err
@@ -49,7 +51,7 @@ func (c *Client) createConn() error {
 		return nil
 	}
 	logger.Infof("flow grpc client conn, %+v", c.config)
-	cc, err := conn.CreateConn(serviceName, c.config, c.registry)
+	cc, err := conn.CreateConn(serviceName, c.config, c.registry, c.opts...)
 	if err != nil {
 		return errors.NewMsg("grpc.Dial error: %s", err)
 	}

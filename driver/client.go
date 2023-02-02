@@ -18,14 +18,16 @@ type Client struct {
 	registry *etcd.Registry
 	config   config.Config
 	conn     *grpc.ClientConn
+	opts     []grpc.DialOption
 
 	driverClient DriverServiceClient
 }
 
-func NewClient(cfg config.Config, registry *etcd.Registry) (*Client, func(), error) {
+func NewClient(cfg config.Config, registry *etcd.Registry, opts ...grpc.DialOption) (*Client, func(), error) {
 	c := &Client{
 		config:   cfg,
 		registry: registry,
+		opts:     opts,
 	}
 	if err := c.createConn(); err != nil {
 		return nil, nil, err
@@ -47,7 +49,7 @@ func (c *Client) createConn() error {
 		return nil
 	}
 	logger.Infof("driver grpc client cc, %+v", c.config)
-	cc, err := conn.CreateConn(serviceName, c.config, c.registry)
+	cc, err := conn.CreateConn(serviceName, c.config, c.registry, c.opts...)
 	if err != nil {
 		return errors.NewMsg("grpc.Dial error: %s", err)
 	}
