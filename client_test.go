@@ -87,8 +87,8 @@ func TestClient_QueryTableSchema(t *testing.T) {
 	cli, clean, err := NewClient(clientEtcd, config.Config{
 		Metadata: map[string]string{"env": "aliyun"},
 		Services: map[string]config.Service{
-			"spm":  {Metadata: map[string]string{"env": "local1"}},
-			"core": {Metadata: map[string]string{"env": "local1"}},
+			//"spm":  {Metadata: map[string]string{"env": "local1"}},
+			//"core": {Metadata: map[string]string{"env": "local1"}},
 		},
 		Type:    "tenant",
 		AK:      "138dd03b-d3ee-4230-d3d2-520feb580bfe",
@@ -108,4 +108,27 @@ func TestClient_QueryTableSchema(t *testing.T) {
 		t.Log(arr)
 	}
 	//time.Sleep(time.Second * 5)
+}
+
+func TestClient_GetCurrentUserInfo(t *testing.T) {
+	cli, clean, err := NewClient(clientEtcd, config.Config{
+		Metadata: map[string]string{"env": "aliyun"},
+		//Services: map[string]config.Service{
+		//	"core": {Metadata: map[string]string{"env": "local1"}},
+		//},
+		Type:    "tenant",
+		AK:      "138dd03b-d3ee-4230-d3d2-520feb580bfe",
+		SK:      "138dd03b-d3ee-4230-d3d2-520feb580bfd",
+		Timeout: 60,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer clean()
+	var res map[string]interface{}
+	token := "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzU4NjExMDMsImlhdCI6MTY3NTY4ODMwMywibmJmIjoxNjc1Njg4MzAzLCJzdWIiOiI2M2UwYzhiZTM4NGJjYWFjYjAxNzYwZjQiLCJwcm9qZWN0SWQiOiI2MjVmNmRiZjU0MzM0ODcxMzFmMDlmZjgiLCJjdXN0b20iOnsidG9rZW5UeXBlIjoicHJvamVjdCJ9fQ.dk0WNeM1CTXK7J04YIk1cHaZ9xIXKdrVRrqLnUPoDNYJcFLQUdcRWgucDXzuB_uz4-SeaBLJjyjtg_45aFGtng"
+	if err := cli.GetCurrentUserInfo(context.Background(), "625f6dbf5433487131f09ff8", token, &res); err != nil {
+		t.Fatal(err)
+	}
+	t.Log("res: ", res)
 }

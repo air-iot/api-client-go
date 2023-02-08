@@ -2,10 +2,10 @@ package auth
 
 import (
 	"context"
-
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/errors"
 	"github.com/go-kratos/kratos/v2/transport"
+	"google.golang.org/grpc/metadata"
 )
 
 const (
@@ -26,21 +26,29 @@ func NewCustomCredential(f GetAuthClient) *customCredential {
 }
 
 // GetRequestMetadata 实现自定义认证接口
-func (c *customCredential) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
+func (c *customCredential) GetRequestMetadata(ctx context.Context, uri ...string) (mds map[string]string, err error) {
 	pr, ok := transport.FromClientContext(ctx)
 	if !ok {
 		return nil, errors.NewMsg("客户端上下文错误")
 	}
 	path := pr.Operation()
 	if path == "/spm.UserService/GetToken" ||
-		path == "/core.AppService/GetToken" ||
-		path == "/core.UserService/GetCurrentUserInfo" ||
-		path == "/core.RoleService/AdminRoleCheck" ||
-		path == "/core.TableDataService/GetWarningFilterIDs" ||
-		path == "/warning.WarnService/Query" {
+		path == "/core.AppService/GetToken" {
+		//path == "/core.UserService/GetCurrentUserInfo" ||
+		//path == "/core.RoleService/AdminRoleCheck" ||
+		//path == "/core.TableDataService/GetWarningFilterIDs" ||
+		//path == "/warning.WarnService/Query" {
 		return map[string]string{}, nil
 	}
-	token, err := (c.f)().Token()
+	md, ok := metadata.FromOutgoingContext(ctx)
+	var token string
+	if ok {
+		headers := md.Get(config.XRequestHeaderAuthorization)
+		if len(headers) > 0 {
+			return map[string]string{}, nil
+		}
+	}
+	token, err = (c.f)().Token()
 	if err != nil {
 		return nil, err
 	}
