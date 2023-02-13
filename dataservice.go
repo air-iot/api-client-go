@@ -39,6 +39,9 @@ func (c *Client) DataInterfaceProxy(ctx context.Context, projectId, key string, 
 	if result == nil {
 		return res.GetResult(), nil
 	}
+	if res.GetResult() == nil || len(res.GetResult()) == 0 {
+		return res.GetResult(), nil
+	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return nil, errors.NewMsg("解析请求结果错误, %s", err)
 	}
