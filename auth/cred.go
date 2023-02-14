@@ -45,7 +45,9 @@ func (c *customCredential) GetRequestMetadata(ctx context.Context, uri ...string
 	if ok {
 		headers := md.Get(config.XRequestHeaderAuthorization)
 		if len(headers) > 0 {
-			return map[string]string{}, nil
+			if headers[0] != "" {
+				return map[string]string{}, nil
+			}
 		}
 	}
 	token, err = (c.f)().Token()
