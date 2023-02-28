@@ -14,12 +14,14 @@ import (
 const serviceName = "data-service"
 
 type Client struct {
-	lock              sync.RWMutex
-	config            config.Config
-	registry          *etcd.Registry
-	conn              *grpc.ClientConn
-	opts              []grpc.DialOption
-	dataServiceClient DataServiceClient
+	lock                       sync.RWMutex
+	config                     config.Config
+	registry                   *etcd.Registry
+	conn                       *grpc.ClientConn
+	opts                       []grpc.DialOption
+	dataServiceClient          DataServiceClient
+	dataGroupServiceClient     DataGroupServiceClient
+	dataInterfaceServiceClient DataInterfaceServiceClient
 }
 
 func NewClient(cfg config.Config, registry *etcd.Registry, opts ...grpc.DialOption) (*Client, func(), error) {
@@ -54,6 +56,8 @@ func (c *Client) createConn() error {
 		return errors.NewMsg("grpc.Dial error: %s", err)
 	}
 	c.dataServiceClient = NewDataServiceClient(cc)
+	c.dataGroupServiceClient = NewDataGroupServiceClient(cc)
+	c.dataInterfaceServiceClient = NewDataInterfaceServiceClient(cc)
 	c.conn = cc
 	return nil
 }
@@ -68,4 +72,28 @@ func (c *Client) GetDataServiceClient() (DataServiceClient, error) {
 		return nil, errors.NewMsg("客户端是空")
 	}
 	return c.dataServiceClient, nil
+}
+
+func (c *Client) GetDataGroupServiceClient() (DataGroupServiceClient, error) {
+	if c.conn == nil {
+		if err := c.createConn(); err != nil {
+			return nil, err
+		}
+	}
+	if c.dataGroupServiceClient == nil {
+		return nil, errors.NewMsg("客户端是空")
+	}
+	return c.dataGroupServiceClient, nil
+}
+
+func (c *Client) GetDataInterfaceServiceClient() (DataInterfaceServiceClient, error) {
+	if c.conn == nil {
+		if err := c.createConn(); err != nil {
+			return nil, err
+		}
+	}
+	if c.dataInterfaceServiceClient == nil {
+		return nil, errors.NewMsg("客户端是空")
+	}
+	return c.dataInterfaceServiceClient, nil
 }
