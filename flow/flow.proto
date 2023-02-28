@@ -19,14 +19,22 @@ option java_generic_services = true;
 service FlowTaskService {
   rpc Create (api.CreateRequest) returns (api.Response) {}
   rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+  rpc BatchCreate (api.CreateRequest) returns (api.Response) {}
 }
 
 service FlowService {
   rpc Query (api.QueryRequest) returns (api.Response) {}
   rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
   rpc Update (api.UpdateRequest) returns (api.Response) {}
+  rpc BatchCreate (api.CreateRequest) returns (api.Response) {}
 }
 
 service FlowTriggerRecordService {
   rpc Create (api.CreateRequest) returns (api.Response) {}
+}
+
+service FlowJobService {
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+  rpc BatchCreate (api.CreateRequest) returns (api.Response) {}
 }

@@ -1,38 +1,38 @@
 // Copyright 2015 The gRPC Authors
-// protoc -I . --go_out=plugins=grpc:. ./warning.proto
+// protoc -I . --go_out=plugins=grpc:. ./report.proto
 
-// protoc -I ./ --go_out=. ./warning/warning.proto
-// protoc -I ./ --go-grpc_out=. warning/warning.proto
+// protoc -I ./ --go_out=. ./report/report.proto
+// protoc -I ./ --go-grpc_out=. report/report.proto
 syntax = "proto3";
 
-package warning;
+package report;
 
 import "api/api.proto";
 
-option go_package = "./warning;warning";
-option java_package = "cn.airiot.sdk.client.dubbo.grpc.warning";
+option go_package = "./report;report";
+option java_package = "cn.airiot.sdk.client.dubbo.grpc.report";
 option java_multiple_files = true;
 option java_generate_equals_and_hash = true;
 option java_generic_services = true;
 
-service WarnService {
-  rpc Query (QueryWarningRequest) returns (api.Response) {}
-  rpc Get (GetOrDeleteWarningRequest) returns (api.Response) {}
+service ReportService {
+  rpc Query (QueryReportRequest) returns (api.Response) {}
+  rpc Get (GetOrDeleteReportRequest) returns (api.Response) {}
   rpc Create (api.CreateRequest) returns (api.Response) {}
   rpc BatchCreate (api.CreateRequest) returns (api.Response) {}
 }
 
-service RuleService {
+service ReportCopyService {
   rpc Query (api.QueryRequest) returns (api.Response) {}
   rpc BatchCreate (api.CreateRequest) returns (api.Response) {}
 }
 
-message QueryWarningRequest {
+message QueryReportRequest {
   bytes query = 1;
   string archive = 2;
 }
 
-message GetOrDeleteWarningRequest {
+message GetOrDeleteReportRequest {
   string id = 1;
   string archive = 2;
 }
