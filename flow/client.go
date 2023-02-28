@@ -22,6 +22,7 @@ type Client struct {
 
 	flowTaskClient                 FlowTaskServiceClient
 	flowClient                     FlowServiceClient
+	flowJobClient                  FlowJobServiceClient
 	flowTriggerRecordServiceClient FlowTriggerRecordServiceClient
 }
 
@@ -57,6 +58,7 @@ func (c *Client) createConn() error {
 	}
 	c.flowTaskClient = NewFlowTaskServiceClient(cc)
 	c.flowClient = NewFlowServiceClient(cc)
+	c.flowJobClient = NewFlowJobServiceClient(cc)
 	c.flowTriggerRecordServiceClient = NewFlowTriggerRecordServiceClient(cc)
 	c.conn = cc
 	return nil
@@ -84,6 +86,18 @@ func (c *Client) GetFlowTaskServiceClient() (FlowTaskServiceClient, error) {
 		return nil, errors.NewMsg("客户端是空")
 	}
 	return c.flowTaskClient, nil
+}
+
+func (c *Client) GetFlowJobServiceClient() (FlowJobServiceClient, error) {
+	if c.conn == nil {
+		if err := c.createConn(); err != nil {
+			return nil, err
+		}
+	}
+	if c.flowJobClient == nil {
+		return nil, errors.NewMsg("客户端是空")
+	}
+	return c.flowJobClient, nil
 }
 
 func (c *Client) GetFlowTriggerRecordServiceClient() (FlowTriggerRecordServiceClient, error) {
