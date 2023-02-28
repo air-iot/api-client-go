@@ -19,6 +19,682 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
+// DataGroupServiceClient is the client API for DataGroupService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type DataGroupServiceClient interface {
+	Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Get(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Update(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Replace(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Create(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	CreateMany(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	DeleteMany(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
+}
+
+type dataGroupServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewDataGroupServiceClient(cc grpc.ClientConnInterface) DataGroupServiceClient {
+	return &dataGroupServiceClient{cc}
+}
+
+func (c *dataGroupServiceClient) Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/dataService.DataGroupService/Query", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataGroupServiceClient) Get(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/dataService.DataGroupService/Get", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataGroupServiceClient) Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/dataService.DataGroupService/Delete", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataGroupServiceClient) Update(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/dataService.DataGroupService/Update", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataGroupServiceClient) Replace(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/dataService.DataGroupService/Replace", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataGroupServiceClient) Create(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/dataService.DataGroupService/Create", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataGroupServiceClient) CreateMany(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/dataService.DataGroupService/CreateMany", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataGroupServiceClient) DeleteMany(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/dataService.DataGroupService/DeleteMany", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// DataGroupServiceServer is the server API for DataGroupService service.
+// All implementations must embed UnimplementedDataGroupServiceServer
+// for forward compatibility
+type DataGroupServiceServer interface {
+	Query(context.Context, *api.QueryRequest) (*api.Response, error)
+	Get(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
+	Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
+	Update(context.Context, *api.UpdateRequest) (*api.Response, error)
+	Replace(context.Context, *api.UpdateRequest) (*api.Response, error)
+	Create(context.Context, *api.CreateRequest) (*api.Response, error)
+	CreateMany(context.Context, *api.CreateRequest) (*api.Response, error)
+	DeleteMany(context.Context, *api.QueryRequest) (*api.Response, error)
+	mustEmbedUnimplementedDataGroupServiceServer()
+}
+
+// UnimplementedDataGroupServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedDataGroupServiceServer struct {
+}
+
+func (UnimplementedDataGroupServiceServer) Query(context.Context, *api.QueryRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Query not implemented")
+}
+func (UnimplementedDataGroupServiceServer) Get(context.Context, *api.GetOrDeleteRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedDataGroupServiceServer) Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedDataGroupServiceServer) Update(context.Context, *api.UpdateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+}
+func (UnimplementedDataGroupServiceServer) Replace(context.Context, *api.UpdateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Replace not implemented")
+}
+func (UnimplementedDataGroupServiceServer) Create(context.Context, *api.CreateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (UnimplementedDataGroupServiceServer) CreateMany(context.Context, *api.CreateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateMany not implemented")
+}
+func (UnimplementedDataGroupServiceServer) DeleteMany(context.Context, *api.QueryRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteMany not implemented")
+}
+func (UnimplementedDataGroupServiceServer) mustEmbedUnimplementedDataGroupServiceServer() {}
+
+// UnsafeDataGroupServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to DataGroupServiceServer will
+// result in compilation errors.
+type UnsafeDataGroupServiceServer interface {
+	mustEmbedUnimplementedDataGroupServiceServer()
+}
+
+func RegisterDataGroupServiceServer(s grpc.ServiceRegistrar, srv DataGroupServiceServer) {
+	s.RegisterService(&DataGroupService_ServiceDesc, srv)
+}
+
+func _DataGroupService_Query_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.QueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataGroupServiceServer).Query(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dataService.DataGroupService/Query",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataGroupServiceServer).Query(ctx, req.(*api.QueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataGroupService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.GetOrDeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataGroupServiceServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dataService.DataGroupService/Get",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataGroupServiceServer).Get(ctx, req.(*api.GetOrDeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataGroupService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.GetOrDeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataGroupServiceServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dataService.DataGroupService/Delete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataGroupServiceServer).Delete(ctx, req.(*api.GetOrDeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataGroupService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.UpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataGroupServiceServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dataService.DataGroupService/Update",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataGroupServiceServer).Update(ctx, req.(*api.UpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataGroupService_Replace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.UpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataGroupServiceServer).Replace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dataService.DataGroupService/Replace",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataGroupServiceServer).Replace(ctx, req.(*api.UpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataGroupService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.CreateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataGroupServiceServer).Create(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dataService.DataGroupService/Create",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataGroupServiceServer).Create(ctx, req.(*api.CreateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataGroupService_CreateMany_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.CreateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataGroupServiceServer).CreateMany(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dataService.DataGroupService/CreateMany",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataGroupServiceServer).CreateMany(ctx, req.(*api.CreateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataGroupService_DeleteMany_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.QueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataGroupServiceServer).DeleteMany(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dataService.DataGroupService/DeleteMany",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataGroupServiceServer).DeleteMany(ctx, req.(*api.QueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// DataGroupService_ServiceDesc is the grpc.ServiceDesc for DataGroupService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var DataGroupService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "dataService.DataGroupService",
+	HandlerType: (*DataGroupServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Query",
+			Handler:    _DataGroupService_Query_Handler,
+		},
+		{
+			MethodName: "Get",
+			Handler:    _DataGroupService_Get_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _DataGroupService_Delete_Handler,
+		},
+		{
+			MethodName: "Update",
+			Handler:    _DataGroupService_Update_Handler,
+		},
+		{
+			MethodName: "Replace",
+			Handler:    _DataGroupService_Replace_Handler,
+		},
+		{
+			MethodName: "Create",
+			Handler:    _DataGroupService_Create_Handler,
+		},
+		{
+			MethodName: "CreateMany",
+			Handler:    _DataGroupService_CreateMany_Handler,
+		},
+		{
+			MethodName: "DeleteMany",
+			Handler:    _DataGroupService_DeleteMany_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "dataService/ds.proto",
+}
+
+// DataInterfaceServiceClient is the client API for DataInterfaceService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type DataInterfaceServiceClient interface {
+	Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Get(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Update(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Replace(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Create(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	CreateMany(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	DeleteMany(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
+}
+
+type dataInterfaceServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewDataInterfaceServiceClient(cc grpc.ClientConnInterface) DataInterfaceServiceClient {
+	return &dataInterfaceServiceClient{cc}
+}
+
+func (c *dataInterfaceServiceClient) Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/dataService.DataInterfaceService/Query", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataInterfaceServiceClient) Get(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/dataService.DataInterfaceService/Get", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataInterfaceServiceClient) Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/dataService.DataInterfaceService/Delete", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataInterfaceServiceClient) Update(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/dataService.DataInterfaceService/Update", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataInterfaceServiceClient) Replace(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/dataService.DataInterfaceService/Replace", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataInterfaceServiceClient) Create(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/dataService.DataInterfaceService/Create", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataInterfaceServiceClient) CreateMany(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/dataService.DataInterfaceService/CreateMany", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataInterfaceServiceClient) DeleteMany(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/dataService.DataInterfaceService/DeleteMany", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// DataInterfaceServiceServer is the server API for DataInterfaceService service.
+// All implementations must embed UnimplementedDataInterfaceServiceServer
+// for forward compatibility
+type DataInterfaceServiceServer interface {
+	Query(context.Context, *api.QueryRequest) (*api.Response, error)
+	Get(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
+	Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
+	Update(context.Context, *api.UpdateRequest) (*api.Response, error)
+	Replace(context.Context, *api.UpdateRequest) (*api.Response, error)
+	Create(context.Context, *api.CreateRequest) (*api.Response, error)
+	CreateMany(context.Context, *api.CreateRequest) (*api.Response, error)
+	DeleteMany(context.Context, *api.QueryRequest) (*api.Response, error)
+	mustEmbedUnimplementedDataInterfaceServiceServer()
+}
+
+// UnimplementedDataInterfaceServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedDataInterfaceServiceServer struct {
+}
+
+func (UnimplementedDataInterfaceServiceServer) Query(context.Context, *api.QueryRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Query not implemented")
+}
+func (UnimplementedDataInterfaceServiceServer) Get(context.Context, *api.GetOrDeleteRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedDataInterfaceServiceServer) Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedDataInterfaceServiceServer) Update(context.Context, *api.UpdateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+}
+func (UnimplementedDataInterfaceServiceServer) Replace(context.Context, *api.UpdateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Replace not implemented")
+}
+func (UnimplementedDataInterfaceServiceServer) Create(context.Context, *api.CreateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (UnimplementedDataInterfaceServiceServer) CreateMany(context.Context, *api.CreateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateMany not implemented")
+}
+func (UnimplementedDataInterfaceServiceServer) DeleteMany(context.Context, *api.QueryRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteMany not implemented")
+}
+func (UnimplementedDataInterfaceServiceServer) mustEmbedUnimplementedDataInterfaceServiceServer() {}
+
+// UnsafeDataInterfaceServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to DataInterfaceServiceServer will
+// result in compilation errors.
+type UnsafeDataInterfaceServiceServer interface {
+	mustEmbedUnimplementedDataInterfaceServiceServer()
+}
+
+func RegisterDataInterfaceServiceServer(s grpc.ServiceRegistrar, srv DataInterfaceServiceServer) {
+	s.RegisterService(&DataInterfaceService_ServiceDesc, srv)
+}
+
+func _DataInterfaceService_Query_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.QueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataInterfaceServiceServer).Query(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dataService.DataInterfaceService/Query",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataInterfaceServiceServer).Query(ctx, req.(*api.QueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataInterfaceService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.GetOrDeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataInterfaceServiceServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dataService.DataInterfaceService/Get",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataInterfaceServiceServer).Get(ctx, req.(*api.GetOrDeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataInterfaceService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.GetOrDeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataInterfaceServiceServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dataService.DataInterfaceService/Delete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataInterfaceServiceServer).Delete(ctx, req.(*api.GetOrDeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataInterfaceService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.UpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataInterfaceServiceServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dataService.DataInterfaceService/Update",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataInterfaceServiceServer).Update(ctx, req.(*api.UpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataInterfaceService_Replace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.UpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataInterfaceServiceServer).Replace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dataService.DataInterfaceService/Replace",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataInterfaceServiceServer).Replace(ctx, req.(*api.UpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataInterfaceService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.CreateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataInterfaceServiceServer).Create(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dataService.DataInterfaceService/Create",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataInterfaceServiceServer).Create(ctx, req.(*api.CreateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataInterfaceService_CreateMany_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.CreateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataInterfaceServiceServer).CreateMany(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dataService.DataInterfaceService/CreateMany",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataInterfaceServiceServer).CreateMany(ctx, req.(*api.CreateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataInterfaceService_DeleteMany_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.QueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataInterfaceServiceServer).DeleteMany(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dataService.DataInterfaceService/DeleteMany",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataInterfaceServiceServer).DeleteMany(ctx, req.(*api.QueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// DataInterfaceService_ServiceDesc is the grpc.ServiceDesc for DataInterfaceService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var DataInterfaceService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "dataService.DataInterfaceService",
+	HandlerType: (*DataInterfaceServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Query",
+			Handler:    _DataInterfaceService_Query_Handler,
+		},
+		{
+			MethodName: "Get",
+			Handler:    _DataInterfaceService_Get_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _DataInterfaceService_Delete_Handler,
+		},
+		{
+			MethodName: "Update",
+			Handler:    _DataInterfaceService_Update_Handler,
+		},
+		{
+			MethodName: "Replace",
+			Handler:    _DataInterfaceService_Replace_Handler,
+		},
+		{
+			MethodName: "Create",
+			Handler:    _DataInterfaceService_Create_Handler,
+		},
+		{
+			MethodName: "CreateMany",
+			Handler:    _DataInterfaceService_CreateMany_Handler,
+		},
+		{
+			MethodName: "DeleteMany",
+			Handler:    _DataInterfaceService_DeleteMany_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "dataService/ds.proto",
+}
+
 // DataServiceClient is the client API for DataService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
