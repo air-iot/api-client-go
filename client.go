@@ -8,6 +8,7 @@ import (
 	"github.com/air-iot/api-client-go/v4/driver"
 	"github.com/air-iot/api-client-go/v4/engine"
 	"github.com/air-iot/api-client-go/v4/flow"
+	"github.com/air-iot/api-client-go/v4/report"
 	"github.com/air-iot/api-client-go/v4/spm"
 	"github.com/air-iot/api-client-go/v4/warning"
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
@@ -23,6 +24,7 @@ type Client struct {
 	DriverClient      *driver.Client
 	DataServiceClient *dataservice.Client
 	FlowEngineClient  *engine.Client
+	ReportClient      *report.Client
 }
 
 func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error) {
@@ -62,6 +64,10 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 		return nil, nil, err
 	}
 	flowEngineClient, cleanFlowEngine, err := engine.NewClient(cfg, r, cred)
+	reportClient, cleanReport, err := report.NewClient(cfg, r, cred)
+	if err != nil {
+		return nil, nil, err
+	}
 	return &Client{
 			SpmClient:         spmClient,
 			CoreClient:        coreClient,
@@ -70,6 +76,7 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 			DriverClient:      driverClient,
 			DataServiceClient: dataServiceClient,
 			FlowEngineClient:  flowEngineClient,
+			ReportClient:      reportClient,
 		}, func() {
 			cleanSpm()
 			cleanCore()
@@ -78,5 +85,6 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 			cleanDriver()
 			cleanDataService()
 			cleanFlowEngine()
+			cleanReport()
 		}, nil
 }

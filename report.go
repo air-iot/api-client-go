@@ -8,12 +8,12 @@ import (
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/errors"
 	"github.com/air-iot/api-client-go/v4/metadata"
-	"github.com/air-iot/api-client-go/v4/warning"
+	"github.com/air-iot/api-client-go/v4/report"
 	"github.com/air-iot/json"
 )
 
-// QueryWarn 查询
-func (c *Client) QueryWarn(ctx context.Context, projectId, token, archive string, query interface{}, result interface{}) (int, error) {
+// QueryReport 查询
+func (c *Client) QueryReport(ctx context.Context, projectId, token, archive string, query interface{}, result interface{}) (int, error) {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
@@ -21,13 +21,13 @@ func (c *Client) QueryWarn(ctx context.Context, projectId, token, archive string
 	if err != nil {
 		return 0, errors.NewMsg("序列化查询参数为空, %s", err)
 	}
-	cli, err := c.WarningClient.GetWarnServiceClient()
+	cli, err := c.ReportClient.GetReportServiceClient()
 	if err != nil {
 		return 0, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
 		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
-		&warning.QueryWarningRequest{Query: bts, Archive: archive})
+		&report.QueryReportRequest{Query: bts, Archive: archive})
 	if err != nil {
 		return 0, errors.NewMsg("请求错误, %s", err)
 	}
@@ -48,20 +48,20 @@ func (c *Client) QueryWarn(ctx context.Context, projectId, token, archive string
 	return count, nil
 }
 
-func (c *Client) GetWarn(ctx context.Context, projectId, archive, id string, result interface{}) error {
+func (c *Client) GetReport(ctx context.Context, projectId, archive, id string, result interface{}) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
 	if id == "" {
 		return errors.NewMsg("id为空")
 	}
-	cli, err := c.WarningClient.GetWarnServiceClient()
+	cli, err := c.ReportClient.GetReportServiceClient()
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Get(
 		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
-		&warning.GetOrDeleteWarningRequest{Id: id, Archive: archive})
+		&report.GetOrDeleteReportRequest{Id: id, Archive: archive})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
 	}
@@ -74,14 +74,14 @@ func (c *Client) GetWarn(ctx context.Context, projectId, archive, id string, res
 	return nil
 }
 
-func (c *Client) BatchCreateWarn(ctx context.Context, projectId string, createData, result interface{}) error {
+func (c *Client) BatchCreateReport(ctx context.Context, projectId string, createData, result interface{}) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
 	if createData == nil {
 		return errors.NewMsg("插入数据为空")
 	}
-	cli, err := c.WarningClient.GetWarnServiceClient()
+	cli, err := c.ReportClient.GetReportServiceClient()
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
@@ -104,8 +104,8 @@ func (c *Client) BatchCreateWarn(ctx context.Context, projectId string, createDa
 	return nil
 }
 
-// QueryRule 查询
-func (c *Client) QueryRule(ctx context.Context, projectId string, query interface{}, result interface{}) error {
+// QueryReportCopy 查询
+func (c *Client) QueryReportCopy(ctx context.Context, projectId string, query interface{}, result interface{}) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
@@ -113,7 +113,7 @@ func (c *Client) QueryRule(ctx context.Context, projectId string, query interfac
 	if err != nil {
 		return errors.NewMsg("序列化查询参数为空, %s", err)
 	}
-	cli, err := c.WarningClient.GetRuleServiceClient()
+	cli, err := c.ReportClient.GetReportCopyServiceClient()
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
@@ -132,14 +132,14 @@ func (c *Client) QueryRule(ctx context.Context, projectId string, query interfac
 	return nil
 }
 
-func (c *Client) CreateWarn(ctx context.Context, projectId string, createData, result interface{}) error {
+func (c *Client) CreateReport(ctx context.Context, projectId string, createData, result interface{}) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
 	if createData == nil {
 		return errors.NewMsg("插入数据为空")
 	}
-	cli, err := c.WarningClient.GetWarnServiceClient()
+	cli, err := c.ReportClient.GetReportServiceClient()
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
@@ -162,14 +162,14 @@ func (c *Client) CreateWarn(ctx context.Context, projectId string, createData, r
 	return nil
 }
 
-func (c *Client) BatchCreateRule(ctx context.Context, projectId string, createData, result interface{}) error {
+func (c *Client) BatchCreateReportCopy(ctx context.Context, projectId string, createData, result interface{}) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
 	if createData == nil {
 		return errors.NewMsg("插入数据为空")
 	}
-	cli, err := c.WarningClient.GetRuleServiceClient()
+	cli, err := c.ReportClient.GetReportCopyServiceClient()
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
