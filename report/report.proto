@@ -16,8 +16,8 @@ option java_generate_equals_and_hash = true;
 option java_generic_services = true;
 
 service ReportService {
-  rpc Query (QueryReportRequest) returns (api.Response) {}
-  rpc Get (GetOrDeleteReportRequest) returns (api.Response) {}
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+  rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
   rpc Create (api.CreateRequest) returns (api.Response) {}
   rpc BatchCreate (api.CreateRequest) returns (api.Response) {}
 }
@@ -27,14 +27,5 @@ service ReportCopyService {
   rpc BatchCreate (api.CreateRequest) returns (api.Response) {}
 }
 
-message QueryReportRequest {
-  bytes query = 1;
-  string archive = 2;
-}
-
-message GetOrDeleteReportRequest {
-  string id = 1;
-  string archive = 2;
-}
 
 

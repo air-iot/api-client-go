@@ -8,12 +8,11 @@ import (
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/errors"
 	"github.com/air-iot/api-client-go/v4/metadata"
-	"github.com/air-iot/api-client-go/v4/report"
 	"github.com/air-iot/json"
 )
 
 // QueryReport 查询
-func (c *Client) QueryReport(ctx context.Context, projectId, token, archive string, query interface{}, result interface{}) (int, error) {
+func (c *Client) QueryReport(ctx context.Context, projectId string, query interface{}, result interface{}) (int, error) {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
@@ -26,8 +25,8 @@ func (c *Client) QueryReport(ctx context.Context, projectId, token, archive stri
 		return 0, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
-		&report.QueryReportRequest{Query: bts, Archive: archive})
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return 0, errors.NewMsg("请求错误, %s", err)
 	}
@@ -48,7 +47,7 @@ func (c *Client) QueryReport(ctx context.Context, projectId, token, archive stri
 	return count, nil
 }
 
-func (c *Client) GetReport(ctx context.Context, projectId, archive, id string, result interface{}) error {
+func (c *Client) GetReport(ctx context.Context, projectId,  id string, result interface{}) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
@@ -61,7 +60,7 @@ func (c *Client) GetReport(ctx context.Context, projectId, archive, id string, r
 	}
 	res, err := cli.Get(
 		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
-		&report.GetOrDeleteReportRequest{Id: id, Archive: archive})
+		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
 	}

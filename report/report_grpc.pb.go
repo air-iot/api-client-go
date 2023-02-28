@@ -23,8 +23,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ReportServiceClient interface {
-	Query(ctx context.Context, in *QueryReportRequest, opts ...grpc.CallOption) (*api.Response, error)
-	Get(ctx context.Context, in *GetOrDeleteReportRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Get(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
 	Create(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
 	BatchCreate(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
 }
@@ -37,7 +37,7 @@ func NewReportServiceClient(cc grpc.ClientConnInterface) ReportServiceClient {
 	return &reportServiceClient{cc}
 }
 
-func (c *reportServiceClient) Query(ctx context.Context, in *QueryReportRequest, opts ...grpc.CallOption) (*api.Response, error) {
+func (c *reportServiceClient) Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error) {
 	out := new(api.Response)
 	err := c.cc.Invoke(ctx, "/report.ReportService/Query", in, out, opts...)
 	if err != nil {
@@ -46,7 +46,7 @@ func (c *reportServiceClient) Query(ctx context.Context, in *QueryReportRequest,
 	return out, nil
 }
 
-func (c *reportServiceClient) Get(ctx context.Context, in *GetOrDeleteReportRequest, opts ...grpc.CallOption) (*api.Response, error) {
+func (c *reportServiceClient) Get(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error) {
 	out := new(api.Response)
 	err := c.cc.Invoke(ctx, "/report.ReportService/Get", in, out, opts...)
 	if err != nil {
@@ -77,8 +77,8 @@ func (c *reportServiceClient) BatchCreate(ctx context.Context, in *api.CreateReq
 // All implementations must embed UnimplementedReportServiceServer
 // for forward compatibility
 type ReportServiceServer interface {
-	Query(context.Context, *QueryReportRequest) (*api.Response, error)
-	Get(context.Context, *GetOrDeleteReportRequest) (*api.Response, error)
+	Query(context.Context, *api.QueryRequest) (*api.Response, error)
+	Get(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
 	Create(context.Context, *api.CreateRequest) (*api.Response, error)
 	BatchCreate(context.Context, *api.CreateRequest) (*api.Response, error)
 	mustEmbedUnimplementedReportServiceServer()
@@ -88,10 +88,10 @@ type ReportServiceServer interface {
 type UnimplementedReportServiceServer struct {
 }
 
-func (UnimplementedReportServiceServer) Query(context.Context, *QueryReportRequest) (*api.Response, error) {
+func (UnimplementedReportServiceServer) Query(context.Context, *api.QueryRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Query not implemented")
 }
-func (UnimplementedReportServiceServer) Get(context.Context, *GetOrDeleteReportRequest) (*api.Response, error) {
+func (UnimplementedReportServiceServer) Get(context.Context, *api.GetOrDeleteRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedReportServiceServer) Create(context.Context, *api.CreateRequest) (*api.Response, error) {
@@ -114,7 +114,7 @@ func RegisterReportServiceServer(s grpc.ServiceRegistrar, srv ReportServiceServe
 }
 
 func _ReportService_Query_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryReportRequest)
+	in := new(api.QueryRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -126,13 +126,13 @@ func _ReportService_Query_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/report.ReportService/Query",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ReportServiceServer).Query(ctx, req.(*QueryReportRequest))
+		return srv.(ReportServiceServer).Query(ctx, req.(*api.QueryRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _ReportService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetOrDeleteReportRequest)
+	in := new(api.GetOrDeleteRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -144,7 +144,7 @@ func _ReportService_Get_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: "/report.ReportService/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ReportServiceServer).Get(ctx, req.(*GetOrDeleteReportRequest))
+		return srv.(ReportServiceServer).Get(ctx, req.(*api.GetOrDeleteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
