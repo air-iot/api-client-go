@@ -33,8 +33,3 @@ service FlowService {
 service FlowTriggerRecordService {
   rpc Create (api.CreateRequest) returns (api.Response) {}
 }
-
-service FlowJobService {
-  rpc Query (api.QueryRequest) returns (api.Response) {}
-  rpc BatchCreate (api.CreateRequest) returns (api.Response) {}
-}
