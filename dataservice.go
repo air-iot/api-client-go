@@ -63,9 +63,9 @@ func (c *Client) CreateDataGroups(ctx context.Context, projectId string, createD
 	if !res.GetStatus() {
 		return 0, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
 	}
-	if err := json.Unmarshal(res.GetResult(), result); err != nil {
-		return 0, errors.NewMsg("解析请求结果错误, %s", err)
-	}
+	//if err := json.Unmarshal(res.GetResult(), result); err != nil {
+	//	return 0, errors.NewMsg("解析请求结果错误, %s", err)
+	//}
 	return res.GetCount(), nil
 }
 
@@ -96,7 +96,7 @@ func (c *Client) QueryDataInterface(ctx context.Context, projectId string, query
 	return res.GetCount(), nil
 }
 
-func (c *Client) CreateDataInterface(ctx context.Context, projectId string, createData, result interface{}) (int64, error) {
+func (c *Client) CreateDataInterfaces(ctx context.Context, projectId string, createData, result interface{}) (int64, error) {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
@@ -122,9 +122,9 @@ func (c *Client) CreateDataInterface(ctx context.Context, projectId string, crea
 	if !res.GetStatus() {
 		return 0, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
 	}
-	if err := json.Unmarshal(res.GetResult(), result); err != nil {
-		return 0, errors.NewMsg("解析请求结果错误, %s", err)
-	}
+	//if err := json.Unmarshal(res.GetResult(), result); err != nil {
+	//	return 0, errors.NewMsg("解析请求结果错误, %s", err)
+	//}
 	return res.GetCount(), nil
 }
 
