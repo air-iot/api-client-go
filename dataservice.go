@@ -2,6 +2,7 @@ package api_client_go
 
 import (
 	"context"
+
 	"github.com/air-iot/api-client-go/v4/api"
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/dataservice"
@@ -9,6 +10,12 @@ import (
 	"github.com/air-iot/api-client-go/v4/metadata"
 	"github.com/air-iot/json"
 )
+
+type ProxyResult struct {
+	Code    int32  `json:"code"`
+	Headers []byte `json:"headers"`
+	Body    []byte `json:"body"`
+}
 
 func (c *Client) QueryDataGroup(ctx context.Context, projectId string, query, result interface{}) (int64, error) {
 	if projectId == "" {
@@ -128,7 +135,7 @@ func (c *Client) CreateDataInterfaces(ctx context.Context, projectId string, cre
 	return res.GetCount(), nil
 }
 
-func (c *Client) DataInterfaceProxy(ctx context.Context, projectId, key string, data map[string]interface{}, result interface{}) ([]byte, error) {
+func (c *Client) DataInterfaceProxy(ctx context.Context, projectId, key string, data map[string]interface{}) (*ProxyResult, error) {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
@@ -154,14 +161,16 @@ func (c *Client) DataInterfaceProxy(ctx context.Context, projectId, key string, 
 	if !res.GetStatus() {
 		return nil, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
 	}
-	if result == nil {
-		return res.GetResult(), nil
-	}
-	if res.GetResult() == nil || len(res.GetResult()) == 0 {
-		return res.GetResult(), nil
-	}
-	if err := json.Unmarshal(res.GetResult(), result); err != nil {
-		return nil, errors.NewMsg("解析请求结果错误, %s", err)
-	}
-	return res.GetResult(), nil
+	return &ProxyResult{
+		Code:    res.GetHttpCode(),
+		Headers: res.GetHeaders(),
+		Body:    res.GetResult(),
+	}, nil
+	//if res.GetResult() == nil || len(res.GetResult()) == 0 {
+	//	return res.GetResult(), nil
+	//}
+	//if err := json.Unmarshal(res.GetResult(), result); err != nil {
+	//	return nil, errors.NewMsg("解析请求结果错误, %s", err)
+	//}
+	//return res.GetResult(), nil
 }

@@ -699,7 +699,7 @@ var DataInterfaceService_ServiceDesc = grpc.ServiceDesc{
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DataServiceClient interface {
-	Proxy(ctx context.Context, in *Request, opts ...grpc.CallOption) (*api.Response, error)
+	Proxy(ctx context.Context, in *Request, opts ...grpc.CallOption) (*ProxyResponse, error)
 }
 
 type dataServiceClient struct {
@@ -710,8 +710,8 @@ func NewDataServiceClient(cc grpc.ClientConnInterface) DataServiceClient {
 	return &dataServiceClient{cc}
 }
 
-func (c *dataServiceClient) Proxy(ctx context.Context, in *Request, opts ...grpc.CallOption) (*api.Response, error) {
-	out := new(api.Response)
+func (c *dataServiceClient) Proxy(ctx context.Context, in *Request, opts ...grpc.CallOption) (*ProxyResponse, error) {
+	out := new(ProxyResponse)
 	err := c.cc.Invoke(ctx, "/dataService.DataService/Proxy", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -723,7 +723,7 @@ func (c *dataServiceClient) Proxy(ctx context.Context, in *Request, opts ...grpc
 // All implementations must embed UnimplementedDataServiceServer
 // for forward compatibility
 type DataServiceServer interface {
-	Proxy(context.Context, *Request) (*api.Response, error)
+	Proxy(context.Context, *Request) (*ProxyResponse, error)
 	mustEmbedUnimplementedDataServiceServer()
 }
 
@@ -731,7 +731,7 @@ type DataServiceServer interface {
 type UnimplementedDataServiceServer struct {
 }
 
-func (UnimplementedDataServiceServer) Proxy(context.Context, *Request) (*api.Response, error) {
+func (UnimplementedDataServiceServer) Proxy(context.Context, *Request) (*ProxyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Proxy not implemented")
 }
 func (UnimplementedDataServiceServer) mustEmbedUnimplementedDataServiceServer() {}
