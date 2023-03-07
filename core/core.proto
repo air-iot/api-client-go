@@ -51,6 +51,7 @@ service TableSchemaService {
   rpc Update (api.UpdateRequest) returns (api.Response) {}
   rpc Replace (api.UpdateRequest) returns (api.Response) {}
   rpc Create (api.CreateRequest) returns (api.Response) {}
+  rpc StatsQuery (api.QueryRequest) returns (api.Response) {}
 }
 
 service TableDataService {
