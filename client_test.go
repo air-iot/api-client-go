@@ -55,7 +55,7 @@ func TestMain(m *testing.M) {
 func TestClient_GetTableSchema(t *testing.T) {
 	for i := 0; i < 2; i++ {
 		var obj map[string]interface{}
-		if err := cli.GetTableSchema(context.Background(), "625f6dbf5433487131f09ff8", "A模型", &obj); err != nil {
+		if _, err := cli.GetTableSchema(context.Background(), "625f6dbf5433487131f09ff8", "A模型", &obj); err != nil {
 			t.Fatal(err)
 		}
 		t.Log(obj)
