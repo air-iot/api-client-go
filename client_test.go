@@ -33,7 +33,7 @@ func TestMain(m *testing.M) {
 	cli1, clean, err := NewClient(clientEtcd, config.Config{
 		Metadata: map[string]string{"env": "aliyun"},
 		Services: map[string]config.Service{
-			//"spm": {Metadata: map[string]string{"env": "local1"}},
+			"core": {Metadata: map[string]string{"env": "local1"}},
 		},
 		Type:    "tenant",
 		AK:      "138dd03b-d3ee-4230-d3d2-520feb580bfe",
@@ -55,7 +55,7 @@ func TestMain(m *testing.M) {
 func TestClient_GetTableSchema(t *testing.T) {
 	for i := 0; i < 2; i++ {
 		var obj map[string]interface{}
-		if err := cli.GetTableSchema(context.Background(), "625f6dbf5433487131f09ff8", "A模型", &obj); err != nil {
+		if _, err := cli.GetTableSchema(context.Background(), "625f6dbf5433487131f09ff8", "A模型", &obj); err != nil {
 			t.Fatal(err)
 		}
 		t.Log(obj)
