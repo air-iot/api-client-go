@@ -18,8 +18,7 @@ func TestMain(m *testing.M) {
 	log.Println("begin")
 	//dsn := "host=airiot.tech user=root password=dell123 dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
 	client, err := clientv3.New(clientv3.Config{
-		Endpoints: []string{"121.89.244.23:2379"},
-		//Endpoints:   []string{"localhost:2379"},
+		Endpoints:   []string{"localhost:2379"},
 		DialTimeout: time.Second * time.Duration(60),
 		DialOptions: []grpc.DialOption{grpc.WithBlock()},
 		Username:    "root",
@@ -33,7 +32,7 @@ func TestMain(m *testing.M) {
 	cli1, clean, err := NewClient(clientEtcd, config.Config{
 		Metadata: map[string]string{"env": "aliyun"},
 		Services: map[string]config.Service{
-			//"spm": {Metadata: map[string]string{"env": "local1"}},
+			"spm": {Metadata: map[string]string{"env": "local1"}},
 		},
 		Type:    "tenant",
 		AK:      "138dd03b-d3ee-4230-d3d2-520feb580bfe",
@@ -121,4 +120,12 @@ func TestClient_QueryDataGroup(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log("res: ", count, res)
+}
+
+func TestClient_QueryPmSetting(t *testing.T) {
+	var res map[string]interface{}
+	if err := cli.QueryPmSetting(context.Background(), map[string]interface{}{}, &res); err != nil {
+		t.Fatal(err)
+	}
+	t.Log("res: ", res)
 }

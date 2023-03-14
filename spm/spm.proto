@@ -29,3 +29,7 @@ service ProjectService {
   rpc Replace (api.UpdateRequest) returns (api.Response) {}
   rpc Create (api.CreateRequest) returns (api.Response) {}
 }
+
+service SettingService {
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+}

@@ -20,6 +20,7 @@ type Client struct {
 	config        config.Config
 	projectClient ProjectServiceClient
 	userClient    UserServiceClient
+	settingClient SettingServiceClient
 	opts          []grpc.DialOption
 }
 
@@ -56,6 +57,7 @@ func (c *Client) createConn() error {
 	}
 	c.projectClient = NewProjectServiceClient(cc)
 	c.userClient = NewUserServiceClient(cc)
+	c.settingClient = NewSettingServiceClient(cc)
 	c.conn = cc
 	return nil
 }
@@ -82,4 +84,16 @@ func (c *Client) GetUserServiceClient() (UserServiceClient, error) {
 		return nil, errors.NewMsg("客户端是空")
 	}
 	return c.userClient, nil
+}
+
+func (c *Client) GetSettingServiceClient() (SettingServiceClient, error) {
+	if c.conn == nil {
+		if err := c.createConn(); err != nil {
+			return nil, err
+		}
+	}
+	if c.settingClient == nil {
+		return nil, errors.NewMsg("客户端是空")
+	}
+	return c.settingClient, nil
 }
