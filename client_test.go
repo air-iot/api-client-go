@@ -32,7 +32,8 @@ func TestMain(m *testing.M) {
 	cli1, clean, err := NewClient(clientEtcd, config.Config{
 		Metadata: map[string]string{"env": "aliyun"},
 		Services: map[string]config.Service{
-			"spm": {Metadata: map[string]string{"env": "local1"}},
+			"spm":  {Metadata: map[string]string{"env": "local1"}},
+			"core": {Metadata: map[string]string{"env": "local1"}},
 		},
 		Type:    "tenant",
 		AK:      "138dd03b-d3ee-4230-d3d2-520feb580bfe",
