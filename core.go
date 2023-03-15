@@ -2,6 +2,7 @@ package api_client_go
 
 import (
 	"context"
+	"io"
 
 	"github.com/air-iot/api-client-go/v4/api"
 	"github.com/air-iot/api-client-go/v4/config"
@@ -1727,4 +1728,239 @@ func (c *Client) CreateSystemVariable(ctx context.Context, projectId string, cre
 		return errors.NewMsg("解析请求结果错误, %s", err)
 	}
 	return nil
+}
+
+func (c *Client) QueryBackup(ctx context.Context, projectId string, query, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	bts, err := json.Marshal(query)
+	if err != nil {
+		return errors.NewMsg("序列化查询参数为空, %s", err)
+	}
+	cli, err := c.CoreClient.GetBackupServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	res, err := cli.Query(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.QueryRequest{Query: bts})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) GetBackup(ctx context.Context, projectId, id string, result interface{}) ([]byte, error) {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if id == "" {
+		return nil, errors.NewMsg("id为空")
+	}
+	cli, err := c.CoreClient.GetBackupServiceClient()
+	if err != nil {
+		return nil, errors.NewMsg("获取客户端错误,%s", err)
+	}
+	res, err := cli.Get(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.GetOrDeleteRequest{Id: id})
+	if err != nil {
+		return nil, errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return nil, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if result == nil {
+		return res.GetResult(), nil
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return nil, errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return res.GetResult(), nil
+}
+
+func (c *Client) DeleteBackup(ctx context.Context, projectId, id string, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if id == "" {
+		return errors.NewMsg("id为空")
+	}
+	cli, err := c.CoreClient.GetBackupServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	res, err := cli.Delete(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.GetOrDeleteRequest{Id: id})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) UpdateBackup(ctx context.Context, projectId, id string, updateData, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if id == "" {
+		return errors.NewMsg("id为空")
+	}
+	if updateData == nil {
+		return errors.NewMsg("更新数据为空")
+	}
+
+	cli, err := c.CoreClient.GetBackupServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	bts, err := json.Marshal(updateData)
+	if err != nil {
+		return errors.NewMsg("marshal 更新数据为空")
+	}
+	res, err := cli.Update(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.UpdateRequest{Id: id, Data: bts})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) ExportBackup(ctx context.Context, projectId string, query, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	bts, err := json.Marshal(query)
+	if err != nil {
+		return errors.NewMsg("序列化查询参数为空, %s", err)
+	}
+	cli, err := c.CoreClient.GetBackupServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	res, err := cli.Export(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.QueryRequest{Query: bts})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) ImportBackup(ctx context.Context, projectId string, query, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	bts, err := json.Marshal(query)
+	if err != nil {
+		return errors.NewMsg("序列化查询参数为空, %s", err)
+	}
+	cli, err := c.CoreClient.GetBackupServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	res, err := cli.Import(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.QueryRequest{Query: bts})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) UploadBackup(ctx context.Context, projectId, password string, size int, r io.Reader) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+
+	cli, err := c.CoreClient.GetBackupServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	stream, err := cli.Upload(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, "password": password}))
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+
+	defer stream.CloseAndRecv()
+
+	buffer := make([]byte, 1024)
+
+	bytesReadAll := 0
+
+	for {
+		bytesRead, err := r.Read(buffer)
+		if err != nil {
+			return err
+		}
+		err = stream.Send(&core.UploadFileRequest{Data: buffer[:bytesRead]})
+		if err != nil {
+			return err
+		}
+		bytesReadAll += bytesRead
+
+		if bytesReadAll == size {
+			return nil
+		}
+
+	}
+}
+
+func (c *Client) DownloadBackup(ctx context.Context, projectId, password string, w io.Writer) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+
+	cli, err := c.CoreClient.GetBackupServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	stream, err := cli.Download(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, "password": password}), nil)
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+
+	defer stream.CloseSend()
+
+	for {
+		err = stream.RecvMsg(w)
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+	}
 }

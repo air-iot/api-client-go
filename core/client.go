@@ -36,6 +36,7 @@ type Client struct {
 	deptClient                 DeptServiceClient
 	settingClient              SettingServiceClient
 	systemVariablServiceClient SystemVariableServiceClient
+	backupServiceClient        BackupServiceClient
 }
 
 func NewClient(cfg config.Config, registry *etcd.Registry, opts ...grpc.DialOption) (*Client, func(), error) {
@@ -82,6 +83,7 @@ func (c *Client) createConn() error {
 	c.deptClient = NewDeptServiceClient(cc)
 	c.settingClient = NewSettingServiceClient(cc)
 	c.systemVariablServiceClient = NewSystemVariableServiceClient(cc)
+	c.backupServiceClient = NewBackupServiceClient(cc)
 	c.conn = cc
 	return nil
 }
@@ -252,4 +254,16 @@ func (c *Client) GetSystemVariableServiceClient() (SystemVariableServiceClient, 
 		return nil, errors.NewMsg("客户端是空")
 	}
 	return c.systemVariablServiceClient, nil
+}
+
+func (c *Client) GetBackupServiceClient() (BackupServiceClient, error) {
+	if c.conn == nil {
+		if err := c.createConn(); err != nil {
+			return nil, err
+		}
+	}
+	if c.backupServiceClient == nil {
+		return nil, errors.NewMsg("客户端是空")
+	}
+	return c.backupServiceClient, nil
 }
