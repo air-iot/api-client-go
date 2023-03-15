@@ -2988,12 +2988,14 @@ var SystemVariableService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	BackupService_Query_FullMethodName  = "/core.BackupService/Query"
-	BackupService_Get_FullMethodName    = "/core.BackupService/Get"
-	BackupService_Delete_FullMethodName = "/core.BackupService/Delete"
-	BackupService_Update_FullMethodName = "/core.BackupService/Update"
-	BackupService_Import_FullMethodName = "/core.BackupService/Import"
-	BackupService_Export_FullMethodName = "/core.BackupService/Export"
+	BackupService_Query_FullMethodName    = "/core.BackupService/Query"
+	BackupService_Get_FullMethodName      = "/core.BackupService/Get"
+	BackupService_Delete_FullMethodName   = "/core.BackupService/Delete"
+	BackupService_Update_FullMethodName   = "/core.BackupService/Update"
+	BackupService_Import_FullMethodName   = "/core.BackupService/Import"
+	BackupService_Export_FullMethodName   = "/core.BackupService/Export"
+	BackupService_Upload_FullMethodName   = "/core.BackupService/Upload"
+	BackupService_Download_FullMethodName = "/core.BackupService/Download"
 )
 
 // BackupServiceClient is the client API for BackupService service.
@@ -3006,6 +3008,8 @@ type BackupServiceClient interface {
 	Update(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
 	Import(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
 	Export(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Upload(ctx context.Context, opts ...grpc.CallOption) (BackupService_UploadClient, error)
+	Download(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (BackupService_DownloadClient, error)
 }
 
 type backupServiceClient struct {
@@ -3070,6 +3074,72 @@ func (c *backupServiceClient) Export(ctx context.Context, in *api.QueryRequest, 
 	return out, nil
 }
 
+func (c *backupServiceClient) Upload(ctx context.Context, opts ...grpc.CallOption) (BackupService_UploadClient, error) {
+	stream, err := c.cc.NewStream(ctx, &BackupService_ServiceDesc.Streams[0], BackupService_Upload_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &backupServiceUploadClient{stream}
+	return x, nil
+}
+
+type BackupService_UploadClient interface {
+	Send(*UploadFileRequest) error
+	CloseAndRecv() (*api.Response, error)
+	grpc.ClientStream
+}
+
+type backupServiceUploadClient struct {
+	grpc.ClientStream
+}
+
+func (x *backupServiceUploadClient) Send(m *UploadFileRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *backupServiceUploadClient) CloseAndRecv() (*api.Response, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(api.Response)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *backupServiceClient) Download(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (BackupService_DownloadClient, error) {
+	stream, err := c.cc.NewStream(ctx, &BackupService_ServiceDesc.Streams[1], BackupService_Download_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &backupServiceDownloadClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type BackupService_DownloadClient interface {
+	Recv() (*DownloadFileResponse, error)
+	grpc.ClientStream
+}
+
+type backupServiceDownloadClient struct {
+	grpc.ClientStream
+}
+
+func (x *backupServiceDownloadClient) Recv() (*DownloadFileResponse, error) {
+	m := new(DownloadFileResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // BackupServiceServer is the server API for BackupService service.
 // All implementations must embed UnimplementedBackupServiceServer
 // for forward compatibility
@@ -3080,6 +3150,8 @@ type BackupServiceServer interface {
 	Update(context.Context, *api.UpdateRequest) (*api.Response, error)
 	Import(context.Context, *api.QueryRequest) (*api.Response, error)
 	Export(context.Context, *api.QueryRequest) (*api.Response, error)
+	Upload(BackupService_UploadServer) error
+	Download(*api.GetOrDeleteRequest, BackupService_DownloadServer) error
 	mustEmbedUnimplementedBackupServiceServer()
 }
 
@@ -3104,6 +3176,12 @@ func (UnimplementedBackupServiceServer) Import(context.Context, *api.QueryReques
 }
 func (UnimplementedBackupServiceServer) Export(context.Context, *api.QueryRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Export not implemented")
+}
+func (UnimplementedBackupServiceServer) Upload(BackupService_UploadServer) error {
+	return status.Errorf(codes.Unimplemented, "method Upload not implemented")
+}
+func (UnimplementedBackupServiceServer) Download(*api.GetOrDeleteRequest, BackupService_DownloadServer) error {
+	return status.Errorf(codes.Unimplemented, "method Download not implemented")
 }
 func (UnimplementedBackupServiceServer) mustEmbedUnimplementedBackupServiceServer() {}
 
@@ -3226,6 +3304,53 @@ func _BackupService_Export_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BackupService_Upload_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(BackupServiceServer).Upload(&backupServiceUploadServer{stream})
+}
+
+type BackupService_UploadServer interface {
+	SendAndClose(*api.Response) error
+	Recv() (*UploadFileRequest, error)
+	grpc.ServerStream
+}
+
+type backupServiceUploadServer struct {
+	grpc.ServerStream
+}
+
+func (x *backupServiceUploadServer) SendAndClose(m *api.Response) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *backupServiceUploadServer) Recv() (*UploadFileRequest, error) {
+	m := new(UploadFileRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _BackupService_Download_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(api.GetOrDeleteRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(BackupServiceServer).Download(m, &backupServiceDownloadServer{stream})
+}
+
+type BackupService_DownloadServer interface {
+	Send(*DownloadFileResponse) error
+	grpc.ServerStream
+}
+
+type backupServiceDownloadServer struct {
+	grpc.ServerStream
+}
+
+func (x *backupServiceDownloadServer) Send(m *DownloadFileResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // BackupService_ServiceDesc is the grpc.ServiceDesc for BackupService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -3258,6 +3383,17 @@ var BackupService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _BackupService_Export_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Upload",
+			Handler:       _BackupService_Upload_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "Download",
+			Handler:       _BackupService_Download_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "core/core.proto",
 }

@@ -124,6 +124,8 @@ service BackupService {
   rpc Update (api.UpdateRequest) returns (api.Response) {}
   rpc Import (api.QueryRequest) returns (api.Response) {}
   rpc Export (api.QueryRequest) returns (api.Response) {}
+  rpc Upload(stream UploadFileRequest) returns (api.Response) {}
+  rpc Download(api.GetOrDeleteRequest) returns (stream DownloadFileResponse) {}
 }
 
 message GetDeviceRequest {
@@ -165,4 +167,12 @@ message CreateDataRequest {
 
 message LoginUserRequest {
   string token = 1;
+}
+
+message UploadFileRequest {
+  bytes data = 1;
+}
+
+message DownloadFileResponse {
+  bytes data = 1;
 }
