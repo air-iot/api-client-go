@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/air-iot/json"
 	"log"
+	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -19,7 +21,7 @@ func TestMain(m *testing.M) {
 	log.Println("begin")
 	//dsn := "host=airiot.tech user=root password=dell123 dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
 	client, err := clientv3.New(clientv3.Config{
-		Endpoints:   []string{"localhost:2379"},
+		Endpoints:   []string{"121.89.244.23:2379"},
 		DialTimeout: time.Second * time.Duration(60),
 		DialOptions: []grpc.DialOption{grpc.WithBlock()},
 		Username:    "root",
@@ -34,8 +36,8 @@ func TestMain(m *testing.M) {
 		Metadata: map[string]string{"env": "aliyun"},
 		Services: map[string]config.Service{
 			//"spm":  {Metadata: map[string]string{"env": "local1"}},
-			//"core": {Metadata: map[string]string{"env": "local1"}},
-			"flow-engine": {Metadata: map[string]string{"env": "local1"}},
+			"core": {Metadata: map[string]string{"env": "local1"}},
+			//"flow-engine": {Metadata: map[string]string{"env": "local1"}},
 		},
 		Type:    "tenant",
 		AK:      "138dd03b-d3ee-4230-d3d2-520feb580bfe",
@@ -193,4 +195,245 @@ func TestClient_QueryPmSetting(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log("res: ", res)
+}
+
+func TestClient_GetCatalog(t *testing.T) {
+	type Item struct {
+		FileServer bool `json:"fileServer" example:"true"`
+		HTMl       bool `json:"html" example:"true"`
+		Mongodb    bool `json:"mongodb" example:"true"`
+		Influxdb   bool `json:"influxdb" example:"true"`
+	}
+
+	type CatalogSchema struct {
+		ID   string `json:"id,omitempty"`
+		Name string `json:"name,omitempty"`
+		Type string `json:"type,omitempty,omitempty"`
+		//User       *UserSchema `json:"user,omitempty"`
+		ParentID   string      `json:"parentId,omitempty"`
+		Parent     interface{} `json:"parent,omitempty"`
+		Order      *float64    `json:"order,omitempty"`
+		CreateTime string      `json:"createTime,omitempty"`
+		Site       string      `json:"site,omitempty"`
+	}
+
+	res := new(CatalogSchema)
+
+	_, err := cli.GetCatalog(context.Background(), "625f6dbf5433487131f09ff7", "634f9eb96f35e9813003b5b5", res)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("res:%+v", res)
+}
+
+func TestClient_GetTableRecord(t *testing.T) {
+
+	res := make(map[string]interface{})
+
+	_, err := cli.GetTableRecord(context.Background(), "625f6dbf5433487131f09ff7", "634526abe9ce8a012833a9b9", &res)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("res:%+v", res)
+}
+
+func TestClient_QueryBackup(t *testing.T) {
+
+	type Item struct {
+		FileServer bool `json:"fileServer" example:"true"`
+		HTMl       bool `json:"html" example:"true"`
+		Mongodb    bool `json:"mongodb" example:"true"`
+		Influxdb   bool `json:"influxdb" example:"true"`
+	}
+
+	type BackupSchema struct {
+		ID         string `json:"id,omitempty" example:"61a0cc0d05a76adca47efd02"`
+		Name       string `json:"name,omitempty" example:"文件名"`
+		Status     string `json:"status,omitempty" example:"succeed"`
+		Type       string `json:"type,omitempty" example:"export"`
+		Log        string `json:"log,omitempty" example:"完成备份！"`
+		Path       string `json:"path" example:"/app/backup/610a5205536b84d56e49bfb8/61a0cc0d05a76adca47efd02"` // 日志
+		CreateTime string `json:"createTime,omitempty" example:"2021-11-26T19:59:09.393+08:00"`
+		UpdateTime string `json:"updateTime,omitempty" example:"2021-11-26T19:59:10.73+08:00"`
+		Item       *Item  `json:"item,omitempty"`
+	}
+
+	var res []BackupSchema
+	type QueryOption struct {
+		Limit       *int                   `json:"limit,omitempty"`       // 查询数据长度
+		Skip        *int                   `json:"skip,omitempty"`        // 跳过数据长度
+		Sort        map[string]int         `json:"sort,omitempty"`        // 排序
+		Filter      map[string]interface{} `json:"filter,omitempty"`      // 过滤条件
+		WithCount   *bool                  `json:"withCount,omitempty"`   // 是否返回总数
+		Project     map[string]interface{} `json:"project,omitempty"`     // 返回字段
+		GroupBy     map[string]interface{} `json:"groupBy,omitempty"`     // 聚合分组查询
+		GroupFields map[string]interface{} `json:"groupFields,omitempty"` // 聚合分组查询
+		WithoutBody *bool                  `json:"withoutBody,omitempty"` // 返回总数,不返回数据
+		WithTags    *bool                  `json:"withTags,omitempty"`    // 是否返回最新数据
+		Distinct    map[string]interface{} `json:"distinct,omitempty"`    // 是否返回最新数据
+		//Joins     []interface{}          `json:"joins,omitempty"`     // 聚合分组查询
+
+		project map[string]interface{}
+	}
+
+	type Backup struct {
+		ID         string    `json:"id,omitempty" gorm:"column:id;primaryKey;type:string;not null;uniqueIndex;comment:备份唯一标识;"`
+		Name       string    `json:"name,omitempty" gorm:"column:name;type:string;not null;comment:备份名称;"`
+		Status     string    `json:"status,omitempty" gorm:"column:status;type:string;comment:状态;"`
+		Type       string    `json:"type,omitempty" gorm:"column:type;type:string;comment:类型(export/import);"`
+		Log        string    `json:"log,omitempty" gorm:"column:log;type:string;comment:日志;"`
+		Path       string    `json:"path,omitempty" gorm:"column:path;type:string;comment:路径;"`
+		ProjectId  string    `json:"projectId,omitempty" gorm:"column:projectId;type:string;comment:项目ID;"`
+		Item       *string   `json:"item,omitempty" gorm:"column:item;type:string;comment:备份项目;"`
+		CreateTime time.Time `json:"createTime,omitempty" gorm:"column:createTime;not null;autoCreateTime;comment:创建时间;"`
+		UpdateTime time.Time `json:"updateTime,omitempty" gorm:"column:updateTime;autoUpdateTime;comment:修改时间;"`
+	}
+
+	withCount := true
+	cols := GetColumns(new(Backup))
+	query := new(QueryOption)
+	query.Project = make(map[string]interface{})
+	for _, col := range cols {
+		query.Project[col] = 1
+	}
+	query.WithCount = &withCount
+
+	err := cli.QueryBackup(context.Background(), "625f6dbf5433487131f09ff7", query, &res)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("res:%+v", res)
+}
+
+func TestClient_GetBackup(t *testing.T) {
+
+	type Item struct {
+		FileServer bool `json:"fileServer" example:"true"`
+		HTMl       bool `json:"html" example:"true"`
+		Mongodb    bool `json:"mongodb" example:"true"`
+		Influxdb   bool `json:"influxdb" example:"true"`
+	}
+
+	type BackupSchema struct {
+		ID         string `json:"id,omitempty" example:"61a0cc0d05a76adca47efd02"`
+		Name       string `json:"name,omitempty" example:"文件名"`
+		Status     string `json:"status,omitempty" example:"succeed"`
+		Type       string `json:"type,omitempty" example:"export"`
+		Log        string `json:"log,omitempty" example:"完成备份！"`
+		Path       string `json:"path" example:"/app/backup/610a5205536b84d56e49bfb8/61a0cc0d05a76adca47efd02"` // 日志
+		UpdateTime string `json:"updateTime,omitempty" example:"2021-11-26T19:59:10.73+08:00"`
+		CreateTime string `json:"createTime,omitempty" example:"2021-11-26T19:59:09.393+08:00"`
+		Item       string `json:"item,omitempty"`
+		//Item       *Item `json:"item,omitempty"`
+
+	}
+
+	//res := make(map[string]interface{})
+	//_, err := cli.GetBackup(context.Background(), "625f6dbf5433487131f09ff7", "6412867fd9a932681abade65", &res)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+
+	res := new(BackupSchema)
+	_, err := cli.GetBackup(context.Background(), "625f6dbf5433487131f09ff7", "6412867fd9a932681abade65", res)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("res:%+v", res)
+}
+
+func TestClient_DeleteBackup(t *testing.T) {
+
+	res := make(map[string]interface{})
+	err := cli.DeleteBackup(context.Background(), "625f6dbf5433487131f09ff7", "6412867fd9a932681abade66", &res)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("res:%+v", res)
+}
+
+func TestClient_ExportBackup(t *testing.T) {
+
+	type Item struct {
+		FileServer bool `json:"fileServer" example:"true"`
+		HTMl       bool `json:"html" example:"true"`
+		Mongodb    bool `json:"mongodb" example:"true"`
+		Influxdb   bool `json:"influxdb" example:"true"`
+	}
+
+	type ExportPara struct {
+		Name  string                    `json:"name" bson:"name"` // 文件名
+		*Item `json:"item" bson:"item"` // 备份项目
+	}
+
+	query := new(ExportPara)
+	queryStr := `{"name":"2021-12-06","item":{"mongodb":true,"influxdb":false,"fileServer":false,"html":false}}`
+
+	err := json.Unmarshal([]byte(queryStr), query)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	id, err := cli.ExportBackup(context.Background(), "625f6dbf5433487131f09ff7", query)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("id:%+v", id)
+}
+
+func TestClient_ImportBackup(t *testing.T) {
+
+	type Item struct {
+		FileServer bool `json:"fileServer" example:"true"`
+		HTMl       bool `json:"html" example:"true"`
+		Mongodb    bool `json:"mongodb" example:"true"`
+		Influxdb   bool `json:"influxdb" example:"true"`
+	}
+
+	type ExportPara struct {
+		Name  string                    `json:"name" bson:"name"` // 文件名
+		*Item `json:"item" bson:"item"` // 备份项目
+	}
+
+	query := new(ExportPara)
+	queryStr := `{"name":"2021-12-06","id":"6412cd58d4d8742b9175d240","item":{"mongodb":true,"influxdb":false,"fileServer":false,"html":false}}`
+
+	err := json.Unmarshal([]byte(queryStr), query)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	id, err := cli.ImportBackup(context.Background(), "625f6dbf5433487131f09ff7", query)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("id:%+v", id)
+}
+
+// GetColumns 查询实体类 gorm 列名
+func GetColumns(a interface{}) []string {
+	s := reflect.TypeOf(a)
+	if s.Kind() == reflect.Ptr {
+		s = s.Elem() //通过反射获取type定义
+	}
+	result := make([]string, 0)
+	//var queryData map[string]interface{}
+	for i := 0; i < s.NumField(); i++ {
+		field := s.Field(i)
+		gormTag, ok := field.Tag.Lookup("gorm")
+		if !ok {
+			continue
+		}
+		tags := strings.Split(gormTag, ";")
+		for _, tag := range tags {
+			if strings.HasPrefix(tag, "column:") {
+				columns := strings.Split(tag, ":")
+				if len(columns) == 2 && columns[1] != "" {
+					result = append(result, columns[1])
+					break
+				}
+			}
+		}
+	}
+	return result
 }

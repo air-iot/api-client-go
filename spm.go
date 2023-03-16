@@ -19,7 +19,7 @@ func (c *Client) QueryProject(ctx context.Context, query, result interface{}) er
 	}
 	res, err := cli.Query(ctx, &api.QueryRequest{Query: bts})
 	if err != nil {
-		return errors.NewMsg("请求错误, %s", err)
+		return errors.NewMsg(", %s", err)
 	}
 	if !res.GetStatus() {
 		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
