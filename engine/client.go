@@ -32,6 +32,7 @@ type Client struct {
 	opts     []grpc.DialOption
 
 	engineServiceClient EngineServiceClient
+	pluginServiceClient PluginServiceClient
 }
 
 func NewClient(cfg config.Config, registry *etcd.Registry, opts ...grpc.DialOption) (*Client, func(), error) {
@@ -66,6 +67,7 @@ func (c *Client) createConn() error {
 		return errors.NewMsg("grpc.Dial error: %s", err)
 	}
 	c.engineServiceClient = NewEngineServiceClient(cc)
+	c.pluginServiceClient = NewPluginServiceClient(cc)
 	c.conn = cc
 	return nil
 }
@@ -80,4 +82,16 @@ func (c *Client) GetDataServiceClient() (EngineServiceClient, error) {
 		return nil, errors.NewMsg("客户端是空")
 	}
 	return c.engineServiceClient, nil
+}
+
+func (c *Client) GetPluginServiceClient() (PluginServiceClient, error) {
+	if c.conn == nil {
+		if err := c.createConn(); err != nil {
+			return nil, err
+		}
+	}
+	if c.pluginServiceClient == nil {
+		return nil, errors.NewMsg("客户端是空")
+	}
+	return c.pluginServiceClient, nil
 }

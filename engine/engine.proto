@@ -33,6 +33,11 @@ service EngineService {
   rpc Fail (FailRequest) returns (google.protobuf.Empty) {}
 }
 
+service PluginService {
+  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse) {}
+  rpc Register (stream FlowResponse) returns (stream FlowRequest);
+}
+
 message RunRequest {
   string projectId = 1;
   string config = 2;
@@ -56,4 +61,49 @@ message FailRequest {
   string jobId = 2;
   string elementId = 3;
   string errorMessage = 4;
+}
+
+message HealthCheckRequest {
+  string name = 1;
+}
+
+message HealthCheckResponse {
+  enum ServingStatus {
+    UNKNOWN = 0;
+    SERVING = 1;
+    NOT_SERVING = 2;
+    SERVICE_UNKNOWN = 3;  // Used only by the Watch method.
+  }
+  ServingStatus status = 1;
+  repeated Error errors = 2;
+}
+
+message Error {
+  enum ErrorCode {
+    Schema = 0;
+    Start = 1;
+    Run = 2;
+    Write = 3;  // Used only by the Watch method.
+    BatchRun = 4;  // Used only by the Watch method.
+    Debug = 5;  // Used only by the Watch method.
+  }
+  ErrorCode code = 1;
+  string message = 2;
+}
+
+message FlowRequest{
+  string projectId = 1;
+  string flowId = 2;
+  string job = 3;
+  string elementId = 4;
+  string elementJob = 5;
+  bytes config = 6;
+}
+
+message FlowResponse{
+  string elementJob = 1;
+  bool status = 2;
+  string info = 3;
+  string detail = 4;
+  bytes result = 5;
 }

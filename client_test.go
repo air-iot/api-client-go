@@ -2,6 +2,7 @@ package api_client_go
 
 import (
 	"context"
+	"github.com/air-iot/json"
 	"log"
 	"testing"
 	"time"
@@ -18,7 +19,7 @@ func TestMain(m *testing.M) {
 	log.Println("begin")
 	//dsn := "host=airiot.tech user=root password=dell123 dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
 	client, err := clientv3.New(clientv3.Config{
-		Endpoints:   []string{"localhost:2379"},
+		Endpoints:   []string{"121.89.244.23:2379"},
 		DialTimeout: time.Second * time.Duration(60),
 		DialOptions: []grpc.DialOption{grpc.WithBlock()},
 		Username:    "root",
@@ -32,8 +33,9 @@ func TestMain(m *testing.M) {
 	cli1, clean, err := NewClient(clientEtcd, config.Config{
 		Metadata: map[string]string{"env": "aliyun"},
 		Services: map[string]config.Service{
-			"spm":  {Metadata: map[string]string{"env": "local1"}},
-			"core": {Metadata: map[string]string{"env": "local1"}},
+			//"spm":  {Metadata: map[string]string{"env": "local1"}},
+			//"core": {Metadata: map[string]string{"env": "local1"}},
+			"flow-engine": {Metadata: map[string]string{"env": "local1"}},
 		},
 		Type:    "tenant",
 		AK:      "138dd03b-d3ee-4230-d3d2-520feb580bfe",
@@ -50,6 +52,35 @@ func TestMain(m *testing.M) {
 		log.Fatal(err)
 	}
 	log.Println("end")
+}
+
+func TestClient_Run(t *testing.T) {
+	type Element struct {
+		Id     string      `json:"id" bson:"id"`
+		Type   string      `json:"type" bson:"type"`
+		Config interface{} `json:"_config" bson:"_config" mapstructure:"_config"`
+	}
+
+	cfg := `[{"id":"Flow_4FC897A1","type":"flowEnd"},{"_config":{"eventType":"更新记录时","field":[],"query":{"filter":{}},"selectRecord":[],"table":{"id":"新表","title":"表21"}},"id":"6406ab17587f351eaeefd0cc","type":"工作表事件"},{"_config":{"body":{},"name":"数据接口","opKey":"query-all-controlable","opKeyLabel":"查询设备"},"id":"Flow_FAE3D14D","type":"testHandler"},{"id":"Flow_FAE3D14D-6406ab17587f351eaeefd0cc","source":"6406ab17587f351eaeefd0cc","target":"Flow_FAE3D14D","type":"defaultEdge"},{"id":"Flow_4FC897A1-Flow_FAE3D14D","source":"Flow_FAE3D14D","target":"Flow_4FC897A1","type":"defaultEdge"}]`
+	elementB, _ := json.Marshal(Element{
+		Id:     "6406ab17587f351eaeefd0cc",
+		Type:   "worksheetRecord",
+		Config: map[string]interface{}{},
+	})
+	startTimestamp := time.Now().Local().Format(time.RFC3339Nano)
+	dStr := `{"#$table":{"_tableName":"table","id":"新表","title":"表21"},"_department":{},"_label":{"name":"a2"},"_settings":{},"_table":"新表","_title":"表21","createTime_default":"2023-03-06T11:07:32.800133+08:00","creator":"admin","creatorName":"admin","disable":false,"extFlowType":"工作表记录修改","extUserMap":{"creator":{"#$user":{"_tableName":"user","id":"admin","name":"admin"}}},"flowTriggerUser":"admin","flowTriggerUserMap":{"#$user":{"_tableName":"user","id":"admin","name":"admin"}},"focus":false,"id":"640558f5b024ee426a4732e5","name":"a2","number-1FF1":1,"off":false,"online":false}`
+	var r map[string]interface{}
+	json.Unmarshal([]byte(dStr), &r)
+	variables1 := map[string]interface{}{
+		"#project":                 "625f6dbf5433487131f09ff8",
+		"#startTimestamp":          startTimestamp,
+		"6406ab17587f351eaeefd0cc": r,
+	}
+	resp, err := cli.Run(context.Background(), "625f6dbf5433487131f09ff8", cfg, elementB, variables1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(resp)
 }
 
 func TestClient_GetTableSchema(t *testing.T) {

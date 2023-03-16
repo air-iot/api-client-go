@@ -10,6 +10,34 @@ import (
 	"github.com/air-iot/json"
 )
 
+type TaskMode int32
+
+const (
+	USER    TaskMode = 0
+	SERVICE TaskMode = 1
+)
+
+func (p TaskMode) String() string {
+	switch p {
+	case USER:
+		return "user"
+	case SERVICE:
+		return "service"
+	default:
+		return "UNKNOWN"
+	}
+}
+
+type Params struct {
+	ProjectId  string `json:"projectId"`
+	FlowId     string `json:"flowId"`
+	Job        string `json:"job"`
+	ElementId  string `json:"elementId"`
+	ElementJob string `json:"elementJob"`
+}
+
+type Handler func(param Params, data []byte) (map[string]interface{}, error)
+
 func (c *Client) Run(ctx context.Context, projectId, flowConfig string, elementB []byte, variables map[string]interface{}) (result *engine.RunResponse, err error) {
 	b, err := json.Marshal(variables)
 	if err != nil {

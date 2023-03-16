@@ -176,3 +176,158 @@ var EngineService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "engine/engine.proto",
 }
+
+// PluginServiceClient is the client API for PluginService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type PluginServiceClient interface {
+	HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error)
+	Register(ctx context.Context, opts ...grpc.CallOption) (PluginService_RegisterClient, error)
+}
+
+type pluginServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewPluginServiceClient(cc grpc.ClientConnInterface) PluginServiceClient {
+	return &pluginServiceClient{cc}
+}
+
+func (c *pluginServiceClient) HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error) {
+	out := new(HealthCheckResponse)
+	err := c.cc.Invoke(ctx, "/engine.PluginService/HealthCheck", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pluginServiceClient) Register(ctx context.Context, opts ...grpc.CallOption) (PluginService_RegisterClient, error) {
+	stream, err := c.cc.NewStream(ctx, &PluginService_ServiceDesc.Streams[0], "/engine.PluginService/Register", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &pluginServiceRegisterClient{stream}
+	return x, nil
+}
+
+type PluginService_RegisterClient interface {
+	Send(*FlowResponse) error
+	Recv() (*FlowRequest, error)
+	grpc.ClientStream
+}
+
+type pluginServiceRegisterClient struct {
+	grpc.ClientStream
+}
+
+func (x *pluginServiceRegisterClient) Send(m *FlowResponse) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *pluginServiceRegisterClient) Recv() (*FlowRequest, error) {
+	m := new(FlowRequest)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// PluginServiceServer is the server API for PluginService service.
+// All implementations must embed UnimplementedPluginServiceServer
+// for forward compatibility
+type PluginServiceServer interface {
+	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)
+	Register(PluginService_RegisterServer) error
+	mustEmbedUnimplementedPluginServiceServer()
+}
+
+// UnimplementedPluginServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedPluginServiceServer struct {
+}
+
+func (UnimplementedPluginServiceServer) HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HealthCheck not implemented")
+}
+func (UnimplementedPluginServiceServer) Register(PluginService_RegisterServer) error {
+	return status.Errorf(codes.Unimplemented, "method Register not implemented")
+}
+func (UnimplementedPluginServiceServer) mustEmbedUnimplementedPluginServiceServer() {}
+
+// UnsafePluginServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PluginServiceServer will
+// result in compilation errors.
+type UnsafePluginServiceServer interface {
+	mustEmbedUnimplementedPluginServiceServer()
+}
+
+func RegisterPluginServiceServer(s grpc.ServiceRegistrar, srv PluginServiceServer) {
+	s.RegisterService(&PluginService_ServiceDesc, srv)
+}
+
+func _PluginService_HealthCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HealthCheckRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PluginServiceServer).HealthCheck(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/engine.PluginService/HealthCheck",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PluginServiceServer).HealthCheck(ctx, req.(*HealthCheckRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PluginService_Register_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(PluginServiceServer).Register(&pluginServiceRegisterServer{stream})
+}
+
+type PluginService_RegisterServer interface {
+	Send(*FlowRequest) error
+	Recv() (*FlowResponse, error)
+	grpc.ServerStream
+}
+
+type pluginServiceRegisterServer struct {
+	grpc.ServerStream
+}
+
+func (x *pluginServiceRegisterServer) Send(m *FlowRequest) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *pluginServiceRegisterServer) Recv() (*FlowResponse, error) {
+	m := new(FlowResponse)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// PluginService_ServiceDesc is the grpc.ServiceDesc for PluginService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var PluginService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "engine.PluginService",
+	HandlerType: (*PluginServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "HealthCheck",
+			Handler:    _PluginService_HealthCheck_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Register",
+			Handler:       _PluginService_Register_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "engine/engine.proto",
+}
