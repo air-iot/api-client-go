@@ -1,9 +1,12 @@
 package api_client_go
 
 import (
+	"bytes"
 	"context"
 	"github.com/air-iot/json"
+	"io"
 	"log"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -407,6 +410,51 @@ func TestClient_ImportBackup(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Logf("id:%+v", id)
+}
+
+func TestClient_DownLoadBackup(t *testing.T) {
+
+	b := bytes.NewBuffer(nil)
+
+	id := "6412867fd9a932681abade65"
+	err := cli.DownloadBackup(context.Background(), "625f6dbf5433487131f09ff7", id, "", b)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	f, err := os.Create(id + ".zip")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer f.Close()
+
+	_, err = io.Copy(b, f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Logf("id:%+v", id)
+}
+
+func TestClient_UploadBackup(t *testing.T) {
+
+	name := "2021-12-06.zip"
+	f, err := os.Open(name)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fi, err := f.Stat()
+	if err != nil {
+		t.Fatal(err)
+	}
+	id := "6412867fd9a932681abade65"
+	err = cli.UploadBackup(context.Background(), "625f6dbf5433487131f09ff7", "", int(fi.Size()), f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	t.Logf("id:%+v", id)
 }
 

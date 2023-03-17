@@ -1937,7 +1937,7 @@ func (c *Client) UploadBackup(ctx context.Context, projectId, password string, s
 	}
 }
 
-func (c *Client) DownloadBackup(ctx context.Context, projectId, password string, w io.Writer) error {
+func (c *Client) DownloadBackup(ctx context.Context, projectId, id, password string, w io.Writer) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
@@ -1946,7 +1946,10 @@ func (c *Client) DownloadBackup(ctx context.Context, projectId, password string,
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	stream, err := cli.Download(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, "password": password}), nil)
+
+	in := new(api.GetOrDeleteRequest)
+	in.Id = id
+	stream, err := cli.Download(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, "password": password}), in)
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
 	}
