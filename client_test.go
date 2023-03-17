@@ -39,7 +39,7 @@ func TestMain(m *testing.M) {
 		Metadata: map[string]string{"env": "aliyun"},
 		Services: map[string]config.Service{
 			//"spm":  {Metadata: map[string]string{"env": "local1"}},
-			"core": {Metadata: map[string]string{"env": "local1"}},
+			"core": {Metadata: map[string]string{"env": "localtest"}},
 			//"flow-engine": {Metadata: map[string]string{"env": "local1"}},
 		},
 		Type:    "tenant",

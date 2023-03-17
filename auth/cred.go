@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/errors"
-	"github.com/go-kratos/kratos/v2/transport"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -27,11 +27,14 @@ func NewCustomCredential(f GetAuthClient) *customCredential {
 
 // GetRequestMetadata 实现自定义认证接口
 func (c *customCredential) GetRequestMetadata(ctx context.Context, uri ...string) (mds map[string]string, err error) {
-	pr, ok := transport.FromClientContext(ctx)
+	info, ok := credentials.RequestInfoFromContext(ctx)
+	//_, _ = info, ok
+	//pr, ok := transport.FromClientContext(ctx)
 	if !ok {
 		return nil, errors.NewMsg("客户端上下文错误")
 	}
-	path := pr.Operation()
+	//path := pr.Operation()
+	path := info.Method
 	if path == "/spm.UserService/GetToken" ||
 		path == "/core.AppService/GetToken" {
 		//path == "/core.UserService/GetCurrentUserInfo" ||
