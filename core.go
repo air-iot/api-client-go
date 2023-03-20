@@ -1944,25 +1944,64 @@ func (c *Client) DownloadBackup(ctx context.Context, projectId, id, password str
 
 	cli, err := c.CoreClient.GetBackupServiceClient()
 	if err != nil {
-		return errors.NewMsg("获取客户端错误,%s", err)
+		return errors.NewMsg("获取客户端错误,%s", err.Error())
 	}
 
 	in := new(api.GetOrDeleteRequest)
 	in.Id = id
-	stream, err := cli.Download(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, "password": password}), in)
+	stream, err := cli.Download(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, "password": password, "id": id}), in)
 	if err != nil {
-		return errors.NewMsg("请求错误, %s", err)
+		return errors.NewMsg("请求错误, %s", err.Error())
 	}
 
-	defer stream.CloseSend()
+	defer func() {
+		_ = stream.CloseSend()
+	}()
 
 	for {
-		err = stream.RecvMsg(w)
+		d, err := stream.Recv()
 		if err == io.EOF {
 			return nil
 		}
+
 		if err != nil {
-			return err
+			return errors.NewMsg("stream.Recv错误, %s", err.Error())
 		}
+
+		logger.Infof("数据长度:%+v", len(d.GetData()))
+
+		n, err := w.Write(d.GetData())
+		if err != nil {
+			return errors.NewMsg(" w.Write错误, %s", err.Error())
+		}
+		logger.Infof("写入数据长度:%+v", n)
 	}
+
+	// 方法二
+	//d, err := stream.Recv()
+	//if err != nil {
+	//	return errors.NewMsg("stream.Recv错误, %s", err.Error())
+	//}
+	//
+	//logger.Infof("数据长度:%+v", len(d.GetData()))
+	//
+	//n, err := w.Write(d.GetData())
+	//if err != nil {
+	//	return errors.NewMsg(" w.Write错误, %s", err.Error())
+	//}
+	//logger.Infof("写入数据长度:%+v", n)
+	//return nil
+
+	//for {
+	//
+	//	err = stream.RecvMsg(&buffer)
+	//	if err == io.EOF {
+	//		return nil
+	//	}
+	//	if err != nil {
+	//		return err
+	//	}
+	//
+	//	w.Write(buffer)
+	//}
 }
