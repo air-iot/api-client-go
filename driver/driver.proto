@@ -72,6 +72,7 @@ message Error {
     Write = 3;  // Used only by the Watch method.
     BatchRun = 4;  // Used only by the Watch method.
     Debug = 5;  // Used only by the Watch method.
+    Health = 6;
   }
   ErrorCode code = 1;
   string message = 2;
