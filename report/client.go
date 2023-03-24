@@ -20,7 +20,7 @@ type Client struct {
 	conn     *grpc.ClientConn
 	opts     []grpc.DialOption
 
-	reportClient ReportServiceClient
+	reportClient     ReportServiceClient
 	reportCopyClient ReportCopyServiceClient
 }
 
@@ -50,7 +50,7 @@ func (c *Client) createConn() error {
 	if c.conn != nil {
 		return nil
 	}
-	logger.Infof("flow grpc client cc, %+v", c.config)
+	logger.Infof("report grpc client cc, %+v", c.config)
 	cc, err := conn.CreateConn(serviceName, c.config, c.registry, c.opts...)
 	if err != nil {
 		return errors.NewMsg("grpc.Dial error: %s", err)
