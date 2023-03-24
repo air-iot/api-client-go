@@ -40,7 +40,8 @@ func TestMain(m *testing.M) {
 			"core": {Metadata: map[string]string{"env": "localtest"}},
 			//"flow-engine": {Metadata: map[string]string{"env": "local1"}},
 		},
-		Type:    "tenant",
+		Type: "tenant", // tenant 或 project
+		//ProjectId: "default",
 		AK:      "138dd03b-d3ee-4230-d3d2-520feb580bfe",
 		SK:      "138dd03b-d3ee-4230-d3d2-520feb580bfd",
 		Timeout: 60,
@@ -148,6 +149,7 @@ func TestClient_QueryTableSchema(t *testing.T) {
 	for i := 0; i < 1; i++ {
 		var arr []map[string]interface{}
 		if err := cli.QueryTableSchema(context.Background(), "625f6dbf5433487131f09ff8", map[string]interface{}{}, &arr); err != nil {
+			//if err := cli.QueryTableSchema(context.Background(), "default", map[string]interface{}{}, &arr); err != nil {
 			t.Fatal(err)
 		}
 		t.Log(arr)

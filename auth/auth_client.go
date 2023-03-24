@@ -9,6 +9,7 @@ import (
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/core"
 	"github.com/air-iot/api-client-go/v4/errors"
+	"github.com/air-iot/api-client-go/v4/metadata"
 	"github.com/air-iot/api-client-go/v4/spm"
 	"github.com/air-iot/json"
 )
@@ -64,7 +65,7 @@ func (a *Client) getToken() (*Token, error) {
 		if err != nil {
 			return nil, errors.NewMsg("获取客户端错误,%s", err)
 		}
-		res, err := cli.GetToken(context.Background(), &api.TokenRequest{Ak: a.cfg.AK, Sk: a.cfg.SK})
+		res, err := cli.GetToken(metadata.GetGrpcContext(context.Background(), map[string]string{config.XRequestProject: a.cfg.ProjectId}), &api.TokenRequest{Ak: a.cfg.AK, Sk: a.cfg.SK})
 		if err != nil {
 			return nil, errors.NewMsg("请求错误, %s", err)
 		}

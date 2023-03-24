@@ -1,12 +1,13 @@
 package config
 
 type Config struct {
-	Metadata map[string]string
-	Services map[string]Service
-	Type     KeyType
-	AK       string
-	SK       string
-	Timeout  uint
+	Metadata  map[string]string
+	Services  map[string]Service
+	Type      KeyType
+	ProjectId string
+	AK        string
+	SK        string
+	Timeout   uint
 }
 
 type KeyType string
