@@ -2,7 +2,6 @@ package api_client_go
 
 import (
 	"context"
-	"github.com/air-iot/json"
 	"log"
 	"os"
 	"reflect"
@@ -11,6 +10,7 @@ import (
 	"time"
 
 	"github.com/air-iot/api-client-go/v4/config"
+	"github.com/air-iot/json"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc"
 )
@@ -22,11 +22,11 @@ func TestMain(m *testing.M) {
 	log.Println("begin")
 	//dsn := "host=airiot.tech user=root password=dell123 dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
 	client, err := clientv3.New(clientv3.Config{
-		Endpoints:   []string{"121.89.244.23:2379"},
+		Endpoints:   []string{"localhost:2379"},
 		DialTimeout: time.Second * time.Duration(60),
 		DialOptions: []grpc.DialOption{grpc.WithBlock()},
-		Username:    "root",
-		Password:    "dell123",
+		Username:    "",
+		Password:    "",
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -480,4 +480,35 @@ func GetColumns(a interface{}) []string {
 		}
 	}
 	return result
+}
+
+func TestClient_clean(t *testing.T) {
+	type e struct {
+		id string `json:"id"`
+	}
+	ctx := context.Background()
+	var projects []e
+	if err := cli.QueryProject(ctx, map[string]interface{}{}, &projects); err != nil {
+		t.Fatal(err)
+	}
+	for _, p := range projects {
+
+		projectId := p.id
+		if projectId == "63e1d40cc3879495dfe8b5e4" {
+			continue
+		}
+		var flows []e
+		if _, err := cli.QueryFlow(ctx, projectId, map[string]interface{}{}, &flows); err != nil {
+			for _, f := range flows {
+				var res map[string]interface{}
+				err := cli.UpdateFlow(context.Background(), projectId, f.id, map[string]interface{}{"disable": true}, f)
+				if err != nil {
+					t.Fatal(err)
+				}
+				t.Logf("id:%+v", res)
+			}
+
+		}
+	}
+
 }
