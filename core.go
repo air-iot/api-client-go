@@ -69,6 +69,24 @@ func (c *Client) GetDriverLicense(ctx context.Context, projectId, driverId strin
 	return nil
 }
 
+func (c *Client) FindMachineCode(ctx context.Context, result interface{}) error {
+	cli, err := c.CoreClient.GetLicenseServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	res, err := cli.FindMachineCode(ctx, &api.QueryRequest{})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
 func (c *Client) GetCurrentUserInfo(ctx context.Context, projectId, token string, result interface{}) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault

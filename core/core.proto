@@ -18,6 +18,7 @@ option java_generic_services = true;
 service LicenseService {
   rpc GetFileLicense (api.QueryRequest) returns (api.Response) {}
   rpc UseLicense (api.QueryRequest) returns (api.Response) {}
+  rpc FindMachineCode (api.QueryRequest) returns (api.Response) {}
   rpc GetDriverLicense (api.GetOrDeleteRequest) returns (api.Response) {}
 }
 

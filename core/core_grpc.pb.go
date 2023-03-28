@@ -25,6 +25,7 @@ const _ = grpc.SupportPackageIsVersion7
 type LicenseServiceClient interface {
 	GetFileLicense(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
 	UseLicense(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
+	FindMachineCode(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
 	GetDriverLicense(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
 }
 
@@ -54,6 +55,15 @@ func (c *licenseServiceClient) UseLicense(ctx context.Context, in *api.QueryRequ
 	return out, nil
 }
 
+func (c *licenseServiceClient) FindMachineCode(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.LicenseService/FindMachineCode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *licenseServiceClient) GetDriverLicense(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error) {
 	out := new(api.Response)
 	err := c.cc.Invoke(ctx, "/core.LicenseService/GetDriverLicense", in, out, opts...)
@@ -69,6 +79,7 @@ func (c *licenseServiceClient) GetDriverLicense(ctx context.Context, in *api.Get
 type LicenseServiceServer interface {
 	GetFileLicense(context.Context, *api.QueryRequest) (*api.Response, error)
 	UseLicense(context.Context, *api.QueryRequest) (*api.Response, error)
+	FindMachineCode(context.Context, *api.QueryRequest) (*api.Response, error)
 	GetDriverLicense(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
 	mustEmbedUnimplementedLicenseServiceServer()
 }
@@ -82,6 +93,9 @@ func (UnimplementedLicenseServiceServer) GetFileLicense(context.Context, *api.Qu
 }
 func (UnimplementedLicenseServiceServer) UseLicense(context.Context, *api.QueryRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UseLicense not implemented")
+}
+func (UnimplementedLicenseServiceServer) FindMachineCode(context.Context, *api.QueryRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindMachineCode not implemented")
 }
 func (UnimplementedLicenseServiceServer) GetDriverLicense(context.Context, *api.GetOrDeleteRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDriverLicense not implemented")
@@ -135,6 +149,24 @@ func _LicenseService_UseLicense_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LicenseService_FindMachineCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.QueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LicenseServiceServer).FindMachineCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.LicenseService/FindMachineCode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LicenseServiceServer).FindMachineCode(ctx, req.(*api.QueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _LicenseService_GetDriverLicense_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(api.GetOrDeleteRequest)
 	if err := dec(in); err != nil {
@@ -167,6 +199,10 @@ var LicenseService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UseLicense",
 			Handler:    _LicenseService_UseLicense_Handler,
+		},
+		{
+			MethodName: "FindMachineCode",
+			Handler:    _LicenseService_FindMachineCode_Handler,
 		},
 		{
 			MethodName: "GetDriverLicense",

@@ -36,6 +36,7 @@ func (c *customCredential) GetRequestMetadata(ctx context.Context, uri ...string
 	//path := pr.Operation()
 	path := info.Method
 	if path == "/spm.UserService/GetToken" ||
+		path == "/core.LicenseService/FindMachineCode" ||
 		path == "/core.AppService/GetToken" {
 		//path == "/core.UserService/GetCurrentUserInfo" ||
 		//path == "/core.RoleService/AdminRoleCheck" ||
