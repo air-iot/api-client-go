@@ -63,7 +63,7 @@ func (c *Client) UploadLicense(ctx context.Context, projectId string, size int, 
 		return errors.NewMsg("请求错误, %s", err)
 	}
 
-	defer stream.CloseAndRecv()
+	//defer stream.CloseAndRecv()
 
 	buffer := make([]byte, 1024)
 
@@ -81,6 +81,10 @@ func (c *Client) UploadLicense(ctx context.Context, projectId string, size int, 
 		bytesReadAll += bytesRead
 
 		if bytesReadAll == size {
+			_, err := stream.CloseAndRecv()
+			if err != nil {
+				return err
+			}
 			return nil
 		}
 
@@ -1969,7 +1973,7 @@ func (c *Client) UploadBackup(ctx context.Context, projectId, password string, s
 		return errors.NewMsg("请求错误, %s", err)
 	}
 
-	defer stream.CloseAndRecv()
+	//defer stream.CloseAndRecv()
 
 	buffer := make([]byte, 1024)
 
@@ -1987,6 +1991,10 @@ func (c *Client) UploadBackup(ctx context.Context, projectId, password string, s
 		bytesReadAll += bytesRead
 
 		if bytesReadAll == size {
+			_, err := stream.CloseAndRecv()
+			if err != nil {
+				return err
+			}
 			return nil
 		}
 
