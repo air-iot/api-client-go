@@ -49,6 +49,44 @@ func (c *Client) UseLicense(ctx context.Context, projectId string, result interf
 	return nil
 }
 
+func (c *Client) UploadLicense(ctx context.Context, projectId string, size int, r io.Reader) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+
+	cli, err := c.CoreClient.GetLicenseServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	stream, err := cli.UploadLicense(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}))
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+
+	defer stream.CloseAndRecv()
+
+	buffer := make([]byte, 1024)
+
+	bytesReadAll := 0
+
+	for {
+		bytesRead, err := r.Read(buffer)
+		if err != nil {
+			return err
+		}
+		err = stream.Send(&core.UploadFileRequest{Data: buffer[:bytesRead]})
+		if err != nil {
+			return err
+		}
+		bytesReadAll += bytesRead
+
+		if bytesReadAll == size {
+			return nil
+		}
+
+	}
+}
+
 func (c *Client) GetDriverLicense(ctx context.Context, projectId, driverId string, result interface{}) error {
 	cli, err := c.CoreClient.GetLicenseServiceClient()
 	if err != nil {

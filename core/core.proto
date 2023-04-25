@@ -20,6 +20,8 @@ service LicenseService {
   rpc UseLicense (api.QueryRequest) returns (api.Response) {}
   rpc FindMachineCode (api.QueryRequest) returns (api.Response) {}
   rpc GetDriverLicense (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc UploadLicense(stream UploadFileRequest) returns (api.Response) {}
+
 }
 
 service AppService {

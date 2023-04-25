@@ -7,6 +7,7 @@ require (
 	github.com/air-iot/logger v0.0.1
 	github.com/go-kratos/kratos/contrib/registry/etcd/v2 v2.0.0-20230227131608-c65f823c38de
 	github.com/go-kratos/kratos/v2 v2.5.4
+	github.com/golang/protobuf v1.5.2
 	github.com/pkg/errors v0.9.1
 	go.etcd.io/etcd/client/v3 v3.5.7
 	google.golang.org/grpc v1.53.0
@@ -18,7 +19,6 @@ require (
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
 	github.com/go-playground/form/v4 v4.2.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/jinzhu/copier v0.3.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect

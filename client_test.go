@@ -454,6 +454,26 @@ func TestClient_UploadBackup(t *testing.T) {
 	t.Logf("id:%+v", id)
 }
 
+func TestClient_UploadLicense(t *testing.T) {
+
+	name := "license.txt"
+	f, err := os.Open(name)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fi, err := f.Stat()
+	if err != nil {
+		t.Fatal(err)
+	}
+	id := "6417f647ea62c9a4582b41d8"
+	err = cli.UploadLicense(context.Background(), "625f6dbf5433487131f09ff7", int(fi.Size()), f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Logf("id:%+v", id)
+}
+
 // GetColumns 查询实体类 gorm 列名
 func GetColumns(a interface{}) []string {
 	s := reflect.TypeOf(a)
