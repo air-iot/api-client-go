@@ -2,6 +2,7 @@ package api_client_go
 
 import (
 	"context"
+	cErrors "github.com/air-iot/errors"
 
 	"github.com/air-iot/api-client-go/v4/api"
 	"github.com/air-iot/api-client-go/v4/config"
@@ -36,7 +37,7 @@ func (c *Client) QueryDataGroup(ctx context.Context, projectId string, query, re
 		return 0, errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return 0, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return 0, cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return 0, errors.NewMsg("解析请求结果错误, %s", err)
@@ -68,7 +69,7 @@ func (c *Client) CreateDataGroups(ctx context.Context, projectId string, createD
 		return 0, errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return 0, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return 0, cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	//if err := json.Unmarshal(res.GetResult(), result); err != nil {
 	//	return 0, errors.NewMsg("解析请求结果错误, %s", err)
@@ -95,7 +96,7 @@ func (c *Client) QueryDataInterface(ctx context.Context, projectId string, query
 		return 0, errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return 0, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return 0, cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return 0, errors.NewMsg("解析请求结果错误, %s", err)
@@ -127,7 +128,7 @@ func (c *Client) CreateDataInterfaces(ctx context.Context, projectId string, cre
 		return 0, errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return 0, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return 0, cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	//if err := json.Unmarshal(res.GetResult(), result); err != nil {
 	//	return 0, errors.NewMsg("解析请求结果错误, %s", err)
@@ -159,7 +160,7 @@ func (c *Client) DataInterfaceProxy(ctx context.Context, projectId, key string, 
 		return nil, errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return nil, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return nil, cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	return &ProxyResult{
 		Code:    res.GetHttpCode(),

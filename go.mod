@@ -3,6 +3,7 @@ module github.com/air-iot/api-client-go/v4
 go 1.17
 
 require (
+	github.com/air-iot/errors v0.0.4
 	github.com/air-iot/json v0.0.1
 	github.com/air-iot/logger v0.0.1
 	github.com/go-kratos/kratos/contrib/registry/etcd/v2 v2.0.0-20230227131608-c65f823c38de

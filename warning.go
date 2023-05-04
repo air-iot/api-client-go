@@ -7,6 +7,7 @@ import (
 	"github.com/air-iot/api-client-go/v4/errors"
 	"github.com/air-iot/api-client-go/v4/metadata"
 	"github.com/air-iot/api-client-go/v4/warning"
+	cErrors "github.com/air-iot/errors"
 	"github.com/air-iot/json"
 )
 
@@ -30,7 +31,7 @@ func (c *Client) QueryWarn(ctx context.Context, projectId, token, archive string
 		return 0, errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return 0, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return 0, cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return 0, errors.NewMsg("解析请求结果错误, %s", err)
@@ -56,7 +57,7 @@ func (c *Client) GetWarn(ctx context.Context, projectId, archive, id string, res
 		return nil, errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return nil, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return nil, cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if result == nil {
 		return res.GetResult(), nil
@@ -89,7 +90,7 @@ func (c *Client) BatchCreateWarn(ctx context.Context, projectId string, createDa
 		return errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)
@@ -117,7 +118,7 @@ func (c *Client) QueryRule(ctx context.Context, projectId string, query interfac
 		return 0, errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return 0, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return 0, cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return 0, errors.NewMsg("解析请求结果错误, %s", err)
@@ -147,7 +148,7 @@ func (c *Client) CreateWarn(ctx context.Context, projectId string, createData, r
 		return errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)
@@ -177,7 +178,7 @@ func (c *Client) BatchCreateRule(ctx context.Context, projectId string, createDa
 		return errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)

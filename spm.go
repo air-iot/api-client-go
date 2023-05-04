@@ -2,6 +2,7 @@ package api_client_go
 
 import (
 	"context"
+	cErrors "github.com/air-iot/errors"
 
 	"github.com/air-iot/api-client-go/v4/api"
 	"github.com/air-iot/api-client-go/v4/errors"
@@ -22,7 +23,7 @@ func (c *Client) QueryProject(ctx context.Context, query, result interface{}) er
 		return errors.NewMsg(", %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)
@@ -43,7 +44,7 @@ func (c *Client) GetProject(ctx context.Context, id string, result interface{}) 
 		return nil, errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return nil, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return nil, cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if result == nil {
 		return res.GetResult(), nil
@@ -67,7 +68,7 @@ func (c *Client) DeleteProject(ctx context.Context, id string, result interface{
 		return errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)
@@ -95,7 +96,7 @@ func (c *Client) UpdateProject(ctx context.Context, id string, updateData, resul
 		return errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)
@@ -123,7 +124,7 @@ func (c *Client) UpdateProjectLicense(ctx context.Context, id string, updateData
 		return errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	//if err := json.Unmarshal(res.GetResult(), result); err != nil {
 	//	return errors.NewMsg("解析请求结果错误, %s", err)
@@ -151,7 +152,7 @@ func (c *Client) ReplaceProject(ctx context.Context, id string, updateData, resu
 		return errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)
@@ -176,7 +177,7 @@ func (c *Client) CreateProject(ctx context.Context, createData, result interface
 		return errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)
@@ -198,7 +199,7 @@ func (c *Client) QueryPmSetting(ctx context.Context, query, result interface{}) 
 		return errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)

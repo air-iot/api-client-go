@@ -6,6 +6,7 @@ import (
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/errors"
 	"github.com/air-iot/api-client-go/v4/metadata"
+	cErrors "github.com/air-iot/errors"
 	"github.com/air-iot/json"
 )
 
@@ -29,7 +30,7 @@ func (c *Client) QueryReport(ctx context.Context, projectId string, query interf
 		return 0, errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return 0, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return 0, cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return 0, errors.NewMsg("解析请求结果错误, %s", err)
@@ -55,7 +56,7 @@ func (c *Client) GetReport(ctx context.Context, projectId, id string, result int
 		return nil, errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return nil, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return nil, cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if result == nil {
 		return res.GetResult(), nil
@@ -88,7 +89,7 @@ func (c *Client) BatchCreateReport(ctx context.Context, projectId string, create
 		return errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)
@@ -117,7 +118,7 @@ func (c *Client) QueryReportCopy(ctx context.Context, projectId string, query in
 		return 0, errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return 0, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return 0, cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return 0, errors.NewMsg("解析请求结果错误, %s", err)
@@ -147,7 +148,7 @@ func (c *Client) CreateReport(ctx context.Context, projectId string, createData,
 		return errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)
@@ -177,7 +178,7 @@ func (c *Client) BatchCreateReportCopy(ctx context.Context, projectId string, cr
 		return errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)

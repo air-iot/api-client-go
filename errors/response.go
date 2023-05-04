@@ -15,7 +15,7 @@ type ResponseError struct {
 func (r *ResponseError) Error() string {
 	if r.ERR != nil {
 		if r.Message != "" {
-			return fmt.Sprintf("message: %s, err: %s", r.Message, r.ERR.Error())
+			return r.Message
 		}
 		return r.ERR.Error()
 	}

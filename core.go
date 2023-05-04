@@ -2,7 +2,6 @@ package api_client_go
 
 import (
 	"context"
-	"github.com/air-iot/logger"
 	"io"
 
 	"github.com/air-iot/api-client-go/v4/api"
@@ -10,7 +9,9 @@ import (
 	"github.com/air-iot/api-client-go/v4/core"
 	"github.com/air-iot/api-client-go/v4/errors"
 	"github.com/air-iot/api-client-go/v4/metadata"
+	cErrors "github.com/air-iot/errors"
 	"github.com/air-iot/json"
+	"github.com/air-iot/logger"
 )
 
 func (c *Client) GetFileLicense(ctx context.Context, result interface{}) error {
@@ -23,7 +24,7 @@ func (c *Client) GetFileLicense(ctx context.Context, result interface{}) error {
 		return errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)

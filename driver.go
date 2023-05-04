@@ -2,6 +2,7 @@ package api_client_go
 
 import (
 	"context"
+	cErrors "github.com/air-iot/errors"
 
 	"github.com/air-iot/api-client-go/v4/api"
 	"github.com/air-iot/api-client-go/v4/config"
@@ -33,7 +34,7 @@ func (c *Client) BatchCommand(ctx context.Context, projectId string, data interf
 		return errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)
@@ -67,7 +68,7 @@ func (c *Client) ChangeCommand(ctx context.Context, projectId, id string, data, 
 		return errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)
