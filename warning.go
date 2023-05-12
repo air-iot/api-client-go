@@ -185,3 +185,98 @@ func (c *Client) BatchCreateRule(ctx context.Context, projectId string, createDa
 	}
 	return nil
 }
+
+func (c *Client) DeleteRule(ctx context.Context, projectId, id string, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if id == "" {
+		return errors.NewMsg("id为空")
+	}
+	cli, err := c.WarningClient.GetRuleServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+
+	res, err := cli.Delete(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.GetOrDeleteRequest{Id: id})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) UpdateRule(ctx context.Context, projectId, id string, updateData, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if id == "" {
+		return errors.NewMsg("id为空")
+	}
+	if updateData == nil {
+		return errors.NewMsg("更新数据为空")
+	}
+
+	cli, err := c.WarningClient.GetRuleServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+
+	bts, err := json.Marshal(updateData)
+	if err != nil {
+		return errors.NewMsg("marshal 更新数据为空")
+	}
+	res, err := cli.Update(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.UpdateRequest{Id: id, Data: bts})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) ReplaceRule(ctx context.Context, projectId, id string, updateData, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if id == "" {
+		return errors.NewMsg("id为空")
+	}
+	if updateData == nil {
+		return errors.NewMsg("更新数据为空")
+	}
+	cli, err := c.WarningClient.GetRuleServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	bts, err := json.Marshal(updateData)
+	if err != nil {
+		return errors.NewMsg("marshal 更新数据为空")
+	}
+	res, err := cli.Replace(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.UpdateRequest{Id: id, Data: bts})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}

@@ -27,6 +27,9 @@ type FlowTaskServiceClient interface {
 	Get(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
 	Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
 	BatchCreate(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Update(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Replace(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
 }
 
 type flowTaskServiceClient struct {
@@ -73,6 +76,33 @@ func (c *flowTaskServiceClient) BatchCreate(ctx context.Context, in *api.CreateR
 	return out, nil
 }
 
+func (c *flowTaskServiceClient) Update(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/flow.FlowTaskService/Update", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *flowTaskServiceClient) Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/flow.FlowTaskService/Delete", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *flowTaskServiceClient) Replace(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/flow.FlowTaskService/Replace", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FlowTaskServiceServer is the server API for FlowTaskService service.
 // All implementations must embed UnimplementedFlowTaskServiceServer
 // for forward compatibility
@@ -81,6 +111,9 @@ type FlowTaskServiceServer interface {
 	Get(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
 	Query(context.Context, *api.QueryRequest) (*api.Response, error)
 	BatchCreate(context.Context, *api.CreateRequest) (*api.Response, error)
+	Update(context.Context, *api.UpdateRequest) (*api.Response, error)
+	Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
+	Replace(context.Context, *api.UpdateRequest) (*api.Response, error)
 	mustEmbedUnimplementedFlowTaskServiceServer()
 }
 
@@ -99,6 +132,15 @@ func (UnimplementedFlowTaskServiceServer) Query(context.Context, *api.QueryReque
 }
 func (UnimplementedFlowTaskServiceServer) BatchCreate(context.Context, *api.CreateRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BatchCreate not implemented")
+}
+func (UnimplementedFlowTaskServiceServer) Update(context.Context, *api.UpdateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+}
+func (UnimplementedFlowTaskServiceServer) Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedFlowTaskServiceServer) Replace(context.Context, *api.UpdateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Replace not implemented")
 }
 func (UnimplementedFlowTaskServiceServer) mustEmbedUnimplementedFlowTaskServiceServer() {}
 
@@ -185,6 +227,60 @@ func _FlowTaskService_BatchCreate_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FlowTaskService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.UpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FlowTaskServiceServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/flow.FlowTaskService/Update",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FlowTaskServiceServer).Update(ctx, req.(*api.UpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FlowTaskService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.GetOrDeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FlowTaskServiceServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/flow.FlowTaskService/Delete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FlowTaskServiceServer).Delete(ctx, req.(*api.GetOrDeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FlowTaskService_Replace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.UpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FlowTaskServiceServer).Replace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/flow.FlowTaskService/Replace",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FlowTaskServiceServer).Replace(ctx, req.(*api.UpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FlowTaskService_ServiceDesc is the grpc.ServiceDesc for FlowTaskService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -208,6 +304,18 @@ var FlowTaskService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "BatchCreate",
 			Handler:    _FlowTaskService_BatchCreate_Handler,
 		},
+		{
+			MethodName: "Update",
+			Handler:    _FlowTaskService_Update_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _FlowTaskService_Delete_Handler,
+		},
+		{
+			MethodName: "Replace",
+			Handler:    _FlowTaskService_Replace_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "flow/flow.proto",
@@ -221,6 +329,8 @@ type FlowServiceClient interface {
 	Get(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
 	Update(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
 	BatchCreate(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Replace(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
 }
 
 type flowServiceClient struct {
@@ -267,6 +377,24 @@ func (c *flowServiceClient) BatchCreate(ctx context.Context, in *api.CreateReque
 	return out, nil
 }
 
+func (c *flowServiceClient) Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/flow.FlowService/Delete", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *flowServiceClient) Replace(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/flow.FlowService/Replace", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FlowServiceServer is the server API for FlowService service.
 // All implementations must embed UnimplementedFlowServiceServer
 // for forward compatibility
@@ -275,6 +403,8 @@ type FlowServiceServer interface {
 	Get(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
 	Update(context.Context, *api.UpdateRequest) (*api.Response, error)
 	BatchCreate(context.Context, *api.CreateRequest) (*api.Response, error)
+	Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
+	Replace(context.Context, *api.UpdateRequest) (*api.Response, error)
 	mustEmbedUnimplementedFlowServiceServer()
 }
 
@@ -293,6 +423,12 @@ func (UnimplementedFlowServiceServer) Update(context.Context, *api.UpdateRequest
 }
 func (UnimplementedFlowServiceServer) BatchCreate(context.Context, *api.CreateRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BatchCreate not implemented")
+}
+func (UnimplementedFlowServiceServer) Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedFlowServiceServer) Replace(context.Context, *api.UpdateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Replace not implemented")
 }
 func (UnimplementedFlowServiceServer) mustEmbedUnimplementedFlowServiceServer() {}
 
@@ -379,6 +515,42 @@ func _FlowService_BatchCreate_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FlowService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.GetOrDeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FlowServiceServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/flow.FlowService/Delete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FlowServiceServer).Delete(ctx, req.(*api.GetOrDeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FlowService_Replace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.UpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FlowServiceServer).Replace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/flow.FlowService/Replace",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FlowServiceServer).Replace(ctx, req.(*api.UpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FlowService_ServiceDesc is the grpc.ServiceDesc for FlowService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -401,6 +573,14 @@ var FlowService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BatchCreate",
 			Handler:    _FlowService_BatchCreate_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _FlowService_Delete_Handler,
+		},
+		{
+			MethodName: "Replace",
+			Handler:    _FlowService_Replace_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

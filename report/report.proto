@@ -20,11 +20,17 @@ service ReportService {
   rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
   rpc Create (api.CreateRequest) returns (api.Response) {}
   rpc BatchCreate (api.CreateRequest) returns (api.Response) {}
+  rpc Update (api.UpdateRequest) returns (api.Response) {}
+  rpc Delete (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc Replace (api.UpdateRequest) returns (api.Response) {}
 }
 
 service ReportCopyService {
   rpc Query (api.QueryRequest) returns (api.Response) {}
   rpc BatchCreate (api.CreateRequest) returns (api.Response) {}
+  rpc Update (api.UpdateRequest) returns (api.Response) {}
+  rpc Delete (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc Replace (api.UpdateRequest) returns (api.Response) {}
 }
 
 

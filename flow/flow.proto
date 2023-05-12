@@ -21,6 +21,9 @@ service FlowTaskService {
   rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
   rpc Query (api.QueryRequest) returns (api.Response) {}
   rpc BatchCreate (api.CreateRequest) returns (api.Response) {}
+  rpc Update (api.UpdateRequest) returns (api.Response) {}
+  rpc Delete (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc Replace (api.UpdateRequest) returns (api.Response) {}
 }
 
 service FlowService {
@@ -28,6 +31,8 @@ service FlowService {
   rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
   rpc Update (api.UpdateRequest) returns (api.Response) {}
   rpc BatchCreate (api.CreateRequest) returns (api.Response) {}
+  rpc Delete (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc Replace (api.UpdateRequest) returns (api.Response) {}
 }
 
 service FlowTriggerRecordService {

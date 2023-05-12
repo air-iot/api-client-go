@@ -27,6 +27,9 @@ type ReportServiceClient interface {
 	Get(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
 	Create(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
 	BatchCreate(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Update(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Replace(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
 }
 
 type reportServiceClient struct {
@@ -73,6 +76,33 @@ func (c *reportServiceClient) BatchCreate(ctx context.Context, in *api.CreateReq
 	return out, nil
 }
 
+func (c *reportServiceClient) Update(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/report.ReportService/Update", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reportServiceClient) Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/report.ReportService/Delete", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reportServiceClient) Replace(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/report.ReportService/Replace", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ReportServiceServer is the server API for ReportService service.
 // All implementations must embed UnimplementedReportServiceServer
 // for forward compatibility
@@ -81,6 +111,9 @@ type ReportServiceServer interface {
 	Get(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
 	Create(context.Context, *api.CreateRequest) (*api.Response, error)
 	BatchCreate(context.Context, *api.CreateRequest) (*api.Response, error)
+	Update(context.Context, *api.UpdateRequest) (*api.Response, error)
+	Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
+	Replace(context.Context, *api.UpdateRequest) (*api.Response, error)
 	mustEmbedUnimplementedReportServiceServer()
 }
 
@@ -99,6 +132,15 @@ func (UnimplementedReportServiceServer) Create(context.Context, *api.CreateReque
 }
 func (UnimplementedReportServiceServer) BatchCreate(context.Context, *api.CreateRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BatchCreate not implemented")
+}
+func (UnimplementedReportServiceServer) Update(context.Context, *api.UpdateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+}
+func (UnimplementedReportServiceServer) Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedReportServiceServer) Replace(context.Context, *api.UpdateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Replace not implemented")
 }
 func (UnimplementedReportServiceServer) mustEmbedUnimplementedReportServiceServer() {}
 
@@ -185,6 +227,60 @@ func _ReportService_BatchCreate_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ReportService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.UpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReportServiceServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/report.ReportService/Update",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReportServiceServer).Update(ctx, req.(*api.UpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ReportService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.GetOrDeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReportServiceServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/report.ReportService/Delete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReportServiceServer).Delete(ctx, req.(*api.GetOrDeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ReportService_Replace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.UpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReportServiceServer).Replace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/report.ReportService/Replace",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReportServiceServer).Replace(ctx, req.(*api.UpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ReportService_ServiceDesc is the grpc.ServiceDesc for ReportService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -208,6 +304,18 @@ var ReportService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "BatchCreate",
 			Handler:    _ReportService_BatchCreate_Handler,
 		},
+		{
+			MethodName: "Update",
+			Handler:    _ReportService_Update_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _ReportService_Delete_Handler,
+		},
+		{
+			MethodName: "Replace",
+			Handler:    _ReportService_Replace_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "report/report.proto",
@@ -219,6 +327,9 @@ var ReportService_ServiceDesc = grpc.ServiceDesc{
 type ReportCopyServiceClient interface {
 	Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
 	BatchCreate(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Update(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Replace(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
 }
 
 type reportCopyServiceClient struct {
@@ -247,12 +358,42 @@ func (c *reportCopyServiceClient) BatchCreate(ctx context.Context, in *api.Creat
 	return out, nil
 }
 
+func (c *reportCopyServiceClient) Update(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/report.ReportCopyService/Update", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reportCopyServiceClient) Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/report.ReportCopyService/Delete", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reportCopyServiceClient) Replace(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/report.ReportCopyService/Replace", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ReportCopyServiceServer is the server API for ReportCopyService service.
 // All implementations must embed UnimplementedReportCopyServiceServer
 // for forward compatibility
 type ReportCopyServiceServer interface {
 	Query(context.Context, *api.QueryRequest) (*api.Response, error)
 	BatchCreate(context.Context, *api.CreateRequest) (*api.Response, error)
+	Update(context.Context, *api.UpdateRequest) (*api.Response, error)
+	Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
+	Replace(context.Context, *api.UpdateRequest) (*api.Response, error)
 	mustEmbedUnimplementedReportCopyServiceServer()
 }
 
@@ -265,6 +406,15 @@ func (UnimplementedReportCopyServiceServer) Query(context.Context, *api.QueryReq
 }
 func (UnimplementedReportCopyServiceServer) BatchCreate(context.Context, *api.CreateRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BatchCreate not implemented")
+}
+func (UnimplementedReportCopyServiceServer) Update(context.Context, *api.UpdateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+}
+func (UnimplementedReportCopyServiceServer) Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedReportCopyServiceServer) Replace(context.Context, *api.UpdateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Replace not implemented")
 }
 func (UnimplementedReportCopyServiceServer) mustEmbedUnimplementedReportCopyServiceServer() {}
 
@@ -315,6 +465,60 @@ func _ReportCopyService_BatchCreate_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ReportCopyService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.UpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReportCopyServiceServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/report.ReportCopyService/Update",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReportCopyServiceServer).Update(ctx, req.(*api.UpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ReportCopyService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.GetOrDeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReportCopyServiceServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/report.ReportCopyService/Delete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReportCopyServiceServer).Delete(ctx, req.(*api.GetOrDeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ReportCopyService_Replace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.UpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReportCopyServiceServer).Replace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/report.ReportCopyService/Replace",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReportCopyServiceServer).Replace(ctx, req.(*api.UpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ReportCopyService_ServiceDesc is the grpc.ServiceDesc for ReportCopyService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -329,6 +533,18 @@ var ReportCopyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BatchCreate",
 			Handler:    _ReportCopyService_BatchCreate_Handler,
+		},
+		{
+			MethodName: "Update",
+			Handler:    _ReportCopyService_Update_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _ReportCopyService_Delete_Handler,
+		},
+		{
+			MethodName: "Replace",
+			Handler:    _ReportCopyService_Replace_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

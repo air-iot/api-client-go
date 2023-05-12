@@ -219,6 +219,9 @@ var WarnService_ServiceDesc = grpc.ServiceDesc{
 type RuleServiceClient interface {
 	Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
 	BatchCreate(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Update(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Replace(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
 }
 
 type ruleServiceClient struct {
@@ -247,12 +250,42 @@ func (c *ruleServiceClient) BatchCreate(ctx context.Context, in *api.CreateReque
 	return out, nil
 }
 
+func (c *ruleServiceClient) Update(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/warning.RuleService/Update", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ruleServiceClient) Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/warning.RuleService/Delete", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ruleServiceClient) Replace(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/warning.RuleService/Replace", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RuleServiceServer is the server API for RuleService service.
 // All implementations must embed UnimplementedRuleServiceServer
 // for forward compatibility
 type RuleServiceServer interface {
 	Query(context.Context, *api.QueryRequest) (*api.Response, error)
 	BatchCreate(context.Context, *api.CreateRequest) (*api.Response, error)
+	Update(context.Context, *api.UpdateRequest) (*api.Response, error)
+	Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
+	Replace(context.Context, *api.UpdateRequest) (*api.Response, error)
 	mustEmbedUnimplementedRuleServiceServer()
 }
 
@@ -265,6 +298,15 @@ func (UnimplementedRuleServiceServer) Query(context.Context, *api.QueryRequest) 
 }
 func (UnimplementedRuleServiceServer) BatchCreate(context.Context, *api.CreateRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BatchCreate not implemented")
+}
+func (UnimplementedRuleServiceServer) Update(context.Context, *api.UpdateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+}
+func (UnimplementedRuleServiceServer) Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedRuleServiceServer) Replace(context.Context, *api.UpdateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Replace not implemented")
 }
 func (UnimplementedRuleServiceServer) mustEmbedUnimplementedRuleServiceServer() {}
 
@@ -315,6 +357,60 @@ func _RuleService_BatchCreate_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RuleService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.UpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RuleServiceServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/warning.RuleService/Update",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RuleServiceServer).Update(ctx, req.(*api.UpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RuleService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.GetOrDeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RuleServiceServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/warning.RuleService/Delete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RuleServiceServer).Delete(ctx, req.(*api.GetOrDeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RuleService_Replace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.UpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RuleServiceServer).Replace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/warning.RuleService/Replace",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RuleServiceServer).Replace(ctx, req.(*api.UpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RuleService_ServiceDesc is the grpc.ServiceDesc for RuleService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -329,6 +425,18 @@ var RuleService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BatchCreate",
 			Handler:    _RuleService_BatchCreate_Handler,
+		},
+		{
+			MethodName: "Update",
+			Handler:    _RuleService_Update_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _RuleService_Delete_Handler,
+		},
+		{
+			MethodName: "Replace",
+			Handler:    _RuleService_Replace_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
