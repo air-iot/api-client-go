@@ -535,7 +535,7 @@ func TestClient_clean(t *testing.T) {
 
 func TestClient_ReplaceDataGroups(t *testing.T) {
 
-	if err := cli.ReplaceDataGroups(context.Background(), "625f6dbf5433487131f09ff9", "6461d962693d5e41ef126b8e", map[string]interface{}{
+	if err := cli.ReplaceDataGroup(context.Background(), "625f6dbf5433487131f09ff9", "6461d962693d5e41ef126b8e", map[string]interface{}{
 		"name": "测试3",
 		"type": "http",
 	}); err != nil {
@@ -555,7 +555,7 @@ func Test_DeleteManyDataGroups(t *testing.T) {
 
 func TestClient_ReplaceDataInterfaces(t *testing.T) {
 
-	if err := cli.ReplaceDataInterfaces(context.Background(), "625f6dbf5433487131f09ff9", "6461dc43693d5e41ef126b8f", map[string]interface{}{
+	if err := cli.ReplaceDataInterface(context.Background(), "625f6dbf5433487131f09ff9", "6461dc43693d5e41ef126b8f", map[string]interface{}{
 		"dataGroup": map[string]interface{}{"id": "6461d962693d5e41ef126b8e", "name": "测试3", "type": "http", "createTime": "2023-05-15T15:04:02+08:00"},
 		"key":       "test11", "name": "test1121", "setting": map[string]interface{}{"method": "GET"}}); err != nil {
 		t.Error(err)

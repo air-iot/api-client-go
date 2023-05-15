@@ -77,7 +77,7 @@ func (c *Client) CreateDataGroups(ctx context.Context, projectId string, createD
 	return res.GetCount(), nil
 }
 
-func (c *Client) ReplaceDataGroups(ctx context.Context, projectId, id string, createData interface{}) error {
+func (c *Client) ReplaceDataGroup(ctx context.Context, projectId, id string, createData interface{}) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
@@ -107,7 +107,7 @@ func (c *Client) ReplaceDataGroups(ctx context.Context, projectId, id string, cr
 	return nil
 }
 
-func (c *Client) UpdateDataGroups(ctx context.Context, projectId, id string, createData interface{}) error {
+func (c *Client) UpdateDataGroup(ctx context.Context, projectId, id string, createData interface{}) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
@@ -137,7 +137,7 @@ func (c *Client) UpdateDataGroups(ctx context.Context, projectId, id string, cre
 	return nil
 }
 
-func (c *Client) DeleteDataGroups(ctx context.Context, projectId, id string) error {
+func (c *Client) DeleteDataGroup(ctx context.Context, projectId, id string) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
@@ -244,7 +244,7 @@ func (c *Client) CreateDataInterfaces(ctx context.Context, projectId string, cre
 	return res.GetCount(), nil
 }
 
-func (c *Client) ReplaceDataInterfaces(ctx context.Context, projectId, id string, createData interface{}) error {
+func (c *Client) ReplaceDataInterface(ctx context.Context, projectId, id string, createData interface{}) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
@@ -274,7 +274,7 @@ func (c *Client) ReplaceDataInterfaces(ctx context.Context, projectId, id string
 	return nil
 }
 
-func (c *Client) UpdateDataInterfaces(ctx context.Context, projectId, id string, createData interface{}) error {
+func (c *Client) UpdateDataInterface(ctx context.Context, projectId, id string, createData interface{}) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
@@ -304,7 +304,7 @@ func (c *Client) UpdateDataInterfaces(ctx context.Context, projectId, id string,
 	return nil
 }
 
-func (c *Client) DeleteDataInterfaces(ctx context.Context, projectId, id string) error {
+func (c *Client) DeleteDataInterface(ctx context.Context, projectId, id string) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
