@@ -77,6 +77,114 @@ func (c *Client) CreateDataGroups(ctx context.Context, projectId string, createD
 	return res.GetCount(), nil
 }
 
+func (c *Client) ReplaceDataGroups(ctx context.Context, projectId, id string, createData interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if createData == nil {
+		return errors.NewMsg("更新数据为空")
+	}
+	cli, err := c.DataServiceClient.GetDataGroupServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	bts, err := json.Marshal(createData)
+	if err != nil {
+		return errors.NewMsg("marshal 更新数据错误,%s", err)
+	}
+	res, err := cli.Replace(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.UpdateRequest{
+			Id:   id,
+			Data: bts,
+		})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
+	}
+	return nil
+}
+
+func (c *Client) UpdateDataGroups(ctx context.Context, projectId, id string, createData interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if createData == nil {
+		return errors.NewMsg("更新数据为空")
+	}
+	cli, err := c.DataServiceClient.GetDataGroupServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	bts, err := json.Marshal(createData)
+	if err != nil {
+		return errors.NewMsg("marshal 更新数据错误,%s", err)
+	}
+	res, err := cli.Update(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.UpdateRequest{
+			Id:   id,
+			Data: bts,
+		})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
+	}
+	return nil
+}
+
+func (c *Client) DeleteDataGroups(ctx context.Context, projectId, id string) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	cli, err := c.DataServiceClient.GetDataGroupServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	res, err := cli.Delete(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.GetOrDeleteRequest{
+			Id: id,
+		})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
+	}
+	return nil
+}
+
+func (c *Client) DeleteManyDataGroups(ctx context.Context, projectId string, filter interface{}) (int64, error) {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	bts, err := json.Marshal(filter)
+	if err != nil {
+		return 0, errors.NewMsg("序列化查询参数为空, %s", err)
+	}
+	cli, err := c.DataServiceClient.GetDataGroupServiceClient()
+	if err != nil {
+		return 0, errors.NewMsg("获取客户端错误,%s", err)
+	}
+	res, err := cli.DeleteMany(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.QueryRequest{
+			Query: bts,
+		})
+	if err != nil {
+		return 0, errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return 0, cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
+	}
+	return res.GetCount(), nil
+}
+
 func (c *Client) QueryDataInterface(ctx context.Context, projectId string, query, result interface{}) (int64, error) {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
@@ -133,6 +241,114 @@ func (c *Client) CreateDataInterfaces(ctx context.Context, projectId string, cre
 	//if err := json.Unmarshal(res.GetResult(), result); err != nil {
 	//	return 0, errors.NewMsg("解析请求结果错误, %s", err)
 	//}
+	return res.GetCount(), nil
+}
+
+func (c *Client) ReplaceDataInterfaces(ctx context.Context, projectId, id string, createData interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if createData == nil {
+		return errors.NewMsg("更新数据为空")
+	}
+	cli, err := c.DataServiceClient.GetDataInterfaceServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	bts, err := json.Marshal(createData)
+	if err != nil {
+		return errors.NewMsg("marshal 更新数据错误,%s", err)
+	}
+	res, err := cli.Replace(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.UpdateRequest{
+			Id:   id,
+			Data: bts,
+		})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
+	}
+	return nil
+}
+
+func (c *Client) UpdateDataInterfaces(ctx context.Context, projectId, id string, createData interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if createData == nil {
+		return errors.NewMsg("更新数据为空")
+	}
+	cli, err := c.DataServiceClient.GetDataInterfaceServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	bts, err := json.Marshal(createData)
+	if err != nil {
+		return errors.NewMsg("marshal 更新数据错误,%s", err)
+	}
+	res, err := cli.Update(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.UpdateRequest{
+			Id:   id,
+			Data: bts,
+		})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
+	}
+	return nil
+}
+
+func (c *Client) DeleteDataInterfaces(ctx context.Context, projectId, id string) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	cli, err := c.DataServiceClient.GetDataInterfaceServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	res, err := cli.Delete(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.GetOrDeleteRequest{
+			Id: id,
+		})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
+	}
+	return nil
+}
+
+func (c *Client) DeleteManyDataInterfaces(ctx context.Context, projectId string, filter interface{}) (int64, error) {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	bts, err := json.Marshal(filter)
+	if err != nil {
+		return 0, errors.NewMsg("序列化查询参数为空, %s", err)
+	}
+	cli, err := c.DataServiceClient.GetDataInterfaceServiceClient()
+	if err != nil {
+		return 0, errors.NewMsg("获取客户端错误,%s", err)
+	}
+	res, err := cli.DeleteMany(
+		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.QueryRequest{
+			Query: bts,
+		})
+	if err != nil {
+		return 0, errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return 0, cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
+	}
 	return res.GetCount(), nil
 }
 

@@ -37,7 +37,7 @@ func TestMain(m *testing.M) {
 		Metadata: map[string]string{"env": "aliyun"},
 		Services: map[string]config.Service{
 			//"spm":  {Metadata: map[string]string{"env": "local1"}},
-			"core": {Metadata: map[string]string{"env": "localtest"}},
+			"data-service": {Metadata: map[string]string{"env": "local11"}},
 			//"flow-engine": {Metadata: map[string]string{"env": "local1"}},
 		},
 		Type: "tenant", // tenant 或 project
@@ -529,6 +529,45 @@ func TestClient_clean(t *testing.T) {
 			}
 
 		}
+	}
+
+}
+
+func TestClient_ReplaceDataGroups(t *testing.T) {
+
+	if err := cli.ReplaceDataGroups(context.Background(), "625f6dbf5433487131f09ff9", "6461d962693d5e41ef126b8e", map[string]interface{}{
+		"name": "测试3",
+		"type": "http",
+	}); err != nil {
+		t.Error(err)
+	}
+
+}
+
+func Test_DeleteManyDataGroups(t *testing.T) {
+	if _, err := cli.DeleteManyDataGroups(context.Background(), "625f6dbf5433487131f09ff9", map[string]interface{}{
+		"filter": map[string]interface{}{"id": []interface{}{"6461d962693d5e41ef126b8e", "6461d613693d5e41ef126b8d"}},
+	}); err != nil {
+		t.Error(err)
+	}
+
+}
+
+func TestClient_ReplaceDataInterfaces(t *testing.T) {
+
+	if err := cli.ReplaceDataInterfaces(context.Background(), "625f6dbf5433487131f09ff9", "6461dc43693d5e41ef126b8f", map[string]interface{}{
+		"dataGroup": map[string]interface{}{"id": "6461d962693d5e41ef126b8e", "name": "测试3", "type": "http", "createTime": "2023-05-15T15:04:02+08:00"},
+		"key":       "test11", "name": "test1121", "setting": map[string]interface{}{"method": "GET"}}); err != nil {
+		t.Error(err)
+	}
+
+}
+
+func Test_DeleteManyDataInterfaces(t *testing.T) {
+	if _, err := cli.DeleteManyDataInterfaces(context.Background(), "625f6dbf5433487131f09ff9", map[string]interface{}{
+		"filter": map[string]interface{}{"id": []interface{}{"6461dc43693d5e41ef126b8f"}},
+	}); err != nil {
+		t.Error(err)
 	}
 
 }
