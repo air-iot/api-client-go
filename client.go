@@ -8,6 +8,7 @@ import (
 	"github.com/air-iot/api-client-go/v4/driver"
 	"github.com/air-iot/api-client-go/v4/engine"
 	"github.com/air-iot/api-client-go/v4/flow"
+	"github.com/air-iot/api-client-go/v4/live"
 	"github.com/air-iot/api-client-go/v4/report"
 	"github.com/air-iot/api-client-go/v4/spm"
 	"github.com/air-iot/api-client-go/v4/warning"
@@ -25,6 +26,7 @@ type Client struct {
 	DataServiceClient *dataservice.Client
 	FlowEngineClient  *engine.Client
 	ReportClient      *report.Client
+	LiveClient        *live.Client
 }
 
 func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error) {
@@ -68,6 +70,10 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 	if err != nil {
 		return nil, nil, err
 	}
+	liveClient, cleanLive, err := live.NewClient(cfg, r, cred)
+	if err != nil {
+		return nil, nil, err
+	}
 	return &Client{
 			SpmClient:         spmClient,
 			CoreClient:        coreClient,
@@ -77,6 +83,7 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 			DataServiceClient: dataServiceClient,
 			FlowEngineClient:  flowEngineClient,
 			ReportClient:      reportClient,
+			LiveClient:        liveClient,
 		}, func() {
 			cleanSpm()
 			cleanCore()
@@ -86,5 +93,6 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 			cleanDataService()
 			cleanFlowEngine()
 			cleanReport()
+			cleanLive()
 		}, nil
 }

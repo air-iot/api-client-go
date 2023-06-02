@@ -571,3 +571,22 @@ func Test_DeleteManyDataInterfaces(t *testing.T) {
 	}
 
 }
+
+func TestClient_RtspPull(t *testing.T) {
+
+	// RTSPTransSrv RTSP 转换服务 struct
+	type RTSPTransSrv struct {
+		URL        string `json:"url"`
+		Resolution string `json:"resolution"`
+		FrameRate  int    `json:"frameRate"`
+	}
+	bs := RTSPTransSrv{
+		URL: "rtsp://admin:aaa123456@39.103.179.147:19030/h264/ch1/sub/av_stream",
+	}
+
+	if res, err := cli.RtspPull(context.Background(), "6273677fe5bd0d8ebc7d6a5f", bs); err != nil {
+		t.Error(err)
+	} else {
+		t.Log(res)
+	}
+}
