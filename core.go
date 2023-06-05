@@ -2,6 +2,7 @@ package api_client_go
 
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/air-iot/api-client-go/v4/api"
@@ -73,18 +74,18 @@ func (c *Client) UploadLicense(ctx context.Context, projectId string, size int, 
 	for {
 		bytesRead, err := r.Read(buffer)
 		if err != nil {
-			return err
+			return fmt.Errorf("读取授权文件错误:%s", err.Error())
 		}
 		err = stream.Send(&core.UploadFileRequest{Data: buffer[:bytesRead]})
 		if err != nil {
-			return err
+			return fmt.Errorf("grpc发送授权文件错误:%s", err.Error())
 		}
 		bytesReadAll += bytesRead
 
 		if bytesReadAll == size {
-			_, err := stream.CloseAndRecv()
+			err := stream.CloseSend()
 			if err != nil {
-				return err
+				return fmt.Errorf("CloseSend错误:%s", err.Error())
 			}
 			return nil
 		}
@@ -1983,18 +1984,18 @@ func (c *Client) UploadBackup(ctx context.Context, projectId, password string, s
 	for {
 		bytesRead, err := r.Read(buffer)
 		if err != nil {
-			return err
+			return fmt.Errorf("读取备份文件错误:%s", err.Error())
 		}
 		err = stream.Send(&core.UploadFileRequest{Data: buffer[:bytesRead]})
 		if err != nil {
-			return err
+			return fmt.Errorf("grpc发送备份文件错误:%s", err.Error())
 		}
 		bytesReadAll += bytesRead
 
 		if bytesReadAll == size {
-			_, err := stream.CloseAndRecv()
+			err := stream.CloseSend()
 			if err != nil {
-				return err
+				return fmt.Errorf("CloseSend错误:%s", err.Error())
 			}
 			return nil
 		}
