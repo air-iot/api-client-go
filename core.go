@@ -3,8 +3,6 @@ package api_client_go
 import (
 	"context"
 	"fmt"
-	"io"
-
 	"github.com/air-iot/api-client-go/v4/api"
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/core"
@@ -13,6 +11,7 @@ import (
 	cErrors "github.com/air-iot/errors"
 	"github.com/air-iot/json"
 	"github.com/air-iot/logger"
+	"io"
 )
 
 func (c *Client) GetFileLicense(ctx context.Context, result interface{}) error {
@@ -83,10 +82,23 @@ func (c *Client) UploadLicense(ctx context.Context, projectId string, size int, 
 		bytesReadAll += bytesRead
 
 		if bytesReadAll == size {
-			err := stream.CloseSend()
+			//err := stream.CloseSend()
+			//if err != nil {
+			//	return fmt.Errorf("CloseSend错误:%s", err.Error())
+			//}
+
+			err := stream.Send(&core.UploadFileRequest{Data: []byte("down")})
 			if err != nil {
-				return fmt.Errorf("CloseSend错误:%s", err.Error())
+				return fmt.Errorf("grpc发送结束标志错误:%s", err.Error())
 			}
+
+			m := new(api.Response)
+			err = stream.RecvMsg(m)
+			if err != nil {
+				return fmt.Errorf("读取server响应错误:%s", err.Error())
+			}
+			fmt.Printf("上传文件成功，服务器响应结果:%+v\n", m)
+
 			return nil
 		}
 
