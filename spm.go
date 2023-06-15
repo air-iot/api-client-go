@@ -2,10 +2,12 @@ package api_client_go
 
 import (
 	"context"
-	cErrors "github.com/air-iot/errors"
+	netHttp "net/http"
+	"net/url"
 
 	"github.com/air-iot/api-client-go/v4/api"
 	"github.com/air-iot/api-client-go/v4/errors"
+	cErrors "github.com/air-iot/errors"
 	"github.com/air-iot/json"
 )
 
@@ -27,6 +29,24 @@ func (c *Client) QueryProject(ctx context.Context, query, result interface{}) er
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) RestQueryProject(ctx context.Context, query, result interface{}) error {
+	u := url.URL{Path: "/spm/project"}
+	if query != nil {
+		bts, err := json.Marshal(query)
+		if err != nil {
+			return errors.NewMsg("序列化查询参数为空, %v", err)
+		}
+		params := url.Values{}
+		params.Set("query", string(bts))
+		u.RawQuery = params.Encode()
+	}
+	cli, _ := c.SpmClient.GetRestClient()
+	if err := cli.Invoke(ctx, netHttp.MethodGet, u.RequestURI(), map[string]interface{}{}, result); err != nil {
+		return err
 	}
 	return nil
 }

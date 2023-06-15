@@ -3,10 +3,10 @@ package api_client_go
 import (
 	"context"
 
+	"github.com/air-iot/api-client-go/v4/apicontext"
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/engine"
 	"github.com/air-iot/api-client-go/v4/errors"
-	"github.com/air-iot/api-client-go/v4/metadata"
 	"github.com/air-iot/json"
 )
 
@@ -47,7 +47,7 @@ func (c *Client) Run(ctx context.Context, projectId, flowConfig string, elementB
 	if err != nil {
 		return nil, errors.NewMsg("获取客户端错误,%s", err)
 	}
-	res, err := cli.Run(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &engine.RunRequest{
+	res, err := cli.Run(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &engine.RunRequest{
 		ProjectId: projectId,
 		Config:    flowConfig,
 		Variables: b,
@@ -71,7 +71,7 @@ func (c *Client) Resume(ctx context.Context, projectId, jobId, elementId string,
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	if _, err := cli.Resume(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &engine.ResumeRequest{
+	if _, err := cli.Resume(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &engine.ResumeRequest{
 		ProjectId: projectId,
 		JobId:     jobId,
 		ElementId: elementId,
@@ -87,7 +87,7 @@ func (c *Client) Fail(ctx context.Context, projectId, jobId, elementId, errMessa
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	if _, err := cli.Fail(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &engine.FailRequest{
+	if _, err := cli.Fail(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &engine.FailRequest{
 		ProjectId:    projectId,
 		JobId:        jobId,
 		ElementId:    elementId,

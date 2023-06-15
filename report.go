@@ -2,10 +2,11 @@ package api_client_go
 
 import (
 	"context"
+
 	"github.com/air-iot/api-client-go/v4/api"
+	"github.com/air-iot/api-client-go/v4/apicontext"
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/errors"
-	"github.com/air-iot/api-client-go/v4/metadata"
 	cErrors "github.com/air-iot/errors"
 	"github.com/air-iot/json"
 )
@@ -24,7 +25,7 @@ func (c *Client) QueryReport(ctx context.Context, projectId string, query interf
 		return 0, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return 0, errors.NewMsg("请求错误, %s", err)
@@ -50,7 +51,7 @@ func (c *Client) GetReport(ctx context.Context, projectId, id string, result int
 		return nil, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Get(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return nil, errors.NewMsg("请求错误, %s", err)
@@ -83,7 +84,7 @@ func (c *Client) BatchCreateReport(ctx context.Context, projectId string, create
 		return errors.NewMsg("序列化插入数据为空")
 	}
 	res, err := cli.BatchCreate(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -110,7 +111,7 @@ func (c *Client) DeleteReport(ctx context.Context, projectId, id string, result 
 	}
 
 	res, err := cli.Delete(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -145,7 +146,7 @@ func (c *Client) UpdateReport(ctx context.Context, projectId, id string, updateD
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.Update(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -178,7 +179,7 @@ func (c *Client) ReplaceReport(ctx context.Context, projectId, id string, update
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.Replace(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -207,7 +208,7 @@ func (c *Client) QueryReportCopy(ctx context.Context, projectId string, query in
 		return 0, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return 0, errors.NewMsg("请求错误, %s", err)
@@ -237,7 +238,7 @@ func (c *Client) CreateReport(ctx context.Context, projectId string, createData,
 		return errors.NewMsg("序列化插入数据为空")
 	}
 	res, err := cli.Create(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -267,7 +268,7 @@ func (c *Client) BatchCreateReportCopy(ctx context.Context, projectId string, cr
 		return errors.NewMsg("序列化插入数据为空")
 	}
 	res, err := cli.BatchCreate(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -294,7 +295,7 @@ func (c *Client) DeleteReportCopy(ctx context.Context, projectId, id string, res
 	}
 
 	res, err := cli.Delete(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -329,7 +330,7 @@ func (c *Client) UpdateReportCopy(ctx context.Context, projectId, id string, upd
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.Update(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -362,7 +363,7 @@ func (c *Client) ReplaceReportCopy(ctx context.Context, projectId, id string, up
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.Replace(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)

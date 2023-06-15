@@ -2,13 +2,13 @@ package api_client_go
 
 import (
 	"context"
-	"github.com/air-iot/json"
 
 	"github.com/air-iot/api-client-go/v4/api"
+	"github.com/air-iot/api-client-go/v4/apicontext"
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/errors"
-	"github.com/air-iot/api-client-go/v4/metadata"
 	cErrors "github.com/air-iot/errors"
+	"github.com/air-iot/json"
 )
 
 func (c *Client) RtspPull(ctx context.Context, projectId string, createData interface{}) (string, error) {
@@ -27,7 +27,7 @@ func (c *Client) RtspPull(ctx context.Context, projectId string, createData inte
 		return "", errors.NewMsg("序列化插入数据为空")
 	}
 	res, err := cli.Create(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return "", errors.NewMsg("请求错误, %s", err)

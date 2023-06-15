@@ -2,14 +2,19 @@ package errors
 
 import (
 	"fmt"
+	"github.com/air-iot/json"
 
-	"github.com/pkg/errors"
+	"github.com/air-iot/errors"
 )
 
 // ResponseError 定义响应错误
 type ResponseError struct {
-	Message string // 错误消息
-	ERR     error  // 响应错误
+	StatusCode int    `json:"statusCode"` // 错误码
+	Code       int    `json:"code"`       // 错误码
+	Message    string `json:"message"`    // 错误信息
+	Field      string `json:"field"`
+	Detail     string `json:"detail"` // 错误详情信息
+	ERR        error  `json:"err"`    // 响应错误
 }
 
 func (r *ResponseError) Error() string {
@@ -50,4 +55,15 @@ func UnWrapResponse(err error) *ResponseError {
 		return v
 	}
 	return nil
+}
+
+func ParseBody(statusCode int, body []byte) error {
+	res := &ResponseError{}
+	if err := json.Unmarshal(body, res); err != nil {
+		res.Message = string(body)
+		res.StatusCode = statusCode
+		return res
+	}
+	res.StatusCode = statusCode
+	return res
 }

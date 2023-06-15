@@ -1,4 +1,4 @@
-package metadata
+package apicontext
 
 import (
 	"context"

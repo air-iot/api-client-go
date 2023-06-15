@@ -11,9 +11,9 @@ import (
 // Metadata is metadata filter.
 func Metadata(metadata map[string]string) selector.NodeFilter {
 	return func(ctx context.Context, nodes []selector.Node) []selector.Node {
-		logger.Infof("grpc client context: %+v metadata %+v", ctx, metadata)
+		logger.Infof("client context: %+v metadata %+v", ctx, metadata)
 		for _, n := range nodes {
-			logger.Infof("grpc client metadata nodes, Scheme: %s, Metadata: %+v, Address: %s", n.Scheme(), n.Metadata(), n.Address())
+			logger.Infof("client metadata nodes, Scheme: %s, Metadata: %+v, Address: %s", n.Scheme(), n.Metadata(), n.Address())
 		}
 		if len(metadata) == 0 {
 			return nodes
