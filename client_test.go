@@ -20,9 +20,8 @@ var cli *Client
 
 func TestMain(m *testing.M) {
 	log.Println("begin")
-	//dsn := "host=airiot.tech user=root password=dell123 dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
 	client, err := clientv3.New(clientv3.Config{
-		Endpoints:   []string{"127.0.01:2379"},
+		Endpoints:   []string{"127.0.0.1:2379"},
 		DialTimeout: time.Second * time.Duration(60),
 		DialOptions: []grpc.DialOption{grpc.WithBlock()},
 		Username:    "root",
@@ -36,8 +35,8 @@ func TestMain(m *testing.M) {
 	cli1, clean, err := NewClient(clientEtcd, config.Config{
 		Metadata: map[string]string{"env": "aliyun"},
 		Services: map[string]config.Service{
-			"core": {Metadata: map[string]string{"env": "local1"}},
-			"spm":  {Metadata: map[string]string{"env": "local1"}},
+			//"core": {Metadata: map[string]string{"env": "local1"}},
+			//"spm":  {Metadata: map[string]string{"env": "local1"}},
 			//"data-service": {Metadata: map[string]string{"env": "local11"}},
 			//"flow-engine": {Metadata: map[string]string{"env": "local1"}},
 		},
