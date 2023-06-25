@@ -2,10 +2,11 @@ package api_client_go
 
 import (
 	"context"
+
 	"github.com/air-iot/api-client-go/v4/api"
+	"github.com/air-iot/api-client-go/v4/apicontext"
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/errors"
-	"github.com/air-iot/api-client-go/v4/metadata"
 	"github.com/air-iot/api-client-go/v4/warning"
 	cErrors "github.com/air-iot/errors"
 	"github.com/air-iot/json"
@@ -25,7 +26,7 @@ func (c *Client) QueryWarn(ctx context.Context, projectId, token, archive string
 		return 0, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
 		&warning.QueryWarningRequest{Query: bts, Archive: archive})
 	if err != nil {
 		return 0, errors.NewMsg("请求错误, %s", err)
@@ -51,7 +52,7 @@ func (c *Client) GetWarn(ctx context.Context, projectId, archive, id string, res
 		return nil, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Get(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&warning.GetOrDeleteWarningRequest{Id: id, Archive: archive})
 	if err != nil {
 		return nil, errors.NewMsg("请求错误, %s", err)
@@ -84,7 +85,7 @@ func (c *Client) BatchCreateWarn(ctx context.Context, projectId string, createDa
 		return errors.NewMsg("序列化插入数据为空")
 	}
 	res, err := cli.BatchCreate(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -112,7 +113,7 @@ func (c *Client) QueryRule(ctx context.Context, projectId string, query interfac
 		return 0, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return 0, errors.NewMsg("请求错误, %s", err)
@@ -142,7 +143,7 @@ func (c *Client) CreateWarn(ctx context.Context, projectId string, createData, r
 		return errors.NewMsg("序列化插入数据为空")
 	}
 	res, err := cli.Create(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -172,7 +173,7 @@ func (c *Client) BatchCreateRule(ctx context.Context, projectId string, createDa
 		return errors.NewMsg("序列化插入数据为空")
 	}
 	res, err := cli.BatchCreate(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -199,7 +200,7 @@ func (c *Client) DeleteRule(ctx context.Context, projectId, id string, result in
 	}
 
 	res, err := cli.Delete(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -234,7 +235,7 @@ func (c *Client) UpdateRule(ctx context.Context, projectId, id string, updateDat
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.Update(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -267,7 +268,7 @@ func (c *Client) ReplaceRule(ctx context.Context, projectId, id string, updateDa
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.Replace(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)

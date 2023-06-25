@@ -3,15 +3,19 @@ package api_client_go
 import (
 	"context"
 	"fmt"
+	"io"
+	netHttp "net/http"
+	"net/url"
+
 	"github.com/air-iot/api-client-go/v4/api"
+	"github.com/air-iot/api-client-go/v4/apicontext"
+	"github.com/air-iot/api-client-go/v4/apitransport"
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/core"
 	"github.com/air-iot/api-client-go/v4/errors"
-	"github.com/air-iot/api-client-go/v4/metadata"
 	cErrors "github.com/air-iot/errors"
 	"github.com/air-iot/json"
 	"github.com/air-iot/logger"
-	"io"
 )
 
 func (c *Client) GetFileLicense(ctx context.Context, result interface{}) error {
@@ -37,7 +41,7 @@ func (c *Client) UseLicense(ctx context.Context, projectId string, result interf
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	res, err := cli.UseLicense(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &api.QueryRequest{})
+	res, err := cli.UseLicense(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &api.QueryRequest{})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
 	}
@@ -59,7 +63,7 @@ func (c *Client) UploadLicense(ctx context.Context, projectId string, size int, 
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	stream, err := cli.UploadLicense(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}))
+	stream, err := cli.UploadLicense(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}))
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
 	}
@@ -82,23 +86,10 @@ func (c *Client) UploadLicense(ctx context.Context, projectId string, size int, 
 		bytesReadAll += bytesRead
 
 		if bytesReadAll == size {
-			//err := stream.CloseSend()
-			//if err != nil {
-			//	return fmt.Errorf("CloseSend错误:%s", err.Error())
-			//}
-
-			err := stream.Send(&core.UploadFileRequest{Data: []byte("down")})
+			err := stream.CloseSend()
 			if err != nil {
-				return fmt.Errorf("grpc发送结束标志错误:%s", err.Error())
+				return fmt.Errorf("CloseSend错误:%s", err.Error())
 			}
-
-			m := new(api.Response)
-			err = stream.RecvMsg(m)
-			if err != nil {
-				return fmt.Errorf("读取server响应错误:%s", err.Error())
-			}
-			fmt.Printf("上传文件成功，服务器响应结果:%+v\n", m)
-
 			return nil
 		}
 
@@ -110,7 +101,7 @@ func (c *Client) GetDriverLicense(ctx context.Context, projectId, driverId strin
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	res, err := cli.GetDriverLicense(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &api.GetOrDeleteRequest{
+	res, err := cli.GetDriverLicense(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &api.GetOrDeleteRequest{
 		Id: driverId,
 	})
 	if err != nil {
@@ -155,7 +146,7 @@ func (c *Client) GetCurrentUserInfo(ctx context.Context, projectId, token string
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.GetCurrentUserInfo(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
 		&core.LoginUserRequest{})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -182,7 +173,7 @@ func (c *Client) QueryUser(ctx context.Context, projectId string, query, result 
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -208,7 +199,7 @@ func (c *Client) GetUser(ctx context.Context, projectId, id string, result inter
 		return nil, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Get(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return nil, errors.NewMsg("请求错误, %s", err)
@@ -238,7 +229,7 @@ func (c *Client) DeleteUser(ctx context.Context, projectId, id string, result in
 	}
 
 	res, err := cli.Delete(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -273,7 +264,7 @@ func (c *Client) UpdateUser(ctx context.Context, projectId, id string, updateDat
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.Update(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -306,7 +297,7 @@ func (c *Client) ReplaceUser(ctx context.Context, projectId, id string, updateDa
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.Replace(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -337,7 +328,7 @@ func (c *Client) CreateLog(ctx context.Context, projectId string, createData, re
 		return errors.NewMsg("marshal 插入数据为空")
 	}
 	res, err := cli.Create(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -367,7 +358,7 @@ func (c *Client) CreateUser(ctx context.Context, projectId string, createData, r
 		return errors.NewMsg("marshal 插入数据为空")
 	}
 	res, err := cli.Create(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -394,7 +385,7 @@ func (c *Client) StatsQuery(ctx context.Context, projectId string, query, result
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.StatsQuery(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -421,7 +412,7 @@ func (c *Client) QueryTableSchema(ctx context.Context, projectId string, query, 
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -431,6 +422,27 @@ func (c *Client) QueryTableSchema(ctx context.Context, projectId string, query, 
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) RestQueryTableSchema(ctx context.Context, projectId string, query, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	u := url.URL{Path: "/core/t/schema"}
+	if query != nil {
+		bts, err := json.Marshal(query)
+		if err != nil {
+			return errors.NewMsg("序列化查询参数为空, %v", err)
+		}
+		params := url.Values{}
+		params.Set("query", string(bts))
+		u.RawQuery = params.Encode()
+	}
+	cli, _ := c.CoreClient.GetRestClient()
+	if err := cli.Invoke(apitransport.NewClientContext(ctx, &apitransport.Transport{ReqHeader: map[string]string{config.XRequestProject: projectId}}), netHttp.MethodGet, u.RequestURI(), map[string]interface{}{}, result); err != nil {
+		return err
 	}
 	return nil
 }
@@ -447,7 +459,7 @@ func (c *Client) QueryTableSchemaDeviceByDriverAndGroup(ctx context.Context, pro
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.QueryDeviceByDriverAndGroup(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&core.GetDeviceRequest{Driver: driverId, Group: groupId})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -470,7 +482,7 @@ func (c *Client) QueryEmulator(ctx context.Context, projectId string, result int
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.QueryEmulator(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -496,7 +508,7 @@ func (c *Client) GetTableSchema(ctx context.Context, projectId, id string, resul
 		return nil, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Get(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return nil, errors.NewMsg("请求错误, %s", err)
@@ -525,7 +537,7 @@ func (c *Client) DeleteTableSchema(ctx context.Context, projectId, id string, re
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Delete(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -558,7 +570,7 @@ func (c *Client) UpdateTableSchema(ctx context.Context, projectId, id string, up
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.Update(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -591,7 +603,7 @@ func (c *Client) ReplaceTableSchema(ctx context.Context, projectId, id string, u
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.Replace(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -621,7 +633,7 @@ func (c *Client) CreateTableSchema(ctx context.Context, projectId string, create
 		return errors.NewMsg("marshal 插入数据为空")
 	}
 	res, err := cli.Create(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -648,7 +660,7 @@ func (c *Client) QueryTableRecord(ctx context.Context, projectId string, query, 
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -674,7 +686,7 @@ func (c *Client) GetTableRecord(ctx context.Context, projectId, id string, resul
 		return nil, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Get(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return nil, errors.NewMsg("请求错误, %s", err)
@@ -703,7 +715,7 @@ func (c *Client) DeleteTableRecord(ctx context.Context, projectId, id string, re
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Delete(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -736,7 +748,7 @@ func (c *Client) UpdateTableRecord(ctx context.Context, projectId, id string, up
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.Update(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -769,7 +781,7 @@ func (c *Client) ReplaceTableRecord(ctx context.Context, projectId, id string, u
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.Replace(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -799,7 +811,7 @@ func (c *Client) CreateTableRecord(ctx context.Context, projectId string, create
 		return errors.NewMsg("marshal 插入数据为空")
 	}
 	res, err := cli.Create(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -829,7 +841,7 @@ func (c *Client) QueryTableData(ctx context.Context, projectId, tableName string
 		return errors.NewMsg("序列化查询参数为空, %s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&core.QueryDataRequest{
 			Table: tableName,
 			Query: bts,
@@ -862,7 +874,7 @@ func (c *Client) QueryTableDataByTableId(ctx context.Context, projectId, tableId
 		return errors.NewMsg("序列化查询参数为空, %s", err)
 	}
 	res, err := cli.QueryByTableId(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&core.QueryDataRequest{
 			Table: tableId,
 			Query: bts,
@@ -894,7 +906,7 @@ func (c *Client) GetTableData(ctx context.Context, projectId, tableName, id stri
 		return nil, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Get(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&core.GetOrDeleteDataRequest{Table: tableName, Id: id})
 	if err != nil {
 		return nil, errors.NewMsg("请求错误, %s", err)
@@ -926,7 +938,7 @@ func (c *Client) DeleteTableData(ctx context.Context, projectId, tableName, id s
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Delete(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&core.GetOrDeleteDataRequest{Table: tableName, Id: id})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -956,7 +968,7 @@ func (c *Client) DeleteManyTableData(ctx context.Context, projectId, tableName s
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.DeleteMany(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&core.QueryDataRequest{Table: tableName, Query: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -992,7 +1004,7 @@ func (c *Client) UpdateTableData(ctx context.Context, projectId, tableName, id s
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.Update(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&core.UpdateDataRequest{Table: tableName, Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1028,7 +1040,7 @@ func (c *Client) ReplaceTableData(ctx context.Context, projectId, tableName, id 
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.Replace(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&core.UpdateDataRequest{Table: tableName, Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1061,7 +1073,7 @@ func (c *Client) CreateTableData(ctx context.Context, projectId, tableName strin
 		return errors.NewMsg("marshal 插入数据为空")
 	}
 	res, err := cli.Create(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&core.CreateDataRequest{
 			Table: tableName,
 			Data:  bts,
@@ -1097,7 +1109,7 @@ func (c *Client) CreateManyTableData(ctx context.Context, projectId, tableName s
 		return errors.NewMsg("marshal 插入数据为空")
 	}
 	res, err := cli.CreateMany(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&core.CreateDataRequest{
 			Table: tableName,
 			Data:  bts,
@@ -1130,7 +1142,7 @@ func (c *Client) CreateMessage(ctx context.Context, projectId string, createData
 		return errors.NewMsg("marshal 插入数据为空")
 	}
 	res, err := cli.Create(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1156,7 +1168,7 @@ func (c *Client) GetLog(ctx context.Context, projectId, id string, result interf
 		return nil, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Get(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return nil, errors.NewMsg("请求错误, %s", err)
@@ -1189,7 +1201,7 @@ func (c *Client) PostLatest(ctx context.Context, projectId string, createData, r
 		return errors.NewMsg("marshal 插入数据为空")
 	}
 	res, err := cli.PostLatest(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1216,7 +1228,7 @@ func (c *Client) GetQuery(ctx context.Context, projectId string, query, result i
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.GetQuery(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1246,7 +1258,7 @@ func (c *Client) PostQuery(ctx context.Context, projectId string, createData, re
 		return errors.NewMsg("marshal 插入数据为空")
 	}
 	res, err := cli.PostQuery(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1273,7 +1285,7 @@ func (c *Client) QueryRole(ctx context.Context, projectId string, query, result 
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1299,7 +1311,7 @@ func (c *Client) AdminRoleCheck(ctx context.Context, projectId, token string, re
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.AdminRoleCheck(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
 		&api.EmptyRequest{})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1325,7 +1337,7 @@ func (c *Client) GetRole(ctx context.Context, projectId, id string, result inter
 		return nil, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Get(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return nil, errors.NewMsg("请求错误, %s", err)
@@ -1355,7 +1367,7 @@ func (c *Client) FindTableDataDeptByDeptIDs(ctx context.Context, projectId strin
 		return errors.NewMsg("序列化查询参数为空, %s", err)
 	}
 	res, err := cli.FindTableDataDeptByDeptIDs(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{
 			Data: bts,
 		})
@@ -1391,7 +1403,7 @@ func (c *Client) UpdateManyTableData(ctx context.Context, projectId, tableName s
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.UpdateMany(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&core.MultiUpdateDataRequest{Table: tableName, Query: bts, Data: btsUpdate})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1417,7 +1429,7 @@ func (c *Client) GetWarningFilterIDs(ctx context.Context, projectId, token strin
 		return errors.NewMsg("无Token认证信息")
 	}
 	res, err := cli.GetWarningFilterIDs(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, config.XRequestHeaderAuthorization: token}),
 		&api.EmptyRequest{})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1444,7 +1456,7 @@ func (c *Client) QueryCatalog(ctx context.Context, projectId string, query, resu
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1470,7 +1482,7 @@ func (c *Client) GetCatalog(ctx context.Context, projectId, id string, result in
 		return nil, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Get(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return nil, errors.NewMsg("请求错误, %s", err)
@@ -1500,7 +1512,7 @@ func (c *Client) QueryDept(ctx context.Context, projectId string, query, result 
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1526,7 +1538,7 @@ func (c *Client) GetDept(ctx context.Context, projectId, id string, result inter
 		return nil, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Get(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return nil, errors.NewMsg("请求错误, %s", err)
@@ -1556,7 +1568,7 @@ func (c *Client) QuerySetting(ctx context.Context, projectId string, query, resu
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1583,7 +1595,7 @@ func (c *Client) QueryApp(ctx context.Context, projectId string, query, result i
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1609,7 +1621,7 @@ func (c *Client) GetApp(ctx context.Context, projectId, id string, result interf
 		return nil, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Get(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return nil, errors.NewMsg("请求错误, %s", err)
@@ -1639,7 +1651,7 @@ func (c *Client) QuerySystemVariable(ctx context.Context, projectId string, quer
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1665,7 +1677,7 @@ func (c *Client) GetSystemVariable(ctx context.Context, projectId, id string, re
 		return nil, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Get(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return nil, errors.NewMsg("请求错误, %s", err)
@@ -1694,7 +1706,7 @@ func (c *Client) DeleteSystemVariable(ctx context.Context, projectId, id string,
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Delete(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1728,7 +1740,7 @@ func (c *Client) UpdateSystemVariable(ctx context.Context, projectId, id string,
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.Update(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1761,7 +1773,7 @@ func (c *Client) ReplaceSystemVariable(ctx context.Context, projectId, id string
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.Replace(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1791,7 +1803,7 @@ func (c *Client) CreateSystemVariable(ctx context.Context, projectId string, cre
 		return errors.NewMsg("marshal 插入数据为空")
 	}
 	res, err := cli.Create(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1818,7 +1830,7 @@ func (c *Client) QueryBackup(ctx context.Context, projectId string, query, resul
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1844,7 +1856,7 @@ func (c *Client) GetBackup(ctx context.Context, projectId, id string, result int
 		return nil, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Get(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return nil, errors.NewMsg("请求错误, %s", err)
@@ -1875,7 +1887,7 @@ func (c *Client) DeleteBackup(ctx context.Context, projectId, id string, result 
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Delete(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1909,7 +1921,7 @@ func (c *Client) UpdateBackup(ctx context.Context, projectId, id string, updateD
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.Update(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -1936,7 +1948,7 @@ func (c *Client) ExportBackup(ctx context.Context, projectId string, query inter
 		return "", errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Export(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return "", errors.NewMsg("请求错误, %s", err)
@@ -1961,7 +1973,7 @@ func (c *Client) ImportBackup(ctx context.Context, projectId string, query inter
 		return "", errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Import(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return "", errors.NewMsg("请求错误, %s", err)
@@ -1982,7 +1994,7 @@ func (c *Client) UploadBackup(ctx context.Context, projectId, password string, s
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	stream, err := cli.Upload(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, "password": password}))
+	stream, err := cli.Upload(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, "password": password}))
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
 	}
@@ -2027,7 +2039,7 @@ func (c *Client) DownloadBackup(ctx context.Context, projectId, id, password str
 
 	in := new(api.GetOrDeleteRequest)
 	in.Id = id
-	stream, err := cli.Download(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, "password": password, "id": id}), in)
+	stream, err := cli.Download(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, "password": password, "id": id}), in)
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err.Error())
 	}

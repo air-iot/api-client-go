@@ -2,14 +2,15 @@ package api_client_go
 
 import (
 	"context"
+
+	"github.com/air-iot/api-client-go/v4/apicontext"
 	cErrors "github.com/air-iot/errors"
+	"github.com/air-iot/json"
 
 	"github.com/air-iot/api-client-go/v4/api"
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/dataservice"
 	"github.com/air-iot/api-client-go/v4/errors"
-	"github.com/air-iot/api-client-go/v4/metadata"
-	"github.com/air-iot/json"
 )
 
 type ProxyResult struct {
@@ -31,7 +32,7 @@ func (c *Client) QueryDataGroup(ctx context.Context, projectId string, query, re
 		return 0, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return 0, errors.NewMsg("请求错误, %s", err)
@@ -61,7 +62,7 @@ func (c *Client) CreateDataGroups(ctx context.Context, projectId string, createD
 		return 0, errors.NewMsg("marshal 插入数据为空")
 	}
 	res, err := cli.CreateMany(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{
 			Data: bts,
 		})
@@ -93,7 +94,7 @@ func (c *Client) ReplaceDataGroup(ctx context.Context, projectId, id string, cre
 		return errors.NewMsg("marshal 更新数据错误,%s", err)
 	}
 	res, err := cli.Replace(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{
 			Id:   id,
 			Data: bts,
@@ -123,7 +124,7 @@ func (c *Client) UpdateDataGroup(ctx context.Context, projectId, id string, crea
 		return errors.NewMsg("marshal 更新数据错误,%s", err)
 	}
 	res, err := cli.Update(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{
 			Id:   id,
 			Data: bts,
@@ -146,7 +147,7 @@ func (c *Client) DeleteDataGroup(ctx context.Context, projectId, id string) erro
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Delete(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{
 			Id: id,
 		})
@@ -172,7 +173,7 @@ func (c *Client) DeleteManyDataGroups(ctx context.Context, projectId string, fil
 		return 0, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.DeleteMany(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{
 			Query: bts,
 		})
@@ -198,7 +199,7 @@ func (c *Client) QueryDataInterface(ctx context.Context, projectId string, query
 		return 0, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
 		return 0, errors.NewMsg("请求错误, %s", err)
@@ -228,7 +229,7 @@ func (c *Client) CreateDataInterfaces(ctx context.Context, projectId string, cre
 		return 0, errors.NewMsg("marshal 插入数据为空")
 	}
 	res, err := cli.CreateMany(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{
 			Data: bts,
 		})
@@ -260,7 +261,7 @@ func (c *Client) ReplaceDataInterface(ctx context.Context, projectId, id string,
 		return errors.NewMsg("marshal 更新数据错误,%s", err)
 	}
 	res, err := cli.Replace(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{
 			Id:   id,
 			Data: bts,
@@ -290,7 +291,7 @@ func (c *Client) UpdateDataInterface(ctx context.Context, projectId, id string, 
 		return errors.NewMsg("marshal 更新数据错误,%s", err)
 	}
 	res, err := cli.Update(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{
 			Id:   id,
 			Data: bts,
@@ -313,7 +314,7 @@ func (c *Client) DeleteDataInterface(ctx context.Context, projectId, id string) 
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Delete(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.GetOrDeleteRequest{
 			Id: id,
 		})
@@ -339,7 +340,7 @@ func (c *Client) DeleteManyDataInterfaces(ctx context.Context, projectId string,
 		return 0, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.DeleteMany(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{
 			Query: bts,
 		})
@@ -370,7 +371,7 @@ func (c *Client) DataInterfaceProxy(ctx context.Context, projectId, key string, 
 	if err != nil {
 		return nil, errors.NewMsg("序列化请求数据错误,%s", err)
 	}
-	res, err := cli.Proxy(metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+	res, err := cli.Proxy(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&dataservice.Request{Key: key, Data: bts})
 	if err != nil {
 		return nil, errors.NewMsg("请求错误, %s", err)

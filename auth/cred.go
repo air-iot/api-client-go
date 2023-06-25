@@ -2,8 +2,13 @@ package auth
 
 import (
 	"context"
+	"fmt"
+
+	"github.com/air-iot/api-client-go/v4/apitransport"
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/errors"
+	"github.com/go-kratos/kratos/v2/middleware"
+	"github.com/go-kratos/kratos/v2/transport"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 )
@@ -14,19 +19,46 @@ const (
 	OpenTLS = false
 )
 
-// customCredential 自定义认证
-type customCredential struct {
+// CustomCredential 自定义认证
+type CustomCredential struct {
 	f GetAuthClient
 }
 
 type GetAuthClient func() *Client
 
-func NewCustomCredential(f GetAuthClient) *customCredential {
-	return &customCredential{f: f}
+func NewCustomCredential(f GetAuthClient) *CustomCredential {
+	return &CustomCredential{f: f}
+}
+
+func (c *CustomCredential) HttpToken() middleware.Middleware {
+	return func(handler middleware.Handler) middleware.Handler {
+		return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
+			transporter, ok := transport.FromClientContext(ctx)
+			if !ok {
+				return nil, errors.NewMsg("客户端上下文错误")
+			}
+			tt, ok := apitransport.FromClientContext(ctx)
+			if ok {
+				for k, v := range tt.ReqHeader {
+					transporter.RequestHeader().Set(k, v)
+				}
+			}
+			transporter.RequestHeader().Set("Request-Type", "service")
+			token := transporter.RequestHeader().Get(config.XRequestHeaderAuthorization)
+			if token == "" {
+				token, err = (c.f)().Token()
+				if err != nil {
+					return nil, err
+				}
+				transporter.RequestHeader().Set(config.XRequestHeaderAuthorization, fmt.Sprintf("Bearer %s", token))
+			}
+			return handler(ctx, req)
+		}
+	}
 }
 
 // GetRequestMetadata 实现自定义认证接口
-func (c *customCredential) GetRequestMetadata(ctx context.Context, uri ...string) (mds map[string]string, err error) {
+func (c *CustomCredential) GetRequestMetadata(ctx context.Context, uri ...string) (mds map[string]string, err error) {
 	info, ok := credentials.RequestInfoFromContext(ctx)
 	//_, _ = info, ok
 	//pr, ok := transport.FromClientContext(ctx)
@@ -64,6 +96,6 @@ func (c *customCredential) GetRequestMetadata(ctx context.Context, uri ...string
 }
 
 // RequireTransportSecurity 自定义认证是否开启TLS
-func (c *customCredential) RequireTransportSecurity() bool {
+func (c *CustomCredential) RequireTransportSecurity() bool {
 	return OpenTLS
 }

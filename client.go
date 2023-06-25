@@ -38,39 +38,44 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 	f := func() *auth.Client {
 		return authCli
 	}
-	cred := grpc.WithPerRPCCredentials(auth.NewCustomCredential(f))
-	spmClient, cleanSpm, err := spm.NewClient(cfg, r, cred)
+	authCC := auth.NewCustomCredential(f)
+	cred := grpc.WithPerRPCCredentials(authCC)
+	httpCred := authCC.HttpToken()
+	spmClient, cleanSpm, err := spm.NewClient(cfg, r, cred, httpCred)
 	if err != nil {
 		return nil, nil, err
 	}
-	coreClient, cleanCore, err := core.NewClient(cfg, r, cred)
+	coreClient, cleanCore, err := core.NewClient(cfg, r, cred, httpCred)
 	if err != nil {
 		return nil, nil, err
 	}
 	authCli.SetClient(spmClient, coreClient)
 
-	flowClient, cleanFlow, err := flow.NewClient(cfg, r, cred)
+	flowClient, cleanFlow, err := flow.NewClient(cfg, r, cred, httpCred)
 	if err != nil {
 		return nil, nil, err
 	}
-	warningClient, cleanWarning, err := warning.NewClient(cfg, r, cred)
+	warningClient, cleanWarning, err := warning.NewClient(cfg, r, cred, httpCred)
 	if err != nil {
 		return nil, nil, err
 	}
-	driverClient, cleanDriver, err := driver.NewClient(cfg, r, cred)
+	driverClient, cleanDriver, err := driver.NewClient(cfg, r, cred, httpCred)
 	if err != nil {
 		return nil, nil, err
 	}
-	dataServiceClient, cleanDataService, err := dataservice.NewClient(cfg, r, cred)
+	dataServiceClient, cleanDataService, err := dataservice.NewClient(cfg, r, cred, httpCred)
 	if err != nil {
 		return nil, nil, err
 	}
-	flowEngineClient, cleanFlowEngine, err := engine.NewClient(cfg, r, cred)
-	reportClient, cleanReport, err := report.NewClient(cfg, r, cred)
+	flowEngineClient, cleanFlowEngine, err := engine.NewClient(cfg, r, cred, httpCred)
 	if err != nil {
 		return nil, nil, err
 	}
-	liveClient, cleanLive, err := live.NewClient(cfg, r, cred)
+	reportClient, cleanReport, err := report.NewClient(cfg, r, cred, httpCred)
+	if err != nil {
+		return nil, nil, err
+	}
+	liveClient, cleanLive, err := live.NewClient(cfg, r, cred, httpCred)
 	if err != nil {
 		return nil, nil, err
 	}

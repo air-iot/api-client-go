@@ -9,7 +9,6 @@ require (
 	github.com/go-kratos/kratos/contrib/registry/etcd/v2 v2.0.0-20230227131608-c65f823c38de
 	github.com/go-kratos/kratos/v2 v2.5.4
 	github.com/golang/protobuf v1.5.2
-	github.com/pkg/errors v0.9.1
 	go.etcd.io/etcd/client/v3 v3.5.7
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.28.1
@@ -29,6 +28,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/stretchr/testify v1.8.1 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.7 // indirect

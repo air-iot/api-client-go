@@ -2,12 +2,12 @@ package api_client_go
 
 import (
 	"context"
-	cErrors "github.com/air-iot/errors"
 
 	"github.com/air-iot/api-client-go/v4/api"
+	"github.com/air-iot/api-client-go/v4/apicontext"
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/errors"
-	"github.com/air-iot/api-client-go/v4/metadata"
+	cErrors "github.com/air-iot/errors"
 	"github.com/air-iot/json"
 )
 
@@ -28,7 +28,7 @@ func (c *Client) BatchCommand(ctx context.Context, projectId string, data interf
 		return errors.NewMsg("marshal 插入数据为空")
 	}
 	res, err := cli.BatchCommand(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.CreateRequest{Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
@@ -62,7 +62,7 @@ func (c *Client) ChangeCommand(ctx context.Context, projectId, id string, data, 
 		return errors.NewMsg("marshal 更新数据为空")
 	}
 	res, err := cli.ChangeCommand(
-		metadata.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)

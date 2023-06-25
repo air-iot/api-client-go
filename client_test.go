@@ -20,12 +20,11 @@ var cli *Client
 
 func TestMain(m *testing.M) {
 	log.Println("begin")
-	//dsn := "host=airiot.tech user=root password=dell123 dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
 	client, err := clientv3.New(clientv3.Config{
-		Endpoints:   []string{"localhost:2379"},
+		Endpoints:   []string{"127.0.0.1:2379"},
 		DialTimeout: time.Second * time.Duration(60),
 		DialOptions: []grpc.DialOption{grpc.WithBlock()},
-		Username:    "",
+		Username:    "root",
 		Password:    "",
 	})
 	if err != nil {
@@ -36,8 +35,9 @@ func TestMain(m *testing.M) {
 	cli1, clean, err := NewClient(clientEtcd, config.Config{
 		Metadata: map[string]string{"env": "aliyun"},
 		Services: map[string]config.Service{
+			//"core": {Metadata: map[string]string{"env": "local1"}},
 			//"spm":  {Metadata: map[string]string{"env": "local1"}},
-			"data-service": {Metadata: map[string]string{"env": "local11"}},
+			//"data-service": {Metadata: map[string]string{"env": "local11"}},
 			//"flow-engine": {Metadata: map[string]string{"env": "local1"}},
 		},
 		Type: "tenant", // tenant 或 project
@@ -74,7 +74,10 @@ func TestClient_Run(t *testing.T) {
 	startTimestamp := time.Now().Local().Format(time.RFC3339Nano)
 	dStr := `{"#$table":{"_tableName":"table","id":"新表","title":"表21"},"_department":{},"_label":{"name":"a2"},"_settings":{},"_table":"新表","_title":"表21","createTime_default":"2023-03-06T11:07:32.800133+08:00","creator":"admin","creatorName":"admin","disable":false,"extFlowType":"工作表记录修改","extUserMap":{"creator":{"#$user":{"_tableName":"user","id":"admin","name":"admin"}}},"flowTriggerUser":"admin","flowTriggerUserMap":{"#$user":{"_tableName":"user","id":"admin","name":"admin"}},"focus":false,"id":"640558f5b024ee426a4732e5","name":"a2","number-1FF1":1,"off":false,"online":false}`
 	var r map[string]interface{}
-	json.Unmarshal([]byte(dStr), &r)
+	err := json.Unmarshal([]byte(dStr), &r)
+	if err != nil {
+		return
+	}
 	variables1 := map[string]interface{}{
 		"#project":                 "625f6dbf5433487131f09ff8",
 		"#startTimestamp":          startTimestamp,
@@ -105,7 +108,10 @@ func BenchmarkClient_Run(b *testing.B) {
 	startTimestamp := time.Now().Local().Format(time.RFC3339Nano)
 	dStr := `{"#$table":{"_tableName":"table","id":"新表","title":"表21"},"_department":{},"_label":{"name":"a2"},"_settings":{},"_table":"新表","_title":"表21","createTime_default":"2023-03-06T11:07:32.800133+08:00","creator":"admin","creatorName":"admin","disable":false,"extFlowType":"工作表记录修改","extUserMap":{"creator":{"#$user":{"_tableName":"user","id":"admin","name":"admin"}}},"flowTriggerUser":"admin","flowTriggerUserMap":{"#$user":{"_tableName":"user","id":"admin","name":"admin"}},"focus":false,"id":"640558f5b024ee426a4732e5","name":"a2","number-1FF1":1,"off":false,"online":false}`
 	var r map[string]interface{}
-	json.Unmarshal([]byte(dStr), &r)
+	err := json.Unmarshal([]byte(dStr), &r)
+	if err != nil {
+		return
+	}
 	variables1 := map[string]interface{}{
 		"#project":                 "625f6dbf5433487131f09ff8",
 		"#startTimestamp":          startTimestamp,
@@ -589,4 +595,44 @@ func TestClient_RtspPull(t *testing.T) {
 	} else {
 		t.Log(res)
 	}
+}
+
+func Test_QueryProject(t *testing.T) {
+	var arr []map[string]interface{}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+	if err := cli.QueryProject(ctx, map[string]interface{}{}, &arr); err != nil {
+		t.Error(err)
+	}
+	t.Log(arr)
+}
+
+func Test_RestQueryProject(t *testing.T) {
+	var arr []map[string]interface{}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+	if err := cli.RestQueryProject(ctx, map[string]interface{}{}, &arr); err != nil {
+		t.Error(err)
+	}
+	t.Log(arr)
+}
+
+func Test_QueryTableSchema(t *testing.T) {
+	var arr []map[string]interface{}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+	if err := cli.QueryTableSchema(ctx, "625f6dbf5433487131f09ff9", map[string]interface{}{}, &arr); err != nil {
+		t.Error(err)
+	}
+	t.Log(arr)
+}
+
+func Test_RestQueryTableSchema(t *testing.T) {
+	var arr []map[string]interface{}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+	if err := cli.RestQueryTableSchema(ctx, "625f6dbf5433487131f09ff9", map[string]interface{}{}, &arr); err != nil {
+		t.Error(err)
+	}
+	t.Log(arr)
 }
