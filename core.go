@@ -54,7 +54,7 @@ func (c *Client) UseLicense(ctx context.Context, projectId string, result interf
 	return nil
 }
 
-func (c *Client) UploadLicense(ctx context.Context, projectId string, size int, r io.Reader) error {
+func (c *Client) UploadLicense(ctx context.Context, projectId, filename string, size int, r io.Reader) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
@@ -63,7 +63,7 @@ func (c *Client) UploadLicense(ctx context.Context, projectId string, size int, 
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	stream, err := cli.UploadLicense(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}))
+	stream, err := cli.UploadLicense(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, "filename": filename}))
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
 	}
@@ -86,10 +86,23 @@ func (c *Client) UploadLicense(ctx context.Context, projectId string, size int, 
 		bytesReadAll += bytesRead
 
 		if bytesReadAll == size {
-			err := stream.CloseSend()
+			//err := stream.CloseSend()
+			//if err != nil {
+			//	return fmt.Errorf("CloseSend错误:%s", err.Error())
+			//}
+
+			err := stream.Send(&core.UploadFileRequest{Data: []byte("down")})
 			if err != nil {
-				return fmt.Errorf("CloseSend错误:%s", err.Error())
+				return fmt.Errorf("grpc发送结束标志错误:%s", err.Error())
 			}
+
+			m := new(api.Response)
+			err = stream.RecvMsg(m)
+			if err != nil {
+				return fmt.Errorf("读取server响应错误:%s", err.Error())
+			}
+			fmt.Printf("上传文件成功，服务器响应结果:%+v\n", m)
+
 			return nil
 		}
 
@@ -2017,22 +2030,22 @@ func (c *Client) UploadBackup(ctx context.Context, projectId, password string, s
 		bytesReadAll += bytesRead
 
 		if bytesReadAll == size {
-			//err := stream.CloseSend()
+			err := stream.CloseSend()
+			if err != nil {
+				return fmt.Errorf("CloseSend错误:%s", err.Error())
+			}
+
+			//err := stream.Send(&core.UploadFileRequest{Data: []byte("down")})
 			//if err != nil {
-			//	return fmt.Errorf("CloseSend错误:%s", err.Error())
+			//	return fmt.Errorf("grpc发送结束标志错误:%s", err.Error())
 			//}
-
-			err := stream.Send(&core.UploadFileRequest{Data: []byte("down")})
-			if err != nil {
-				return fmt.Errorf("grpc发送结束标志错误:%s", err.Error())
-			}
-
-			m := new(api.Response)
-			err = stream.RecvMsg(m)
-			if err != nil {
-				return fmt.Errorf("读取server响应错误:%s", err.Error())
-			}
-			fmt.Printf("上传文件成功，服务器响应结果:%+v\n", m)
+			//
+			//m := new(api.Response)
+			//err = stream.RecvMsg(m)
+			//if err != nil {
+			//	return fmt.Errorf("读取server响应错误:%s", err.Error())
+			//}
+			//fmt.Printf("上传文件成功，服务器响应结果:%+v\n", m)
 
 			return nil
 		}
