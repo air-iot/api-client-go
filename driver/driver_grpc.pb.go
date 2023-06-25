@@ -33,6 +33,7 @@ type DriverServiceClient interface {
 	WriteTagStream(ctx context.Context, opts ...grpc.CallOption) (DriverService_WriteTagStreamClient, error)
 	BatchRunStream(ctx context.Context, opts ...grpc.CallOption) (DriverService_BatchRunStreamClient, error)
 	DebugStream(ctx context.Context, opts ...grpc.CallOption) (DriverService_DebugStreamClient, error)
+	HttpProxyStream(ctx context.Context, opts ...grpc.CallOption) (DriverService_HttpProxyStreamClient, error)
 	BatchCommand(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
 	ChangeCommand(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
 }
@@ -267,6 +268,37 @@ func (x *driverServiceDebugStreamClient) Recv() (*Debug, error) {
 	return m, nil
 }
 
+func (c *driverServiceClient) HttpProxyStream(ctx context.Context, opts ...grpc.CallOption) (DriverService_HttpProxyStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &DriverService_ServiceDesc.Streams[6], "/driver.DriverService/HttpProxyStream", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &driverServiceHttpProxyStreamClient{stream}
+	return x, nil
+}
+
+type DriverService_HttpProxyStreamClient interface {
+	Send(*HttpProxyResult) error
+	Recv() (*HttpProxyRequest, error)
+	grpc.ClientStream
+}
+
+type driverServiceHttpProxyStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *driverServiceHttpProxyStreamClient) Send(m *HttpProxyResult) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *driverServiceHttpProxyStreamClient) Recv() (*HttpProxyRequest, error) {
+	m := new(HttpProxyRequest)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (c *driverServiceClient) BatchCommand(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error) {
 	out := new(api.Response)
 	err := c.cc.Invoke(ctx, "/driver.DriverService/BatchCommand", in, out, opts...)
@@ -299,6 +331,7 @@ type DriverServiceServer interface {
 	WriteTagStream(DriverService_WriteTagStreamServer) error
 	BatchRunStream(DriverService_BatchRunStreamServer) error
 	DebugStream(DriverService_DebugStreamServer) error
+	HttpProxyStream(DriverService_HttpProxyStreamServer) error
 	BatchCommand(context.Context, *api.CreateRequest) (*api.Response, error)
 	ChangeCommand(context.Context, *api.UpdateRequest) (*api.Response, error)
 	mustEmbedUnimplementedDriverServiceServer()
@@ -337,6 +370,9 @@ func (UnimplementedDriverServiceServer) BatchRunStream(DriverService_BatchRunStr
 }
 func (UnimplementedDriverServiceServer) DebugStream(DriverService_DebugStreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method DebugStream not implemented")
+}
+func (UnimplementedDriverServiceServer) HttpProxyStream(DriverService_HttpProxyStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method HttpProxyStream not implemented")
 }
 func (UnimplementedDriverServiceServer) BatchCommand(context.Context, *api.CreateRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BatchCommand not implemented")
@@ -585,6 +621,32 @@ func (x *driverServiceDebugStreamServer) Recv() (*Debug, error) {
 	return m, nil
 }
 
+func _DriverService_HttpProxyStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(DriverServiceServer).HttpProxyStream(&driverServiceHttpProxyStreamServer{stream})
+}
+
+type DriverService_HttpProxyStreamServer interface {
+	Send(*HttpProxyRequest) error
+	Recv() (*HttpProxyResult, error)
+	grpc.ServerStream
+}
+
+type driverServiceHttpProxyStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *driverServiceHttpProxyStreamServer) Send(m *HttpProxyRequest) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *driverServiceHttpProxyStreamServer) Recv() (*HttpProxyResult, error) {
+	m := new(HttpProxyResult)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func _DriverService_BatchCommand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(api.CreateRequest)
 	if err := dec(in); err != nil {
@@ -687,6 +749,12 @@ var DriverService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "DebugStream",
 			Handler:       _DriverService_DebugStream_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "HttpProxyStream",
+			Handler:       _DriverService_HttpProxyStream_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},
