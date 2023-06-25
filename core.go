@@ -54,7 +54,7 @@ func (c *Client) UseLicense(ctx context.Context, projectId string, result interf
 	return nil
 }
 
-func (c *Client) UploadLicense(ctx context.Context, projectId string, size int, r io.Reader) error {
+func (c *Client) UploadLicense(ctx context.Context, projectId, filename string, size int, r io.Reader) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
@@ -63,7 +63,7 @@ func (c *Client) UploadLicense(ctx context.Context, projectId string, size int, 
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
 	}
-	stream, err := cli.UploadLicense(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}))
+	stream, err := cli.UploadLicense(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId, "filename": filename}))
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
 	}

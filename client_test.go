@@ -463,6 +463,7 @@ func TestClient_UploadBackup(t *testing.T) {
 func TestClient_UploadLicense(t *testing.T) {
 
 	name := "license.txt"
+	//name = "license.zip"
 	f, err := os.Open(name)
 	if err != nil {
 		t.Fatal(err)
@@ -472,7 +473,7 @@ func TestClient_UploadLicense(t *testing.T) {
 		t.Fatal(err)
 	}
 	id := "6417f647ea62c9a4582b41d8"
-	err = cli.UploadLicense(context.Background(), "625f6dbf5433487131f09ff7", int(fi.Size()), f)
+	err = cli.UploadLicense(context.Background(), "625f6dbf5433487131f09ff7", name, int(fi.Size()), f)
 	if err != nil {
 		t.Fatal(err)
 	}
