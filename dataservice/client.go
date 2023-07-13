@@ -36,12 +36,12 @@ func NewClient(cfg config.Config, registry *etcd.Registry, cred grpc.DialOption,
 		opts:        []grpc.DialOption{cred},
 		middlewares: []middleware.Middleware{httpCred},
 	}
-	if err := c.createRestConn(); err != nil {
-		return nil, nil, err
-	}
-	if err := c.createConn(); err != nil {
-		return nil, nil, err
-	}
+	//if err := c.createRestConn(); err != nil {
+	//	return nil, nil, err
+	//}
+	//if err := c.createConn(); err != nil {
+	//	return nil, nil, err
+	//}
 	cleanFunc := func() {
 		if c.restClient != nil {
 			if err := c.restClient.Close(); err != nil {
