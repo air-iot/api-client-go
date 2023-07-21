@@ -2175,3 +2175,35 @@ func (c *Client) DownloadBackup(ctx context.Context, projectId, id, password str
 	//	w.Write(buffer)
 	//}
 }
+
+func (c *Client) FindTagByID(ctx context.Context, projectId, tableId, id string, result interface{}) ([]byte, error) {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if tableId == "" {
+		return nil, errors.NewMsg("表为空")
+	}
+	if id == "" {
+		return nil, errors.NewMsg("资产id为空")
+	}
+	cli, err := c.CoreClient.GetTableDataServiceClient()
+	if err != nil {
+		return nil, errors.NewMsg("获取客户端错误,%s", err)
+	}
+	res, err := cli.FindTagByID(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&core.GetOrDeleteDataRequest{Table: tableId, Id: id})
+	if err != nil {
+		return nil, errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return nil, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if result == nil {
+		return res.GetResult(), nil
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return nil, errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return res.GetResult(), nil
+}

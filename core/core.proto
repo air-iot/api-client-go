@@ -71,6 +71,7 @@ service TableDataService {
   rpc FindTableDataDeptByDeptIDs (api.CreateRequest) returns (api.Response) {}
   rpc UpdateMany (MultiUpdateDataRequest) returns (api.Response) {}
   rpc GetWarningFilterIDs (api.EmptyRequest) returns (api.Response) {}
+  rpc FindTagByID (GetOrDeleteDataRequest) returns (api.Response) {}
 }
 
 service TableRecordService {

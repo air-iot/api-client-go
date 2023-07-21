@@ -1292,6 +1292,7 @@ type TableDataServiceClient interface {
 	FindTableDataDeptByDeptIDs(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
 	UpdateMany(ctx context.Context, in *MultiUpdateDataRequest, opts ...grpc.CallOption) (*api.Response, error)
 	GetWarningFilterIDs(ctx context.Context, in *api.EmptyRequest, opts ...grpc.CallOption) (*api.Response, error)
+	FindTagByID(ctx context.Context, in *GetOrDeleteDataRequest, opts ...grpc.CallOption) (*api.Response, error)
 }
 
 type tableDataServiceClient struct {
@@ -1410,6 +1411,15 @@ func (c *tableDataServiceClient) GetWarningFilterIDs(ctx context.Context, in *ap
 	return out, nil
 }
 
+func (c *tableDataServiceClient) FindTagByID(ctx context.Context, in *GetOrDeleteDataRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.TableDataService/FindTagByID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TableDataServiceServer is the server API for TableDataService service.
 // All implementations must embed UnimplementedTableDataServiceServer
 // for forward compatibility
@@ -1426,6 +1436,7 @@ type TableDataServiceServer interface {
 	FindTableDataDeptByDeptIDs(context.Context, *api.CreateRequest) (*api.Response, error)
 	UpdateMany(context.Context, *MultiUpdateDataRequest) (*api.Response, error)
 	GetWarningFilterIDs(context.Context, *api.EmptyRequest) (*api.Response, error)
+	FindTagByID(context.Context, *GetOrDeleteDataRequest) (*api.Response, error)
 	mustEmbedUnimplementedTableDataServiceServer()
 }
 
@@ -1468,6 +1479,9 @@ func (UnimplementedTableDataServiceServer) UpdateMany(context.Context, *MultiUpd
 }
 func (UnimplementedTableDataServiceServer) GetWarningFilterIDs(context.Context, *api.EmptyRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWarningFilterIDs not implemented")
+}
+func (UnimplementedTableDataServiceServer) FindTagByID(context.Context, *GetOrDeleteDataRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindTagByID not implemented")
 }
 func (UnimplementedTableDataServiceServer) mustEmbedUnimplementedTableDataServiceServer() {}
 
@@ -1698,6 +1712,24 @@ func _TableDataService_GetWarningFilterIDs_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TableDataService_FindTagByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOrDeleteDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableDataServiceServer).FindTagByID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.TableDataService/FindTagByID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableDataServiceServer).FindTagByID(ctx, req.(*GetOrDeleteDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TableDataService_ServiceDesc is the grpc.ServiceDesc for TableDataService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1752,6 +1784,10 @@ var TableDataService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetWarningFilterIDs",
 			Handler:    _TableDataService_GetWarningFilterIDs_Handler,
+		},
+		{
+			MethodName: "FindTagByID",
+			Handler:    _TableDataService_FindTagByID_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
