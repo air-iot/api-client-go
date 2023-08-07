@@ -56,6 +56,7 @@ service TableSchemaService {
   rpc Replace (api.UpdateRequest) returns (api.Response) {}
   rpc Create (api.CreateRequest) returns (api.Response) {}
   rpc StatsQuery (api.QueryRequest) returns (api.Response) {}
+  rpc FindCommandByID (api.GetOrDeleteRequest) returns (api.Response) {}
 }
 
 service TableDataService {
@@ -72,6 +73,7 @@ service TableDataService {
   rpc UpdateMany (MultiUpdateDataRequest) returns (api.Response) {}
   rpc GetWarningFilterIDs (api.EmptyRequest) returns (api.Response) {}
   rpc FindTagByID (GetOrDeleteDataRequest) returns (api.Response) {}
+  rpc FindCommandByID (GetOrDeleteDataRequest) returns (api.Response) {}
 }
 
 service TableRecordService {
