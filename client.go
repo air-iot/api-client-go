@@ -2,6 +2,7 @@ package api_client_go
 
 import (
 	"fmt"
+	"github.com/air-iot/api-client-go/v4/algorithm"
 	"log"
 
 	"dario.cat/mergo"
@@ -36,6 +37,7 @@ type Client struct {
 	FlowEngineClient  *engine.Client
 	ReportClient      *report.Client
 	LiveClient        *live.Client
+	AlgorithmClient   *algorithm.Client
 }
 
 func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error) {
@@ -127,6 +129,11 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 	if err != nil {
 		return nil, nil, err
 	}
+	algorithmClient, cleanAlgorithm, err := algorithm.NewClient(cfg, r, cred, httpCred)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	return &Client{
 			SpmClient:         spmClient,
 			CoreClient:        coreClient,
@@ -137,6 +144,7 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 			FlowEngineClient:  flowEngineClient,
 			ReportClient:      reportClient,
 			LiveClient:        liveClient,
+			AlgorithmClient:   algorithmClient,
 		}, func() {
 			cleanSpm()
 			cleanCore()
@@ -147,5 +155,6 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 			cleanFlowEngine()
 			cleanReport()
 			cleanLive()
+			cleanAlgorithm()
 		}, nil
 }

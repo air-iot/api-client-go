@@ -2,6 +2,7 @@ package api_client_go
 
 import (
 	"context"
+	"github.com/air-iot/api-client-go/v4/driver"
 
 	"github.com/air-iot/api-client-go/v4/api"
 	"github.com/air-iot/api-client-go/v4/apicontext"
@@ -64,6 +65,52 @@ func (c *Client) ChangeCommand(ctx context.Context, projectId, id string, data, 
 	res, err := cli.ChangeCommand(
 		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.UpdateRequest{Id: id, Data: bts})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+// HttpProxy 驱动代理接口
+func (c *Client) HttpProxy(ctx context.Context, projectId, typeId, groupId string, headers, data, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	cli, err := c.DriverClient.GetDriverServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	if data == nil {
+		return errors.NewMsg("数据为空")
+	}
+
+	var headersBytes []byte
+	if headers != nil {
+		headersBytes, err = json.Marshal(headers)
+		if err != nil {
+			return errors.NewMsg("headers序列化失败")
+		}
+	}
+
+	bts, err := json.Marshal(data)
+	if err != nil {
+		return errors.NewMsg("数据为空")
+	}
+	res, err := cli.HttpProxy(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&driver.ClientHttpProxyRequest{
+			ProjectId: projectId,
+			Type:      typeId,
+			GroupId:   groupId,
+			Headers:   headersBytes,
+			Data:      bts,
+		})
 	if err != nil {
 		return errors.NewMsg("请求错误, %s", err)
 	}
