@@ -34,6 +34,7 @@ service DriverService {
 
   rpc BatchCommand (api.CreateRequest) returns (api.Response) {}
   rpc ChangeCommand (api.UpdateRequest) returns (api.Response) {}
+  rpc HttpProxy (ClientHttpProxyRequest) returns (api.Response) {}
 }
 
 
@@ -146,4 +147,12 @@ message HttpProxyRequest {
 message HttpProxyResult {
   string request = 1;
   bytes data = 2;
+}
+
+message ClientHttpProxyRequest {
+  string projectId = 1;
+  string type = 2;
+  string groupId = 3;
+  bytes headers = 4;
+  bytes data = 5;
 }
