@@ -11,6 +11,8 @@ syntax = "proto3";
 
 package algorithm;
 
+import "api/api.proto";
+
 option go_package = "./algorithm;algorithm";
 option java_package = "cn.airiot.sdk.algorithm.grpc.algorithm";
 option java_multiple_files = true;
@@ -22,7 +24,7 @@ service algorithmService {
   rpc SchemaStream (stream SchemaResult) returns (stream SchemaRequest) {}
   rpc RunStream (stream RunResult) returns (stream RunRequest) {}
 
-  rpc Run (RunRequest) returns (RunResult) {}
+  rpc Run (RunRequest) returns (api.Response) {}
 }
 
 message HealthCheckRequest {
@@ -64,7 +66,7 @@ message SchemaResult {
 }
 
 message RunRequest {
-  string request = 1;
+  string key = 1;
   bytes data = 2;
 }
 
