@@ -24,6 +24,7 @@ service FlowTaskService {
   rpc Update (api.UpdateRequest) returns (api.Response) {}
   rpc Delete (api.GetOrDeleteRequest) returns (api.Response) {}
   rpc Replace (api.UpdateRequest) returns (api.Response) {}
+  rpc UpdateFilter (api.UpdateFilter) returns (api.Response) {}
 }
 
 service FlowService {
