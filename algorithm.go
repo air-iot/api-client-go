@@ -10,7 +10,7 @@ import (
 	"github.com/air-iot/json"
 )
 
-// AlgorithmRun 算法执行
+// AlgorithmRunById 算法执行
 func (c *Client) AlgorithmRunById(ctx context.Context, projectId, id string, data interface{}) ([]byte, error) {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
@@ -29,7 +29,7 @@ func (c *Client) AlgorithmRunById(ctx context.Context, projectId, id string, dat
 	}
 	res, err := cli.Run(
 		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
-		&algorithm.ClientRunRequest{
+		&algorithm.ClientRunByIdRequest{
 			Id:   id,
 			Data: bts,
 		})
