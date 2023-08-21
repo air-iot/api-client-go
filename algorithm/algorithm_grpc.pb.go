@@ -16,6 +16,7 @@ package algorithm
 
 import (
 	context "context"
+	api "github.com/air-iot/api-client-go/v4/api"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -40,7 +41,7 @@ type AlgorithmServiceClient interface {
 	HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error)
 	SchemaStream(ctx context.Context, opts ...grpc.CallOption) (AlgorithmService_SchemaStreamClient, error)
 	RunStream(ctx context.Context, opts ...grpc.CallOption) (AlgorithmService_RunStreamClient, error)
-	Run(ctx context.Context, in *RunRequest, opts ...grpc.CallOption) (*RunResult, error)
+	Run(ctx context.Context, in *ClientRunRequest, opts ...grpc.CallOption) (*api.Response, error)
 }
 
 type algorithmServiceClient struct {
@@ -122,8 +123,8 @@ func (x *algorithmServiceRunStreamClient) Recv() (*RunRequest, error) {
 	return m, nil
 }
 
-func (c *algorithmServiceClient) Run(ctx context.Context, in *RunRequest, opts ...grpc.CallOption) (*RunResult, error) {
-	out := new(RunResult)
+func (c *algorithmServiceClient) Run(ctx context.Context, in *ClientRunRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
 	err := c.cc.Invoke(ctx, AlgorithmService_Run_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -138,7 +139,7 @@ type AlgorithmServiceServer interface {
 	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)
 	SchemaStream(AlgorithmService_SchemaStreamServer) error
 	RunStream(AlgorithmService_RunStreamServer) error
-	Run(context.Context, *RunRequest) (*RunResult, error)
+	Run(context.Context, *ClientRunRequest) (*api.Response, error)
 	mustEmbedUnimplementedAlgorithmServiceServer()
 }
 
@@ -155,7 +156,7 @@ func (UnimplementedAlgorithmServiceServer) SchemaStream(AlgorithmService_SchemaS
 func (UnimplementedAlgorithmServiceServer) RunStream(AlgorithmService_RunStreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method RunStream not implemented")
 }
-func (UnimplementedAlgorithmServiceServer) Run(context.Context, *RunRequest) (*RunResult, error) {
+func (UnimplementedAlgorithmServiceServer) Run(context.Context, *ClientRunRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Run not implemented")
 }
 func (UnimplementedAlgorithmServiceServer) mustEmbedUnimplementedAlgorithmServiceServer() {}
@@ -242,7 +243,7 @@ func (x *algorithmServiceRunStreamServer) Recv() (*RunResult, error) {
 }
 
 func _AlgorithmService_Run_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RunRequest)
+	in := new(ClientRunRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -254,7 +255,7 @@ func _AlgorithmService_Run_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: AlgorithmService_Run_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AlgorithmServiceServer).Run(ctx, req.(*RunRequest))
+		return srv.(AlgorithmServiceServer).Run(ctx, req.(*ClientRunRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
