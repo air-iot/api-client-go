@@ -24,7 +24,7 @@ service algorithmService {
   rpc SchemaStream (stream SchemaResult) returns (stream SchemaRequest) {}
   rpc RunStream (stream RunResult) returns (stream RunRequest) {}
 
-  rpc Run (RunRequest) returns (api.Response) {}
+  rpc Run (ClientRunRequest) returns (api.Response) {}
 }
 
 message HealthCheckRequest {
@@ -73,4 +73,9 @@ message RunRequest {
 message RunResult {
   string request = 1;
   bytes message = 2;
+}
+
+message ClientRunRequest {
+  string id = 1;
+  bytes data = 2;
 }

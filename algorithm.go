@@ -11,7 +11,7 @@ import (
 )
 
 // AlgorithmRun 算法执行
-func (c *Client) AlgorithmRun(ctx context.Context, projectId, key string, data interface{}) ([]byte, error) {
+func (c *Client) AlgorithmRunById(ctx context.Context, projectId, id string, data interface{}) ([]byte, error) {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
@@ -29,8 +29,8 @@ func (c *Client) AlgorithmRun(ctx context.Context, projectId, key string, data i
 	}
 	res, err := cli.Run(
 		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
-		&algorithm.RunRequest{
-			Key:  key,
+		&algorithm.ClientRunRequest{
+			Id:   id,
 			Data: bts,
 		})
 	if err != nil {
