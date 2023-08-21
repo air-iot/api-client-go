@@ -19,7 +19,7 @@ option java_multiple_files = true;
 option java_generate_equals_and_hash = true;
 option java_generic_services = false;
 
-service algorithmService {
+service AlgorithmService {
   rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse) {}
   rpc SchemaStream (stream SchemaResult) returns (stream SchemaRequest) {}
   rpc RunStream (stream RunResult) returns (stream RunRequest) {}
@@ -44,13 +44,9 @@ message HealthCheckResponse {
 
 message Error {
   enum ErrorCode {
-    Schema = 0;
-    Start = 1;
+    Health = 0;
+    Schema = 1;
     Run = 2;
-    Write = 3;  // Used only by the Watch method.
-    BatchRun = 4;  // Used only by the Watch method.
-    Debug = 5;  // Used only by the Watch method.
-    Health = 6;
   }
   ErrorCode code = 1;
   string message = 2;

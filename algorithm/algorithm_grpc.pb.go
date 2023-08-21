@@ -28,10 +28,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AlgorithmService_HealthCheck_FullMethodName  = "/algorithm.algorithmService/HealthCheck"
-	AlgorithmService_SchemaStream_FullMethodName = "/algorithm.algorithmService/SchemaStream"
-	AlgorithmService_RunStream_FullMethodName    = "/algorithm.algorithmService/RunStream"
-	AlgorithmService_Run_FullMethodName          = "/algorithm.algorithmService/Run"
+	AlgorithmService_HealthCheck_FullMethodName  = "/algorithm.AlgorithmService/HealthCheck"
+	AlgorithmService_SchemaStream_FullMethodName = "/algorithm.AlgorithmService/SchemaStream"
+	AlgorithmService_RunStream_FullMethodName    = "/algorithm.AlgorithmService/RunStream"
+	AlgorithmService_Run_FullMethodName          = "/algorithm.AlgorithmService/Run"
 )
 
 // AlgorithmServiceClient is the client API for AlgorithmService service.
@@ -264,7 +264,7 @@ func _AlgorithmService_Run_Handler(srv interface{}, ctx context.Context, dec fun
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AlgorithmService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "algorithm.algorithmService",
+	ServiceName: "algorithm.AlgorithmService",
 	HandlerType: (*AlgorithmServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
