@@ -8,6 +8,7 @@ import (
 	"github.com/air-iot/api-client-go/v4/errors"
 	cErrors "github.com/air-iot/errors"
 	"github.com/air-iot/json"
+	"github.com/air-iot/logger"
 	"net/http"
 )
 
@@ -39,8 +40,9 @@ func (c *Client) AlgorithmRunById(ctx context.Context, projectId, id string, dat
 	if err != nil {
 		return nil, errors.NewMsg("请求错误, %s", err)
 	}
-	if res.GetCode() == http.StatusOK {
-		return nil, cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
+	if res.GetCode() != http.StatusOK {
+		logger.Errorf("算法服务grpc响应错误: %+v", res)
+		return nil, cErrors.Wrap400Response(err, int(res.GetCode()), "算法服务调用失败, %s", res.GetDetail())
 	}
 
 	return res.GetResult(), nil
