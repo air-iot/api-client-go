@@ -38,6 +38,12 @@ service PluginService {
   rpc Register (stream FlowResponse) returns (stream FlowRequest);
 }
 
+service ExtensionService {
+  rpc HealthCheck (ExtensionHealthCheckRequest) returns (ExtensionHealthCheckResponse) {}
+  rpc SchemaStream (stream  ExtensionResult) returns (stream ExtensionSchemaRequest) {}
+  rpc RunStream (stream  ExtensionResult) returns (stream  ExtensionRunRequest) {}
+}
+
 message RunRequest {
   string projectId = 1;
   string config = 2;
@@ -80,12 +86,7 @@ message HealthCheckResponse {
 
 message Error {
   enum ErrorCode {
-    Schema = 0;
-    Start = 1;
-    Run = 2;
-    Write = 3;  // Used only by the Watch method.
-    BatchRun = 4;  // Used only by the Watch method.
-    Debug = 5;  // Used only by the Watch method.
+    Register = 0;
   }
   ErrorCode code = 1;
   string message = 2;
@@ -107,3 +108,45 @@ message FlowResponse{
   string detail = 4;
   bytes result = 5;
 }
+
+message ExtensionHealthCheckRequest {
+  string id = 1;
+}
+
+message ExtensionHealthCheckResponse {
+  enum ServingStatus {
+    UNKNOWN = 0;
+    SERVING = 1;
+    NOT_SERVING = 2;
+    SERVICE_UNKNOWN = 3;  // Used only by the Watch method.
+  }
+  ServingStatus status = 1;
+  repeated ExtensionError errors = 2;
+}
+
+message ExtensionError {
+  enum ErrorCode {
+    Schema = 0;
+    Run = 1;
+  }
+  ErrorCode code = 1;
+  string message = 2;
+}
+
+message ExtensionSchemaRequest {
+  string request = 1;
+}
+
+message ExtensionRunRequest {
+  string request = 1;
+  bytes data = 2;
+}
+
+message ExtensionResult {
+  string request = 1;
+  bool status = 2;
+  string info = 3;
+  string detail = 4;
+  bytes result = 5;
+}
+
