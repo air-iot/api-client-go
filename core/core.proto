@@ -74,6 +74,16 @@ service TableDataService {
   rpc GetWarningFilterIDs (api.EmptyRequest) returns (api.Response) {}
   rpc FindTagByID (GetOrDeleteDataRequest) returns (api.Response) {}
   rpc FindCommandByID (GetOrDeleteDataRequest) returns (api.Response) {}
+
+  rpc QueryByDB (QueryDataRequest) returns (api.Response) {}
+  rpc GetByDB (GetOrDeleteDataRequest) returns (api.Response) {}
+  rpc DeleteByDB (GetOrDeleteDataRequest) returns (api.Response) {}
+  rpc DeleteManyByDB (QueryDataRequest) returns (api.Response) {}
+  rpc UpdateByDB (UpdateDataRequest) returns (api.Response) {}
+  rpc ReplaceByDB (UpdateDataRequest) returns (api.Response) {}
+  rpc CreateByDB (CreateDataRequest) returns (api.Response) {}
+  rpc CreateManyByDB (CreateDataRequest) returns (api.Response) {}
+  rpc UpdateManyByDB (MultiUpdateDataRequest) returns (api.Response) {}
 }
 
 service TableRecordService {
