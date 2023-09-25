@@ -1,14 +1,11 @@
 package api_client_go
 
 import (
-	"context"
 	"fmt"
-	"github.com/air-iot/api-client-go/v4/algorithm"
-	"github.com/air-iot/api-client-go/v4/tr"
-	"github.com/air-iot/logger"
 	"log"
 
 	"dario.cat/mergo"
+	"github.com/air-iot/api-client-go/v4/algorithm"
 	"github.com/air-iot/api-client-go/v4/auth"
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/core"
@@ -137,10 +134,6 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 	if err != nil {
 		return nil, nil, err
 	}
-	ex, err := tr.InitStdoutExporter(context.Background(), cfg)
-	if err != nil {
-		return nil, nil, err
-	}
 	return &Client{
 			AuthClient:        authCli,
 			SpmClient:         spmClient,
@@ -164,8 +157,5 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 			cleanReport()
 			cleanLive()
 			cleanAlgorithm()
-			if err := ex(context.Background()); err != nil {
-				logger.Errorf("关闭链路追踪错误,%v", err)
-			}
 		}, nil
 }
