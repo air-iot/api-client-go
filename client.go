@@ -165,8 +165,7 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 			cleanLive()
 			cleanAlgorithm()
 			if err := ex(context.Background()); err != nil {
-				logger.Errorf("")
-				return
+				logger.Errorf("关闭链路追踪错误,%v", err)
 			}
 		}, nil
 }
