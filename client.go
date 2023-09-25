@@ -31,6 +31,7 @@ import (
 )
 
 type Client struct {
+	AuthClient        *auth.Client
 	SpmClient         *spm.Client
 	CoreClient        *core.Client
 	FlowClient        *flow.Client
@@ -141,6 +142,7 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 		return nil, nil, err
 	}
 	return &Client{
+			AuthClient:        authCli,
 			SpmClient:         spmClient,
 			CoreClient:        coreClient,
 			FlowClient:        flowClient,
