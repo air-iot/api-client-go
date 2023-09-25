@@ -137,7 +137,7 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 	if err != nil {
 		return nil, nil, err
 	}
-	ex, err := tr.InitTrace(context.Background(), cfg)
+	ex, err := tr.InitStdoutExporter(context.Background(), cfg)
 	if err != nil {
 		return nil, nil, err
 	}
