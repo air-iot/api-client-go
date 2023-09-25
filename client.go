@@ -1,8 +1,11 @@
 package api_client_go
 
 import (
+	"context"
 	"fmt"
 	"github.com/air-iot/api-client-go/v4/algorithm"
+	"github.com/air-iot/api-client-go/v4/tr"
+	"github.com/air-iot/logger"
 	"log"
 
 	"dario.cat/mergo"
@@ -133,7 +136,10 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 	if err != nil {
 		return nil, nil, err
 	}
-
+	ex, err := tr.InitTrace(context.Background(), cfg)
+	if err != nil {
+		return nil, nil, err
+	}
 	return &Client{
 			SpmClient:         spmClient,
 			CoreClient:        coreClient,
@@ -156,5 +162,9 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 			cleanReport()
 			cleanLive()
 			cleanAlgorithm()
+			if err := ex(context.Background()); err != nil {
+				logger.Errorf("")
+				return
+			}
 		}, nil
 }

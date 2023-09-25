@@ -11,6 +11,7 @@ import (
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
+	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	ggrpc "google.golang.org/grpc"
@@ -19,15 +20,6 @@ import (
 	"github.com/air-iot/api-client-go/v4/errors"
 	"github.com/air-iot/api-client-go/v4/filter"
 )
-
-// Config grpc配置参数
-//type Config struct {
-//	Host string
-//	Port int
-//	AK   string
-//	SK   string
-//	//Timeout int
-//}
 
 func CreateConn(serviceName string, cfg config.Config, r *etcd.Registry, opts ...ggrpc.DialOption) (*ggrpc.ClientConn, error) {
 	metadataTmp := cfg.Metadata
@@ -45,6 +37,7 @@ func CreateConn(serviceName string, cfg config.Config, r *etcd.Registry, opts ..
 		grpc.WithEndpoint(fmt.Sprintf("discovery:///%s", serviceName)),
 		grpc.WithDiscovery(r),
 		grpc.WithMiddleware(
+			tracing.Client(),
 			recovery.Recovery(),
 		),
 		grpc.WithOptions(opts...),
