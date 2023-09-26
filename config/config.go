@@ -1,15 +1,14 @@
 package config
 
 type Config struct {
-	EtcdConfig  string `json:"etcdConfig"`
-	ServiceName string
-	Metadata    map[string]string  `json:"metadata"`
-	Services    map[string]Service `json:"services"`
-	Type        KeyType            `json:"type"`
-	ProjectId   string             `json:"projectId"`
-	AK          string             `json:"ak"`
-	SK          string             `json:"sk"`
-	Timeout     uint               `json:"timeout"`
+	EtcdConfig string             `json:"etcdConfig"`
+	Metadata   map[string]string  `json:"metadata"`
+	Services   map[string]Service `json:"services"`
+	Type       KeyType            `json:"type"`
+	ProjectId  string             `json:"projectId"`
+	AK         string             `json:"ak"`
+	SK         string             `json:"sk"`
+	Timeout    uint               `json:"timeout"`
 }
 
 type KeyType string
