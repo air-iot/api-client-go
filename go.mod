@@ -6,7 +6,7 @@ require (
 	dario.cat/mergo v1.0.0
 	github.com/air-iot/errors v0.0.4
 	github.com/air-iot/json v0.0.1
-	github.com/air-iot/logger v1.0.4
+	github.com/air-iot/logger v1.0.5
 	github.com/go-kratos/kratos/contrib/config/etcd/v2 v2.0.0-20230706115902-bffc1a0989a6
 	github.com/go-kratos/kratos/contrib/registry/etcd/v2 v2.0.0-20230227131608-c65f823c38de
 	github.com/go-kratos/kratos/v2 v2.6.3

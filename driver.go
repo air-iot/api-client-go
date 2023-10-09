@@ -48,9 +48,9 @@ func (c *Client) ChangeCommand(ctx context.Context, projectId, id string, data, 
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
-	if id == "" {
-		return errors.NewMsg("id为空")
-	}
+	//if id == "" {
+	//	return errors.NewMsg("id为空")
+	//}
 	cli, err := c.DriverClient.GetDriverServiceClient()
 	if err != nil {
 		return errors.NewMsg("获取客户端错误,%s", err)
