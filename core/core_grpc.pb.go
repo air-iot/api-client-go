@@ -2578,6 +2578,128 @@ var MessageService_ServiceDesc = grpc.ServiceDesc{
 	Metadata: "core/core.proto",
 }
 
+// DashboardServiceClient is the client API for DashboardService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type DashboardServiceClient interface {
+	Create(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
+}
+
+type dashboardServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewDashboardServiceClient(cc grpc.ClientConnInterface) DashboardServiceClient {
+	return &dashboardServiceClient{cc}
+}
+
+func (c *dashboardServiceClient) Create(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.DashboardService/Create", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dashboardServiceClient) Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.DashboardService/Query", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// DashboardServiceServer is the server API for DashboardService service.
+// All implementations must embed UnimplementedDashboardServiceServer
+// for forward compatibility
+type DashboardServiceServer interface {
+	Create(context.Context, *api.CreateRequest) (*api.Response, error)
+	Query(context.Context, *api.QueryRequest) (*api.Response, error)
+	mustEmbedUnimplementedDashboardServiceServer()
+}
+
+// UnimplementedDashboardServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedDashboardServiceServer struct {
+}
+
+func (UnimplementedDashboardServiceServer) Create(context.Context, *api.CreateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (UnimplementedDashboardServiceServer) Query(context.Context, *api.QueryRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Query not implemented")
+}
+func (UnimplementedDashboardServiceServer) mustEmbedUnimplementedDashboardServiceServer() {}
+
+// UnsafeDashboardServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to DashboardServiceServer will
+// result in compilation errors.
+type UnsafeDashboardServiceServer interface {
+	mustEmbedUnimplementedDashboardServiceServer()
+}
+
+func RegisterDashboardServiceServer(s grpc.ServiceRegistrar, srv DashboardServiceServer) {
+	s.RegisterService(&DashboardService_ServiceDesc, srv)
+}
+
+func _DashboardService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.CreateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DashboardServiceServer).Create(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.DashboardService/Create",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DashboardServiceServer).Create(ctx, req.(*api.CreateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DashboardService_Query_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.QueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DashboardServiceServer).Query(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.DashboardService/Query",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DashboardServiceServer).Query(ctx, req.(*api.QueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// DashboardService_ServiceDesc is the grpc.ServiceDesc for DashboardService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var DashboardService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "core.DashboardService",
+	HandlerType: (*DashboardServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Create",
+			Handler:    _DashboardService_Create_Handler,
+		},
+		{
+			MethodName: "Query",
+			Handler:    _DashboardService_Query_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "core/core.proto",
+}
+
 // DataQueryServiceClient is the client API for DataQueryService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.

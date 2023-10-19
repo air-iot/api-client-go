@@ -40,6 +40,7 @@ type Client struct {
 	systemVariablServiceClient SystemVariableServiceClient
 	backupServiceClient        BackupServiceClient
 	taskManagerServiceClient   TaskManagerServiceClient
+	dashboardClient            DashboardServiceClient
 }
 
 func NewClient(cfg config.Config, registry *etcd.Registry, cred grpc.DialOption, httpCred middleware.Middleware) (*Client, func(), error) {
@@ -96,6 +97,7 @@ func (c *Client) createConn() error {
 	c.settingClient = NewSettingServiceClient(cc)
 	c.systemVariablServiceClient = NewSystemVariableServiceClient(cc)
 	c.backupServiceClient = NewBackupServiceClient(cc)
+	c.dashboardClient = NewDashboardServiceClient(cc)
 	c.conn = cc
 	return nil
 }
@@ -314,4 +316,16 @@ func (c *Client) GetTaskManagerServiceClient() (TaskManagerServiceClient, error)
 		return nil, errors.NewMsg("客户端是空")
 	}
 	return c.taskManagerServiceClient, nil
+}
+
+func (c *Client) GetDashboardServiceClient() (DashboardServiceClient, error) {
+	if c.conn == nil {
+		if err := c.createConn(); err != nil {
+			return nil, err
+		}
+	}
+	if c.dashboardClient == nil {
+		return nil, errors.NewMsg("客户端是空")
+	}
+	return c.dashboardClient, nil
 }

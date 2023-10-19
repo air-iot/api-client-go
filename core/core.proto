@@ -100,6 +100,11 @@ service MessageService {
   rpc Query (api.QueryRequest) returns (api.Response) {}
 }
 
+service DashboardService {
+  rpc Create (api.CreateRequest) returns (api.Response) {}
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+}
+
 service DataQueryService {
   rpc PostLatest (api.CreateRequest) returns (api.Response) {}
   rpc GetQuery (api.QueryRequest) returns (api.Response) {}
