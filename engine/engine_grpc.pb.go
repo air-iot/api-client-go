@@ -183,6 +183,7 @@ var EngineService_ServiceDesc = grpc.ServiceDesc{
 type PluginServiceClient interface {
 	HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error)
 	Register(ctx context.Context, opts ...grpc.CallOption) (PluginService_RegisterClient, error)
+	DebugStream(ctx context.Context, opts ...grpc.CallOption) (PluginService_DebugStreamClient, error)
 }
 
 type pluginServiceClient struct {
@@ -233,12 +234,44 @@ func (x *pluginServiceRegisterClient) Recv() (*FlowRequest, error) {
 	return m, nil
 }
 
+func (c *pluginServiceClient) DebugStream(ctx context.Context, opts ...grpc.CallOption) (PluginService_DebugStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &PluginService_ServiceDesc.Streams[1], "/engine.PluginService/DebugStream", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &pluginServiceDebugStreamClient{stream}
+	return x, nil
+}
+
+type PluginService_DebugStreamClient interface {
+	Send(*DebugResponse) error
+	Recv() (*DebugRequest, error)
+	grpc.ClientStream
+}
+
+type pluginServiceDebugStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *pluginServiceDebugStreamClient) Send(m *DebugResponse) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *pluginServiceDebugStreamClient) Recv() (*DebugRequest, error) {
+	m := new(DebugRequest)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // PluginServiceServer is the server API for PluginService service.
 // All implementations must embed UnimplementedPluginServiceServer
 // for forward compatibility
 type PluginServiceServer interface {
 	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)
 	Register(PluginService_RegisterServer) error
+	DebugStream(PluginService_DebugStreamServer) error
 	mustEmbedUnimplementedPluginServiceServer()
 }
 
@@ -251,6 +284,9 @@ func (UnimplementedPluginServiceServer) HealthCheck(context.Context, *HealthChec
 }
 func (UnimplementedPluginServiceServer) Register(PluginService_RegisterServer) error {
 	return status.Errorf(codes.Unimplemented, "method Register not implemented")
+}
+func (UnimplementedPluginServiceServer) DebugStream(PluginService_DebugStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method DebugStream not implemented")
 }
 func (UnimplementedPluginServiceServer) mustEmbedUnimplementedPluginServiceServer() {}
 
@@ -309,6 +345,32 @@ func (x *pluginServiceRegisterServer) Recv() (*FlowResponse, error) {
 	return m, nil
 }
 
+func _PluginService_DebugStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(PluginServiceServer).DebugStream(&pluginServiceDebugStreamServer{stream})
+}
+
+type PluginService_DebugStreamServer interface {
+	Send(*DebugRequest) error
+	Recv() (*DebugResponse, error)
+	grpc.ServerStream
+}
+
+type pluginServiceDebugStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *pluginServiceDebugStreamServer) Send(m *DebugRequest) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *pluginServiceDebugStreamServer) Recv() (*DebugResponse, error) {
+	m := new(DebugResponse)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // PluginService_ServiceDesc is the grpc.ServiceDesc for PluginService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -325,6 +387,12 @@ var PluginService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "Register",
 			Handler:       _PluginService_Register_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "DebugStream",
+			Handler:       _PluginService_DebugStream_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},
