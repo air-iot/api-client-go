@@ -49,6 +49,8 @@ service UserService {
 service TableSchemaService {
   rpc Query (api.QueryRequest) returns (api.Response) {}
   rpc QueryDeviceByDriverAndGroup (GetDeviceRequest) returns (api.Response) {}
+  rpc QueryTableDeviceByDriverAndGroup (GetDeviceRequest) returns (api.Response) {}
+  rpc FindDevice (GetDataDeviceRequest) returns (api.Response) {}
   rpc QueryEmulator (api.QueryRequest) returns (api.Response) {}
   rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
   rpc Delete (api.GetOrDeleteRequest) returns (api.Response) {}
@@ -165,10 +167,16 @@ message GetDeviceRequest {
   string group = 2;
 }
 
+message GetDataDeviceRequest {
+  string driver = 1;
+  string group = 2;
+  string table = 3;
+  string id = 4;
+}
+
 message GetRequestName {
   string name = 1;
 }
-
 
 message QueryDataRequest {
   string table = 1;

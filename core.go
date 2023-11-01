@@ -465,23 +465,78 @@ func (c *Client) QueryTableSchemaDeviceByDriverAndGroup(ctx context.Context, pro
 		projectId = config.XRequestProjectDefault
 	}
 	if groupId == "" {
-		return errors.NewMsg("groupId is empty")
+		return errors.NewMsg("实例组ID为空")
 	}
 	cli, err := c.CoreClient.GetTableSchemaServiceClient()
 	if err != nil {
-		return errors.NewMsg("获取客户端错误,%s", err)
+		return errors.NewMsg("获取客户端错误,%v", err)
 	}
 	res, err := cli.QueryDeviceByDriverAndGroup(
 		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&core.GetDeviceRequest{Driver: driverId, Group: groupId})
 	if err != nil {
-		return errors.NewMsg("请求错误, %s", err)
+		return errors.NewError(err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功,%s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误,%v", err)
+	}
+	return nil
+}
+
+func (c *Client) QueryOnlyTableSchemaDeviceByDriverAndGroup(ctx context.Context, projectId, driverId, groupId string, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if groupId == "" {
+		return errors.NewMsg("实例组ID为空")
+	}
+	cli, err := c.CoreClient.GetTableSchemaServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%v", err)
+	}
+	res, err := cli.QueryTableDeviceByDriverAndGroup(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&core.GetDeviceRequest{Driver: driverId, Group: groupId})
+	if err != nil {
+		return errors.NewError(err)
 	}
 	if !res.GetStatus() {
 		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
-		return errors.NewMsg("解析请求结果错误, %s", err)
+		return errors.NewMsg("解析请求结果错误,%v", err)
+	}
+	return nil
+}
+
+func (c *Client) FindDevice(ctx context.Context, projectId, driverId, groupId, tableId, deviceId string, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if groupId == "" {
+		return errors.NewMsg("实例组ID为空")
+	}
+	if deviceId == "" {
+		return errors.NewMsg("设备ID为空")
+	}
+	cli, err := c.CoreClient.GetTableSchemaServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%v", err)
+	}
+	res, err := cli.FindDevice(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&core.GetDataDeviceRequest{Driver: driverId, Group: groupId, Table: tableId, Id: deviceId})
+	if err != nil {
+		return errors.NewError(err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误,%v", err)
 	}
 	return nil
 }
@@ -2186,7 +2241,7 @@ func (c *Client) FindTagByID(ctx context.Context, projectId, tableId, id string,
 		return nil, errors.NewMsg("表为空")
 	}
 	if id == "" {
-		return nil, errors.NewMsg("资产id为空")
+		return nil, errors.NewMsg("设备id为空")
 	}
 	cli, err := c.CoreClient.GetTableDataServiceClient()
 	if err != nil {
