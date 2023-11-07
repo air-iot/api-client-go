@@ -14,11 +14,13 @@ option java_generate_equals_and_hash = true;
 option java_generic_services = false;
 
 service DriverService {
+  // 驱动用
   rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse) {}
   rpc Event (Request) returns (Response) {}
   rpc CommandLog (Request) returns (Response) {}
   rpc UpdateTableData (Request) returns (Response) {}
   rpc FindTableData (TableDataRequest) returns (Response) {}
+
   rpc SchemaStream (stream SchemaResult) returns (stream SchemaRequest) {}
   rpc StartStream (stream StartResult) returns (stream StartRequest) {}
   rpc RunStream (stream RunResult) returns (stream RunRequest) {}
@@ -26,7 +28,9 @@ service DriverService {
   rpc BatchRunStream (stream BatchRunResult) returns (stream BatchRunRequest) {}
   rpc DebugStream (stream Debug) returns (stream Debug) {}
   rpc HttpProxyStream (stream HttpProxyResult) returns (stream HttpProxyRequest) {}
+//  rpc UpdateDeviceStream (stream UpdateDeviceResult) returns (stream UpdateDeviceRequest) {}
 
+  // 平台用
   rpc BatchCommand (api.CreateRequest) returns (api.Response) {}
   rpc ChangeCommand (api.UpdateRequest) returns (api.Response) {}
   rpc HttpProxy (ClientHttpProxyRequest) returns (api.Response) {}
@@ -85,6 +89,22 @@ message TableDataRequest {
   string tableId = 2;
   string tableDataId = 3;
 }
+
+message UpdateDeviceRequest {
+  string request = 1;
+  string tableId = 2;
+  bytes data = 3;
+}
+
+message UpdateDeviceResult {
+  string request = 1;
+  bool status = 2;
+  int32 code = 3;
+  string info = 4;
+  string detail = 5;
+  bytes result = 6;
+}
+
 
 message SchemaRequest {
   string request = 1;

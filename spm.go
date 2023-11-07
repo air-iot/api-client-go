@@ -33,6 +33,24 @@ func (c *Client) QueryProject(ctx context.Context, query, result interface{}) er
 	return nil
 }
 
+func (c *Client) QueryProjectAvailable(ctx context.Context, result interface{}) error {
+	cli, err := c.SpmClient.GetProjectServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误, %s", err)
+	}
+	res, err := cli.QueryAvailable(ctx, &api.EmptyRequest{})
+	if err != nil {
+		return errors.NewMsg(", %s", err)
+	}
+	if !res.GetStatus() {
+		return cErrors.Wrap400Response(err, int(res.GetCode()), "响应不成功, %s", res.GetDetail())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
 func (c *Client) RestQueryProject(ctx context.Context, query, result interface{}) error {
 	u := url.URL{Path: "/spm/project"}
 	if query != nil {

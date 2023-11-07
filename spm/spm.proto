@@ -22,6 +22,7 @@ service UserService {
 
 service ProjectService {
   rpc Query (api.QueryRequest) returns (api.Response) {}
+  rpc QueryAvailable (api.EmptyRequest) returns (api.Response) {}
   rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
   rpc Delete (api.GetOrDeleteRequest) returns (api.Response) {}
   rpc Update (api.UpdateRequest) returns (api.Response) {}
