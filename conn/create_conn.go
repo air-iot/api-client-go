@@ -45,6 +45,7 @@ func CreateConn(serviceName string, cfg config.Config, r *etcd.Registry, opts ..
 			recovery.Recovery(),
 		),
 		grpc.WithOptions(opts...),
+		grpc.WithPrintDiscoveryDebugLog(cfg.Debug),
 		grpc.WithNodeFilter(filter.Metadata(metadataTmp)),
 		grpc.WithTimeout(time.Second*time.Duration(cfg.Timeout)),
 	)

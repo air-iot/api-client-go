@@ -10,6 +10,7 @@ type Config struct {
 	SK         string             `json:"sk"`
 	Timeout    uint               `json:"timeout"`
 	Limit      int                `json:"limit"`
+	Debug      bool               `json:"debug"`
 }
 
 type KeyType string
