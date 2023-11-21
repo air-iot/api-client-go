@@ -32,7 +32,7 @@ func CreateConn(serviceName string, cfg config.Config, r *etcd.Registry, opts ..
 		cfg.Timeout = 60
 	}
 	if cfg.Limit == 0 {
-		cfg.Limit = 16
+		cfg.Limit = 100
 	}
 	opts = append(opts, ggrpc.WithDefaultCallOptions(ggrpc.MaxCallRecvMsgSize(cfg.Limit*1024*1024), ggrpc.MaxCallSendMsgSize(cfg.Limit*1024*1024)))
 	logger.Infof("grpc create conn,serviceName: %s config: %+v", serviceName, cfg)
