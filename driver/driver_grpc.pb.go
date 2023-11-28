@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DriverServiceClient interface {
+	// 驱动用
 	HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error)
 	Event(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
 	CommandLog(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
@@ -35,6 +36,7 @@ type DriverServiceClient interface {
 	BatchRunStream(ctx context.Context, opts ...grpc.CallOption) (DriverService_BatchRunStreamClient, error)
 	DebugStream(ctx context.Context, opts ...grpc.CallOption) (DriverService_DebugStreamClient, error)
 	HttpProxyStream(ctx context.Context, opts ...grpc.CallOption) (DriverService_HttpProxyStreamClient, error)
+	// 平台用
 	BatchCommand(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
 	ChangeCommand(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
 	HttpProxy(ctx context.Context, in *ClientHttpProxyRequest, opts ...grpc.CallOption) (*api.Response, error)
@@ -341,6 +343,7 @@ func (c *driverServiceClient) HttpProxy(ctx context.Context, in *ClientHttpProxy
 // All implementations must embed UnimplementedDriverServiceServer
 // for forward compatibility
 type DriverServiceServer interface {
+	// 驱动用
 	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)
 	Event(context.Context, *Request) (*Response, error)
 	CommandLog(context.Context, *Request) (*Response, error)
@@ -353,6 +356,7 @@ type DriverServiceServer interface {
 	BatchRunStream(DriverService_BatchRunStreamServer) error
 	DebugStream(DriverService_DebugStreamServer) error
 	HttpProxyStream(DriverService_HttpProxyStreamServer) error
+	// 平台用
 	BatchCommand(context.Context, *api.CreateRequest) (*api.Response, error)
 	ChangeCommand(context.Context, *api.UpdateRequest) (*api.Response, error)
 	HttpProxy(context.Context, *ClientHttpProxyRequest) (*api.Response, error)
