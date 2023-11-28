@@ -98,6 +98,7 @@ func (c *Client) createConn() error {
 	c.systemVariablServiceClient = NewSystemVariableServiceClient(cc)
 	c.backupServiceClient = NewBackupServiceClient(cc)
 	c.dashboardClient = NewDashboardServiceClient(cc)
+	c.taskManagerServiceClient = NewTaskManagerServiceClient(cc)
 	c.conn = cc
 	return nil
 }
