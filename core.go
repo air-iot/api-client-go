@@ -1884,7 +1884,7 @@ func (c *Client) CreateSystemVariable(ctx context.Context, projectId string, cre
 	return nil
 }
 
-func (c *Client) QueryBackup(ctx context.Context, projectId string, query, result interface{}) error {
+func (c *Client) QueryBackup(ctx context.Context, projectId string, query, result interface{}, count *int64) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
@@ -1908,6 +1908,7 @@ func (c *Client) QueryBackup(ctx context.Context, projectId string, query, resul
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
 		return errors.NewMsg("解析请求结果错误, %s", err)
 	}
+	*count = res.Count
 	return nil
 }
 
