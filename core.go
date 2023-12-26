@@ -465,23 +465,78 @@ func (c *Client) QueryTableSchemaDeviceByDriverAndGroup(ctx context.Context, pro
 		projectId = config.XRequestProjectDefault
 	}
 	if groupId == "" {
-		return errors.NewMsg("groupId is empty")
+		return errors.NewMsg("实例组ID为空")
 	}
 	cli, err := c.CoreClient.GetTableSchemaServiceClient()
 	if err != nil {
-		return errors.NewMsg("获取客户端错误,%s", err)
+		return errors.NewMsg("获取客户端错误,%v", err)
 	}
 	res, err := cli.QueryDeviceByDriverAndGroup(
 		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&core.GetDeviceRequest{Driver: driverId, Group: groupId})
 	if err != nil {
-		return errors.NewMsg("请求错误, %s", err)
+		return errors.NewError(err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功,%s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误,%v", err)
+	}
+	return nil
+}
+
+func (c *Client) QueryOnlyTableSchemaDeviceByDriverAndGroup(ctx context.Context, projectId, driverId, groupId string, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if groupId == "" {
+		return errors.NewMsg("实例组ID为空")
+	}
+	cli, err := c.CoreClient.GetTableSchemaServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%v", err)
+	}
+	res, err := cli.QueryTableDeviceByDriverAndGroup(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&core.GetDeviceRequest{Driver: driverId, Group: groupId})
+	if err != nil {
+		return errors.NewError(err)
 	}
 	if !res.GetStatus() {
 		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
-		return errors.NewMsg("解析请求结果错误, %s", err)
+		return errors.NewMsg("解析请求结果错误,%v", err)
+	}
+	return nil
+}
+
+func (c *Client) FindDevice(ctx context.Context, projectId, driverId, groupId, tableId, deviceId string, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if groupId == "" {
+		return errors.NewMsg("实例组ID为空")
+	}
+	if deviceId == "" {
+		return errors.NewMsg("设备ID为空")
+	}
+	cli, err := c.CoreClient.GetTableSchemaServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%v", err)
+	}
+	res, err := cli.FindDevice(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&core.GetDataDeviceRequest{Driver: driverId, Group: groupId, Table: tableId, Id: deviceId})
+	if err != nil {
+		return errors.NewError(err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误,%v", err)
 	}
 	return nil
 }
@@ -660,31 +715,31 @@ func (c *Client) CreateTableSchema(ctx context.Context, projectId string, create
 	return nil
 }
 
-func (c *Client) QueryTableRecord(ctx context.Context, projectId string, query, result interface{}) error {
+func (c *Client) QueryTableRecord(ctx context.Context, projectId string, query, result interface{}) (int64, error) {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
 	bts, err := json.Marshal(query)
 	if err != nil {
-		return errors.NewMsg("序列化查询参数为空, %s", err)
+		return 0, errors.NewMsg("序列化查询参数为空, %s", err)
 	}
 	cli, err := c.CoreClient.GetTableRecordServiceClient()
 	if err != nil {
-		return errors.NewMsg("获取客户端错误,%s", err)
+		return 0, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	res, err := cli.Query(
 		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&api.QueryRequest{Query: bts})
 	if err != nil {
-		return errors.NewMsg("请求错误, %s", err)
+		return 0, errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return 0, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
 	}
 	if err := json.Unmarshal(res.GetResult(), result); err != nil {
-		return errors.NewMsg("解析请求结果错误, %s", err)
+		return 0, errors.NewMsg("解析请求结果错误, %s", err)
 	}
-	return nil
+	return res.GetCount(), nil
 }
 
 func (c *Client) GetTableRecord(ctx context.Context, projectId, id string, result interface{}) ([]byte, error) {
@@ -838,20 +893,20 @@ func (c *Client) CreateTableRecord(ctx context.Context, projectId string, create
 	return nil
 }
 
-func (c *Client) QueryTableData(ctx context.Context, projectId, tableName string, query, result interface{}) error {
+func (c *Client) QueryTableData(ctx context.Context, projectId, tableName string, query, result interface{}) (int64, error) {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
 	if tableName == "" {
-		return errors.NewMsg("表为空")
+		return 0, errors.NewMsg("表为空")
 	}
 	cli, err := c.CoreClient.GetTableDataServiceClient()
 	if err != nil {
-		return errors.NewMsg("获取客户端错误,%s", err)
+		return 0, errors.NewMsg("获取客户端错误,%s", err)
 	}
 	bts, err := json.Marshal(query)
 	if err != nil {
-		return errors.NewMsg("序列化查询参数为空, %s", err)
+		return 0, errors.NewMsg("序列化查询参数为空, %s", err)
 	}
 	res, err := cli.Query(
 		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
@@ -860,15 +915,17 @@ func (c *Client) QueryTableData(ctx context.Context, projectId, tableName string
 			Query: bts,
 		})
 	if err != nil {
-		return errors.NewMsg("请求错误, %s", err)
+		return 0, errors.NewMsg("请求错误, %s", err)
 	}
 	if !res.GetStatus() {
-		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+		return 0, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
 	}
-	if err := json.Unmarshal(res.GetResult(), result); err != nil {
-		return errors.NewMsg("解析请求结果错误, %s", err)
+	if res.GetResult() != nil {
+		if err := json.Unmarshal(res.GetResult(), result); err != nil {
+			return res.GetCount(), errors.NewMsg("解析请求结果错误, %s", err)
+		}
 	}
-	return nil
+	return res.GetCount(), nil
 }
 
 func (c *Client) QueryTableDataByTableId(ctx context.Context, projectId, tableId string, query, result interface{}) error {
@@ -2185,7 +2242,7 @@ func (c *Client) FindTagByID(ctx context.Context, projectId, tableId, id string,
 		return nil, errors.NewMsg("表为空")
 	}
 	if id == "" {
-		return nil, errors.NewMsg("资产id为空")
+		return nil, errors.NewMsg("设备id为空")
 	}
 	cli, err := c.CoreClient.GetTableDataServiceClient()
 	if err != nil {
@@ -2440,4 +2497,361 @@ func (c *Client) FindTableDataCommandById(ctx context.Context, projectId, tableI
 		return errors.NewMsg("解析请求结果错误, %s", err)
 	}
 	return nil
+}
+
+func (c *Client) QueryTableDataByDB(ctx context.Context, projectId, tableName string, query, result interface{}) (int64, error) {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if tableName == "" {
+		return 0, errors.NewMsg("表为空")
+	}
+	cli, err := c.CoreClient.GetTableDataServiceClient()
+	if err != nil {
+		return 0, errors.NewMsg("获取客户端错误,%s", err)
+	}
+	bts, err := json.Marshal(query)
+	if err != nil {
+		return 0, errors.NewMsg("序列化查询参数为空, %s", err)
+	}
+	res, err := cli.QueryByDB(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&core.QueryDataRequest{
+			Table: tableName,
+			Query: bts,
+		})
+	if err != nil {
+		return 0, errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return 0, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if res.GetResult() != nil {
+		if err := json.Unmarshal(res.GetResult(), result); err != nil {
+			return res.GetCount(), errors.NewMsg("解析请求结果错误, %s", err)
+		}
+	}
+	return res.GetCount(), nil
+}
+
+func (c *Client) GetTableDataByDB(ctx context.Context, projectId, tableName, id string, result interface{}) ([]byte, error) {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if tableName == "" {
+		return nil, errors.NewMsg("表为空")
+	}
+	if id == "" {
+		return nil, errors.NewMsg("id为空")
+	}
+	cli, err := c.CoreClient.GetTableDataServiceClient()
+	if err != nil {
+		return nil, errors.NewMsg("获取客户端错误,%s", err)
+	}
+	res, err := cli.GetByDB(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&core.GetOrDeleteDataRequest{Table: tableName, Id: id})
+	if err != nil {
+		return nil, errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return nil, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if result == nil {
+		return res.GetResult(), nil
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return nil, errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return res.GetResult(), nil
+}
+
+func (c *Client) DeleteTableDataByDB(ctx context.Context, projectId, tableName, id string, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if tableName == "" {
+		return errors.NewMsg("表为空")
+	}
+	if id == "" {
+		return errors.NewMsg("id为空")
+	}
+	cli, err := c.CoreClient.GetTableDataServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	res, err := cli.DeleteByDB(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&core.GetOrDeleteDataRequest{Table: tableName, Id: id})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) DeleteManyTableDataByDB(ctx context.Context, projectId, tableName string, query, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	bts, err := json.Marshal(query)
+	if err != nil {
+		return errors.NewMsg("序列化查询参数为空, %s", err)
+	}
+	if tableName == "" {
+		return errors.NewMsg("表为空")
+	}
+	cli, err := c.CoreClient.GetTableDataServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	res, err := cli.DeleteManyByDB(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&core.QueryDataRequest{Table: tableName, Query: bts})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) UpdateTableDataByDB(ctx context.Context, projectId, tableName, id string, updateData, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if tableName == "" {
+		return errors.NewMsg("表为空")
+	}
+	if updateData == nil {
+		return errors.NewMsg("更新数据为空")
+	}
+	if id == "" {
+		return errors.NewMsg("id为空")
+	}
+	cli, err := c.CoreClient.GetTableDataServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	bts, err := json.Marshal(updateData)
+	if err != nil {
+		return errors.NewMsg("marshal 更新数据为空")
+	}
+	res, err := cli.UpdateByDB(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&core.UpdateDataRequest{Table: tableName, Id: id, Data: bts})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) ReplaceTableDataByDB(ctx context.Context, projectId, tableName, id string, updateData, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if updateData == nil {
+		return errors.NewMsg("更新数据为空")
+	}
+	if tableName == "" {
+		return errors.NewMsg("表为空")
+	}
+	if id == "" {
+		return errors.NewMsg("id为空")
+	}
+	cli, err := c.CoreClient.GetTableDataServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	bts, err := json.Marshal(updateData)
+	if err != nil {
+		return errors.NewMsg("marshal 更新数据为空")
+	}
+	res, err := cli.ReplaceByDB(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&core.UpdateDataRequest{Table: tableName, Id: id, Data: bts})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) CreateTableDataByDB(ctx context.Context, projectId, tableName string, createData, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if tableName == "" {
+		return errors.NewMsg("表为空")
+	}
+	if createData == nil {
+		return errors.NewMsg("插入数据为空")
+	}
+	cli, err := c.CoreClient.GetTableDataServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	bts, err := json.Marshal(createData)
+	if err != nil {
+		return errors.NewMsg("marshal 插入数据为空")
+	}
+	res, err := cli.CreateByDB(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&core.CreateDataRequest{
+			Table: tableName,
+			Data:  bts,
+		})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) CreateManyTableDataByDB(ctx context.Context, projectId, tableName string, createData, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if tableName == "" {
+		return errors.NewMsg("表为空")
+	}
+	if createData == nil {
+		return errors.NewMsg("插入数据为空")
+	}
+	cli, err := c.CoreClient.GetTableDataServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	bts, err := json.Marshal(createData)
+	if err != nil {
+		return errors.NewMsg("marshal 插入数据为空")
+	}
+	res, err := cli.CreateManyByDB(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&core.CreateDataRequest{
+			Table: tableName,
+			Data:  bts,
+		})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) UpdateManyTableDataByDB(ctx context.Context, projectId, tableName string, updateDataList, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if tableName == "" {
+		return errors.NewMsg("表为空")
+	}
+	cli, err := c.CoreClient.GetTableDataServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	btsUpdate, err := json.Marshal(updateDataList)
+	if err != nil {
+		return errors.NewMsg("marshal 更新数据为空")
+	}
+	res, err := cli.UpdateManyByDB(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&core.MultiUpdateDataRequest{Table: tableName, Data: btsUpdate})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) CreateDashboard(ctx context.Context, projectId string, createData, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if createData == nil {
+		return errors.NewMsg("插入数据为空")
+	}
+	cli, err := c.CoreClient.GetDashboardServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+	bts, err := json.Marshal(createData)
+	if err != nil {
+		return errors.NewMsg("marshal 插入数据为空")
+	}
+	res, err := cli.Create(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.CreateRequest{Data: bts})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return nil
+}
+
+func (c *Client) QueryDashboard(ctx context.Context, projectId string, query, result interface{}) (int, error) {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	bts, err := json.Marshal(query)
+	if err != nil {
+		return 0, errors.NewMsg("序列化查询参数为空, %s", err)
+	}
+	cli, err := c.CoreClient.GetDashboardServiceClient()
+	if err != nil {
+		return 0, errors.NewMsg("获取客户端错误,%s", err)
+	}
+	res, err := cli.Query(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.QueryRequest{Query: bts})
+	if err != nil {
+		return 0, errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return 0, errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return 0, errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return int(res.Count), nil
 }

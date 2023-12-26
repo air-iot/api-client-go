@@ -44,6 +44,11 @@ message UpdateRequest {
   bytes data = 2;
 }
 
+message UpdateFilter {
+  bytes query = 1;
+  bytes data = 2;
+}
+
 message CreateRequest {
   bytes data = 1;
 }

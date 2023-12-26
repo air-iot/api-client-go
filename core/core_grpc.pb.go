@@ -908,6 +908,8 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 type TableSchemaServiceClient interface {
 	Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
 	QueryDeviceByDriverAndGroup(ctx context.Context, in *GetDeviceRequest, opts ...grpc.CallOption) (*api.Response, error)
+	QueryTableDeviceByDriverAndGroup(ctx context.Context, in *GetDeviceRequest, opts ...grpc.CallOption) (*api.Response, error)
+	FindDevice(ctx context.Context, in *GetDataDeviceRequest, opts ...grpc.CallOption) (*api.Response, error)
 	QueryEmulator(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
 	Get(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
 	Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
@@ -938,6 +940,24 @@ func (c *tableSchemaServiceClient) Query(ctx context.Context, in *api.QueryReque
 func (c *tableSchemaServiceClient) QueryDeviceByDriverAndGroup(ctx context.Context, in *GetDeviceRequest, opts ...grpc.CallOption) (*api.Response, error) {
 	out := new(api.Response)
 	err := c.cc.Invoke(ctx, "/core.TableSchemaService/QueryDeviceByDriverAndGroup", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableSchemaServiceClient) QueryTableDeviceByDriverAndGroup(ctx context.Context, in *GetDeviceRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.TableSchemaService/QueryTableDeviceByDriverAndGroup", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableSchemaServiceClient) FindDevice(ctx context.Context, in *GetDataDeviceRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.TableSchemaService/FindDevice", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1022,6 +1042,8 @@ func (c *tableSchemaServiceClient) FindCommandByID(ctx context.Context, in *api.
 type TableSchemaServiceServer interface {
 	Query(context.Context, *api.QueryRequest) (*api.Response, error)
 	QueryDeviceByDriverAndGroup(context.Context, *GetDeviceRequest) (*api.Response, error)
+	QueryTableDeviceByDriverAndGroup(context.Context, *GetDeviceRequest) (*api.Response, error)
+	FindDevice(context.Context, *GetDataDeviceRequest) (*api.Response, error)
 	QueryEmulator(context.Context, *api.QueryRequest) (*api.Response, error)
 	Get(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
 	Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
@@ -1042,6 +1064,12 @@ func (UnimplementedTableSchemaServiceServer) Query(context.Context, *api.QueryRe
 }
 func (UnimplementedTableSchemaServiceServer) QueryDeviceByDriverAndGroup(context.Context, *GetDeviceRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryDeviceByDriverAndGroup not implemented")
+}
+func (UnimplementedTableSchemaServiceServer) QueryTableDeviceByDriverAndGroup(context.Context, *GetDeviceRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryTableDeviceByDriverAndGroup not implemented")
+}
+func (UnimplementedTableSchemaServiceServer) FindDevice(context.Context, *GetDataDeviceRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindDevice not implemented")
 }
 func (UnimplementedTableSchemaServiceServer) QueryEmulator(context.Context, *api.QueryRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryEmulator not implemented")
@@ -1112,6 +1140,42 @@ func _TableSchemaService_QueryDeviceByDriverAndGroup_Handler(srv interface{}, ct
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TableSchemaServiceServer).QueryDeviceByDriverAndGroup(ctx, req.(*GetDeviceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableSchemaService_QueryTableDeviceByDriverAndGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDeviceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableSchemaServiceServer).QueryTableDeviceByDriverAndGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.TableSchemaService/QueryTableDeviceByDriverAndGroup",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableSchemaServiceServer).QueryTableDeviceByDriverAndGroup(ctx, req.(*GetDeviceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableSchemaService_FindDevice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDataDeviceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableSchemaServiceServer).FindDevice(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.TableSchemaService/FindDevice",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableSchemaServiceServer).FindDevice(ctx, req.(*GetDataDeviceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1276,6 +1340,14 @@ var TableSchemaService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TableSchemaService_QueryDeviceByDriverAndGroup_Handler,
 		},
 		{
+			MethodName: "QueryTableDeviceByDriverAndGroup",
+			Handler:    _TableSchemaService_QueryTableDeviceByDriverAndGroup_Handler,
+		},
+		{
+			MethodName: "FindDevice",
+			Handler:    _TableSchemaService_FindDevice_Handler,
+		},
+		{
 			MethodName: "QueryEmulator",
 			Handler:    _TableSchemaService_QueryEmulator_Handler,
 		},
@@ -1330,6 +1402,15 @@ type TableDataServiceClient interface {
 	GetWarningFilterIDs(ctx context.Context, in *api.EmptyRequest, opts ...grpc.CallOption) (*api.Response, error)
 	FindTagByID(ctx context.Context, in *GetOrDeleteDataRequest, opts ...grpc.CallOption) (*api.Response, error)
 	FindCommandByID(ctx context.Context, in *GetOrDeleteDataRequest, opts ...grpc.CallOption) (*api.Response, error)
+	QueryByDB(ctx context.Context, in *QueryDataRequest, opts ...grpc.CallOption) (*api.Response, error)
+	GetByDB(ctx context.Context, in *GetOrDeleteDataRequest, opts ...grpc.CallOption) (*api.Response, error)
+	DeleteByDB(ctx context.Context, in *GetOrDeleteDataRequest, opts ...grpc.CallOption) (*api.Response, error)
+	DeleteManyByDB(ctx context.Context, in *QueryDataRequest, opts ...grpc.CallOption) (*api.Response, error)
+	UpdateByDB(ctx context.Context, in *UpdateDataRequest, opts ...grpc.CallOption) (*api.Response, error)
+	ReplaceByDB(ctx context.Context, in *UpdateDataRequest, opts ...grpc.CallOption) (*api.Response, error)
+	CreateByDB(ctx context.Context, in *CreateDataRequest, opts ...grpc.CallOption) (*api.Response, error)
+	CreateManyByDB(ctx context.Context, in *CreateDataRequest, opts ...grpc.CallOption) (*api.Response, error)
+	UpdateManyByDB(ctx context.Context, in *MultiUpdateDataRequest, opts ...grpc.CallOption) (*api.Response, error)
 }
 
 type tableDataServiceClient struct {
@@ -1466,6 +1547,87 @@ func (c *tableDataServiceClient) FindCommandByID(ctx context.Context, in *GetOrD
 	return out, nil
 }
 
+func (c *tableDataServiceClient) QueryByDB(ctx context.Context, in *QueryDataRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.TableDataService/QueryByDB", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableDataServiceClient) GetByDB(ctx context.Context, in *GetOrDeleteDataRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.TableDataService/GetByDB", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableDataServiceClient) DeleteByDB(ctx context.Context, in *GetOrDeleteDataRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.TableDataService/DeleteByDB", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableDataServiceClient) DeleteManyByDB(ctx context.Context, in *QueryDataRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.TableDataService/DeleteManyByDB", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableDataServiceClient) UpdateByDB(ctx context.Context, in *UpdateDataRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.TableDataService/UpdateByDB", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableDataServiceClient) ReplaceByDB(ctx context.Context, in *UpdateDataRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.TableDataService/ReplaceByDB", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableDataServiceClient) CreateByDB(ctx context.Context, in *CreateDataRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.TableDataService/CreateByDB", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableDataServiceClient) CreateManyByDB(ctx context.Context, in *CreateDataRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.TableDataService/CreateManyByDB", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableDataServiceClient) UpdateManyByDB(ctx context.Context, in *MultiUpdateDataRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.TableDataService/UpdateManyByDB", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TableDataServiceServer is the server API for TableDataService service.
 // All implementations must embed UnimplementedTableDataServiceServer
 // for forward compatibility
@@ -1484,6 +1646,15 @@ type TableDataServiceServer interface {
 	GetWarningFilterIDs(context.Context, *api.EmptyRequest) (*api.Response, error)
 	FindTagByID(context.Context, *GetOrDeleteDataRequest) (*api.Response, error)
 	FindCommandByID(context.Context, *GetOrDeleteDataRequest) (*api.Response, error)
+	QueryByDB(context.Context, *QueryDataRequest) (*api.Response, error)
+	GetByDB(context.Context, *GetOrDeleteDataRequest) (*api.Response, error)
+	DeleteByDB(context.Context, *GetOrDeleteDataRequest) (*api.Response, error)
+	DeleteManyByDB(context.Context, *QueryDataRequest) (*api.Response, error)
+	UpdateByDB(context.Context, *UpdateDataRequest) (*api.Response, error)
+	ReplaceByDB(context.Context, *UpdateDataRequest) (*api.Response, error)
+	CreateByDB(context.Context, *CreateDataRequest) (*api.Response, error)
+	CreateManyByDB(context.Context, *CreateDataRequest) (*api.Response, error)
+	UpdateManyByDB(context.Context, *MultiUpdateDataRequest) (*api.Response, error)
 	mustEmbedUnimplementedTableDataServiceServer()
 }
 
@@ -1532,6 +1703,33 @@ func (UnimplementedTableDataServiceServer) FindTagByID(context.Context, *GetOrDe
 }
 func (UnimplementedTableDataServiceServer) FindCommandByID(context.Context, *GetOrDeleteDataRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindCommandByID not implemented")
+}
+func (UnimplementedTableDataServiceServer) QueryByDB(context.Context, *QueryDataRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryByDB not implemented")
+}
+func (UnimplementedTableDataServiceServer) GetByDB(context.Context, *GetOrDeleteDataRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetByDB not implemented")
+}
+func (UnimplementedTableDataServiceServer) DeleteByDB(context.Context, *GetOrDeleteDataRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteByDB not implemented")
+}
+func (UnimplementedTableDataServiceServer) DeleteManyByDB(context.Context, *QueryDataRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteManyByDB not implemented")
+}
+func (UnimplementedTableDataServiceServer) UpdateByDB(context.Context, *UpdateDataRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateByDB not implemented")
+}
+func (UnimplementedTableDataServiceServer) ReplaceByDB(context.Context, *UpdateDataRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReplaceByDB not implemented")
+}
+func (UnimplementedTableDataServiceServer) CreateByDB(context.Context, *CreateDataRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateByDB not implemented")
+}
+func (UnimplementedTableDataServiceServer) CreateManyByDB(context.Context, *CreateDataRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateManyByDB not implemented")
+}
+func (UnimplementedTableDataServiceServer) UpdateManyByDB(context.Context, *MultiUpdateDataRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateManyByDB not implemented")
 }
 func (UnimplementedTableDataServiceServer) mustEmbedUnimplementedTableDataServiceServer() {}
 
@@ -1798,6 +1996,168 @@ func _TableDataService_FindCommandByID_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TableDataService_QueryByDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableDataServiceServer).QueryByDB(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.TableDataService/QueryByDB",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableDataServiceServer).QueryByDB(ctx, req.(*QueryDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableDataService_GetByDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOrDeleteDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableDataServiceServer).GetByDB(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.TableDataService/GetByDB",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableDataServiceServer).GetByDB(ctx, req.(*GetOrDeleteDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableDataService_DeleteByDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOrDeleteDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableDataServiceServer).DeleteByDB(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.TableDataService/DeleteByDB",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableDataServiceServer).DeleteByDB(ctx, req.(*GetOrDeleteDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableDataService_DeleteManyByDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableDataServiceServer).DeleteManyByDB(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.TableDataService/DeleteManyByDB",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableDataServiceServer).DeleteManyByDB(ctx, req.(*QueryDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableDataService_UpdateByDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableDataServiceServer).UpdateByDB(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.TableDataService/UpdateByDB",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableDataServiceServer).UpdateByDB(ctx, req.(*UpdateDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableDataService_ReplaceByDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableDataServiceServer).ReplaceByDB(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.TableDataService/ReplaceByDB",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableDataServiceServer).ReplaceByDB(ctx, req.(*UpdateDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableDataService_CreateByDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableDataServiceServer).CreateByDB(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.TableDataService/CreateByDB",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableDataServiceServer).CreateByDB(ctx, req.(*CreateDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableDataService_CreateManyByDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableDataServiceServer).CreateManyByDB(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.TableDataService/CreateManyByDB",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableDataServiceServer).CreateManyByDB(ctx, req.(*CreateDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableDataService_UpdateManyByDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MultiUpdateDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableDataServiceServer).UpdateManyByDB(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.TableDataService/UpdateManyByDB",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableDataServiceServer).UpdateManyByDB(ctx, req.(*MultiUpdateDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TableDataService_ServiceDesc is the grpc.ServiceDesc for TableDataService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1860,6 +2220,42 @@ var TableDataService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindCommandByID",
 			Handler:    _TableDataService_FindCommandByID_Handler,
+		},
+		{
+			MethodName: "QueryByDB",
+			Handler:    _TableDataService_QueryByDB_Handler,
+		},
+		{
+			MethodName: "GetByDB",
+			Handler:    _TableDataService_GetByDB_Handler,
+		},
+		{
+			MethodName: "DeleteByDB",
+			Handler:    _TableDataService_DeleteByDB_Handler,
+		},
+		{
+			MethodName: "DeleteManyByDB",
+			Handler:    _TableDataService_DeleteManyByDB_Handler,
+		},
+		{
+			MethodName: "UpdateByDB",
+			Handler:    _TableDataService_UpdateByDB_Handler,
+		},
+		{
+			MethodName: "ReplaceByDB",
+			Handler:    _TableDataService_ReplaceByDB_Handler,
+		},
+		{
+			MethodName: "CreateByDB",
+			Handler:    _TableDataService_CreateByDB_Handler,
+		},
+		{
+			MethodName: "CreateManyByDB",
+			Handler:    _TableDataService_CreateManyByDB_Handler,
+		},
+		{
+			MethodName: "UpdateManyByDB",
+			Handler:    _TableDataService_UpdateManyByDB_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -2248,6 +2644,128 @@ var MessageService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Query",
 			Handler:    _MessageService_Query_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "core/core.proto",
+}
+
+// DashboardServiceClient is the client API for DashboardService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type DashboardServiceClient interface {
+	Create(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
+}
+
+type dashboardServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewDashboardServiceClient(cc grpc.ClientConnInterface) DashboardServiceClient {
+	return &dashboardServiceClient{cc}
+}
+
+func (c *dashboardServiceClient) Create(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.DashboardService/Create", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dashboardServiceClient) Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.DashboardService/Query", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// DashboardServiceServer is the server API for DashboardService service.
+// All implementations must embed UnimplementedDashboardServiceServer
+// for forward compatibility
+type DashboardServiceServer interface {
+	Create(context.Context, *api.CreateRequest) (*api.Response, error)
+	Query(context.Context, *api.QueryRequest) (*api.Response, error)
+	mustEmbedUnimplementedDashboardServiceServer()
+}
+
+// UnimplementedDashboardServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedDashboardServiceServer struct {
+}
+
+func (UnimplementedDashboardServiceServer) Create(context.Context, *api.CreateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (UnimplementedDashboardServiceServer) Query(context.Context, *api.QueryRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Query not implemented")
+}
+func (UnimplementedDashboardServiceServer) mustEmbedUnimplementedDashboardServiceServer() {}
+
+// UnsafeDashboardServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to DashboardServiceServer will
+// result in compilation errors.
+type UnsafeDashboardServiceServer interface {
+	mustEmbedUnimplementedDashboardServiceServer()
+}
+
+func RegisterDashboardServiceServer(s grpc.ServiceRegistrar, srv DashboardServiceServer) {
+	s.RegisterService(&DashboardService_ServiceDesc, srv)
+}
+
+func _DashboardService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.CreateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DashboardServiceServer).Create(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.DashboardService/Create",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DashboardServiceServer).Create(ctx, req.(*api.CreateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DashboardService_Query_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.QueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DashboardServiceServer).Query(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.DashboardService/Query",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DashboardServiceServer).Query(ctx, req.(*api.QueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// DashboardService_ServiceDesc is the grpc.ServiceDesc for DashboardService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var DashboardService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "core.DashboardService",
+	HandlerType: (*DashboardServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Create",
+			Handler:    _DashboardService_Create_Handler,
+		},
+		{
+			MethodName: "Query",
+			Handler:    _DashboardService_Query_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

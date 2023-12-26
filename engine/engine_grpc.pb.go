@@ -183,6 +183,7 @@ var EngineService_ServiceDesc = grpc.ServiceDesc{
 type PluginServiceClient interface {
 	HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error)
 	Register(ctx context.Context, opts ...grpc.CallOption) (PluginService_RegisterClient, error)
+	DebugStream(ctx context.Context, opts ...grpc.CallOption) (PluginService_DebugStreamClient, error)
 }
 
 type pluginServiceClient struct {
@@ -233,12 +234,44 @@ func (x *pluginServiceRegisterClient) Recv() (*FlowRequest, error) {
 	return m, nil
 }
 
+func (c *pluginServiceClient) DebugStream(ctx context.Context, opts ...grpc.CallOption) (PluginService_DebugStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &PluginService_ServiceDesc.Streams[1], "/engine.PluginService/DebugStream", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &pluginServiceDebugStreamClient{stream}
+	return x, nil
+}
+
+type PluginService_DebugStreamClient interface {
+	Send(*DebugResponse) error
+	Recv() (*DebugRequest, error)
+	grpc.ClientStream
+}
+
+type pluginServiceDebugStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *pluginServiceDebugStreamClient) Send(m *DebugResponse) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *pluginServiceDebugStreamClient) Recv() (*DebugRequest, error) {
+	m := new(DebugRequest)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // PluginServiceServer is the server API for PluginService service.
 // All implementations must embed UnimplementedPluginServiceServer
 // for forward compatibility
 type PluginServiceServer interface {
 	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)
 	Register(PluginService_RegisterServer) error
+	DebugStream(PluginService_DebugStreamServer) error
 	mustEmbedUnimplementedPluginServiceServer()
 }
 
@@ -251,6 +284,9 @@ func (UnimplementedPluginServiceServer) HealthCheck(context.Context, *HealthChec
 }
 func (UnimplementedPluginServiceServer) Register(PluginService_RegisterServer) error {
 	return status.Errorf(codes.Unimplemented, "method Register not implemented")
+}
+func (UnimplementedPluginServiceServer) DebugStream(PluginService_DebugStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method DebugStream not implemented")
 }
 func (UnimplementedPluginServiceServer) mustEmbedUnimplementedPluginServiceServer() {}
 
@@ -309,6 +345,32 @@ func (x *pluginServiceRegisterServer) Recv() (*FlowResponse, error) {
 	return m, nil
 }
 
+func _PluginService_DebugStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(PluginServiceServer).DebugStream(&pluginServiceDebugStreamServer{stream})
+}
+
+type PluginService_DebugStreamServer interface {
+	Send(*DebugRequest) error
+	Recv() (*DebugResponse, error)
+	grpc.ServerStream
+}
+
+type pluginServiceDebugStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *pluginServiceDebugStreamServer) Send(m *DebugRequest) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *pluginServiceDebugStreamServer) Recv() (*DebugResponse, error) {
+	m := new(DebugResponse)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // PluginService_ServiceDesc is the grpc.ServiceDesc for PluginService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -325,6 +387,235 @@ var PluginService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "Register",
 			Handler:       _PluginService_Register_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "DebugStream",
+			Handler:       _PluginService_DebugStream_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "engine/engine.proto",
+}
+
+// ExtensionServiceClient is the client API for ExtensionService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type ExtensionServiceClient interface {
+	HealthCheck(ctx context.Context, in *ExtensionHealthCheckRequest, opts ...grpc.CallOption) (*ExtensionHealthCheckResponse, error)
+	SchemaStream(ctx context.Context, opts ...grpc.CallOption) (ExtensionService_SchemaStreamClient, error)
+	RunStream(ctx context.Context, opts ...grpc.CallOption) (ExtensionService_RunStreamClient, error)
+}
+
+type extensionServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewExtensionServiceClient(cc grpc.ClientConnInterface) ExtensionServiceClient {
+	return &extensionServiceClient{cc}
+}
+
+func (c *extensionServiceClient) HealthCheck(ctx context.Context, in *ExtensionHealthCheckRequest, opts ...grpc.CallOption) (*ExtensionHealthCheckResponse, error) {
+	out := new(ExtensionHealthCheckResponse)
+	err := c.cc.Invoke(ctx, "/engine.ExtensionService/HealthCheck", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *extensionServiceClient) SchemaStream(ctx context.Context, opts ...grpc.CallOption) (ExtensionService_SchemaStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &ExtensionService_ServiceDesc.Streams[0], "/engine.ExtensionService/SchemaStream", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &extensionServiceSchemaStreamClient{stream}
+	return x, nil
+}
+
+type ExtensionService_SchemaStreamClient interface {
+	Send(*ExtensionResult) error
+	Recv() (*ExtensionSchemaRequest, error)
+	grpc.ClientStream
+}
+
+type extensionServiceSchemaStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *extensionServiceSchemaStreamClient) Send(m *ExtensionResult) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *extensionServiceSchemaStreamClient) Recv() (*ExtensionSchemaRequest, error) {
+	m := new(ExtensionSchemaRequest)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *extensionServiceClient) RunStream(ctx context.Context, opts ...grpc.CallOption) (ExtensionService_RunStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &ExtensionService_ServiceDesc.Streams[1], "/engine.ExtensionService/RunStream", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &extensionServiceRunStreamClient{stream}
+	return x, nil
+}
+
+type ExtensionService_RunStreamClient interface {
+	Send(*ExtensionResult) error
+	Recv() (*ExtensionRunRequest, error)
+	grpc.ClientStream
+}
+
+type extensionServiceRunStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *extensionServiceRunStreamClient) Send(m *ExtensionResult) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *extensionServiceRunStreamClient) Recv() (*ExtensionRunRequest, error) {
+	m := new(ExtensionRunRequest)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// ExtensionServiceServer is the server API for ExtensionService service.
+// All implementations must embed UnimplementedExtensionServiceServer
+// for forward compatibility
+type ExtensionServiceServer interface {
+	HealthCheck(context.Context, *ExtensionHealthCheckRequest) (*ExtensionHealthCheckResponse, error)
+	SchemaStream(ExtensionService_SchemaStreamServer) error
+	RunStream(ExtensionService_RunStreamServer) error
+	mustEmbedUnimplementedExtensionServiceServer()
+}
+
+// UnimplementedExtensionServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedExtensionServiceServer struct {
+}
+
+func (UnimplementedExtensionServiceServer) HealthCheck(context.Context, *ExtensionHealthCheckRequest) (*ExtensionHealthCheckResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HealthCheck not implemented")
+}
+func (UnimplementedExtensionServiceServer) SchemaStream(ExtensionService_SchemaStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method SchemaStream not implemented")
+}
+func (UnimplementedExtensionServiceServer) RunStream(ExtensionService_RunStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method RunStream not implemented")
+}
+func (UnimplementedExtensionServiceServer) mustEmbedUnimplementedExtensionServiceServer() {}
+
+// UnsafeExtensionServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ExtensionServiceServer will
+// result in compilation errors.
+type UnsafeExtensionServiceServer interface {
+	mustEmbedUnimplementedExtensionServiceServer()
+}
+
+func RegisterExtensionServiceServer(s grpc.ServiceRegistrar, srv ExtensionServiceServer) {
+	s.RegisterService(&ExtensionService_ServiceDesc, srv)
+}
+
+func _ExtensionService_HealthCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExtensionHealthCheckRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ExtensionServiceServer).HealthCheck(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/engine.ExtensionService/HealthCheck",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ExtensionServiceServer).HealthCheck(ctx, req.(*ExtensionHealthCheckRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ExtensionService_SchemaStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ExtensionServiceServer).SchemaStream(&extensionServiceSchemaStreamServer{stream})
+}
+
+type ExtensionService_SchemaStreamServer interface {
+	Send(*ExtensionSchemaRequest) error
+	Recv() (*ExtensionResult, error)
+	grpc.ServerStream
+}
+
+type extensionServiceSchemaStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *extensionServiceSchemaStreamServer) Send(m *ExtensionSchemaRequest) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *extensionServiceSchemaStreamServer) Recv() (*ExtensionResult, error) {
+	m := new(ExtensionResult)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _ExtensionService_RunStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ExtensionServiceServer).RunStream(&extensionServiceRunStreamServer{stream})
+}
+
+type ExtensionService_RunStreamServer interface {
+	Send(*ExtensionRunRequest) error
+	Recv() (*ExtensionResult, error)
+	grpc.ServerStream
+}
+
+type extensionServiceRunStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *extensionServiceRunStreamServer) Send(m *ExtensionRunRequest) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *extensionServiceRunStreamServer) Recv() (*ExtensionResult, error) {
+	m := new(ExtensionResult)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// ExtensionService_ServiceDesc is the grpc.ServiceDesc for ExtensionService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ExtensionService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "engine.ExtensionService",
+	HandlerType: (*ExtensionServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "HealthCheck",
+			Handler:    _ExtensionService_HealthCheck_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "SchemaStream",
+			Handler:       _ExtensionService_SchemaStream_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "RunStream",
+			Handler:       _ExtensionService_RunStream_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},

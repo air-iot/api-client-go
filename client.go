@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"dario.cat/mergo"
+	"github.com/air-iot/api-client-go/v4/algorithm"
 	"github.com/air-iot/api-client-go/v4/auth"
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/core"
@@ -27,6 +28,7 @@ import (
 )
 
 type Client struct {
+	AuthClient        *auth.Client
 	SpmClient         *spm.Client
 	CoreClient        *core.Client
 	FlowClient        *flow.Client
@@ -36,6 +38,7 @@ type Client struct {
 	FlowEngineClient  *engine.Client
 	ReportClient      *report.Client
 	LiveClient        *live.Client
+	AlgorithmClient   *algorithm.Client
 }
 
 func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error) {
@@ -127,7 +130,12 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 	if err != nil {
 		return nil, nil, err
 	}
+	algorithmClient, cleanAlgorithm, err := algorithm.NewClient(cfg, r, cred, httpCred)
+	if err != nil {
+		return nil, nil, err
+	}
 	return &Client{
+			AuthClient:        authCli,
 			SpmClient:         spmClient,
 			CoreClient:        coreClient,
 			FlowClient:        flowClient,
@@ -137,6 +145,7 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 			FlowEngineClient:  flowEngineClient,
 			ReportClient:      reportClient,
 			LiveClient:        liveClient,
+			AlgorithmClient:   algorithmClient,
 		}, func() {
 			cleanSpm()
 			cleanCore()
@@ -147,5 +156,6 @@ func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error)
 			cleanFlowEngine()
 			cleanReport()
 			cleanLive()
+			cleanAlgorithm()
 		}, nil
 }

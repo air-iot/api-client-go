@@ -110,6 +110,7 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProjectServiceClient interface {
 	Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
+	QueryAvailable(ctx context.Context, in *api.EmptyRequest, opts ...grpc.CallOption) (*api.Response, error)
 	Get(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
 	Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
 	Update(ctx context.Context, in *api.UpdateRequest, opts ...grpc.CallOption) (*api.Response, error)
@@ -129,6 +130,15 @@ func NewProjectServiceClient(cc grpc.ClientConnInterface) ProjectServiceClient {
 func (c *projectServiceClient) Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error) {
 	out := new(api.Response)
 	err := c.cc.Invoke(ctx, "/spm.ProjectService/Query", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectServiceClient) QueryAvailable(ctx context.Context, in *api.EmptyRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/spm.ProjectService/QueryAvailable", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -194,6 +204,7 @@ func (c *projectServiceClient) Create(ctx context.Context, in *api.CreateRequest
 // for forward compatibility
 type ProjectServiceServer interface {
 	Query(context.Context, *api.QueryRequest) (*api.Response, error)
+	QueryAvailable(context.Context, *api.EmptyRequest) (*api.Response, error)
 	Get(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
 	Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
 	Update(context.Context, *api.UpdateRequest) (*api.Response, error)
@@ -209,6 +220,9 @@ type UnimplementedProjectServiceServer struct {
 
 func (UnimplementedProjectServiceServer) Query(context.Context, *api.QueryRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Query not implemented")
+}
+func (UnimplementedProjectServiceServer) QueryAvailable(context.Context, *api.EmptyRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryAvailable not implemented")
 }
 func (UnimplementedProjectServiceServer) Get(context.Context, *api.GetOrDeleteRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
@@ -255,6 +269,24 @@ func _ProjectService_Query_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ProjectServiceServer).Query(ctx, req.(*api.QueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProjectService_QueryAvailable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.EmptyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).QueryAvailable(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/spm.ProjectService/QueryAvailable",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).QueryAvailable(ctx, req.(*api.EmptyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -377,6 +409,10 @@ var ProjectService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Query",
 			Handler:    _ProjectService_Query_Handler,
+		},
+		{
+			MethodName: "QueryAvailable",
+			Handler:    _ProjectService_QueryAvailable_Handler,
 		},
 		{
 			MethodName: "Get",

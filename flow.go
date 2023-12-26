@@ -191,6 +191,38 @@ func (c *Client) UpdateFlowTask(ctx context.Context, projectId, id string, updat
 	return nil
 }
 
+func (c *Client) UpdateFlowTaskFilter(ctx context.Context, projectId string, query, updateData interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	queryBts, err := json.Marshal(query)
+	if err != nil {
+		return errors.NewMsg("序列化查询参数为空, %s", err)
+	}
+	if updateData == nil {
+		return errors.NewMsg("更新数据为空")
+	}
+	cli, err := c.FlowClient.GetFlowTaskServiceClient()
+	if err != nil {
+		return errors.NewMsg("获取客户端错误,%s", err)
+	}
+
+	bts, err := json.Marshal(updateData)
+	if err != nil {
+		return errors.NewMsg("marshal 更新数据为空")
+	}
+	res, err := cli.UpdateFilter(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.UpdateFilter{Query: queryBts, Data: bts})
+	if err != nil {
+		return errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return errors.NewErrorMsg(errors.NewMsg("响应不成功, %s", res.GetDetail()), res.GetInfo())
+	}
+	return nil
+}
+
 func (c *Client) ReplaceFlowTask(ctx context.Context, projectId, id string, updateData, result interface{}) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
