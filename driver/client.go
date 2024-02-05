@@ -24,7 +24,8 @@ type Client struct {
 	opts        []grpc.DialOption
 	middlewares []middleware.Middleware
 
-	driverClient DriverServiceClient
+	driverClient                DriverServiceClient
+	driverInstanceServiceClient DriverInstanceServiceClient
 }
 
 func NewClient(cfg config.Config, registry *etcd.Registry, cred grpc.DialOption, httpCred middleware.Middleware) (*Client, func(), error) {
@@ -105,4 +106,16 @@ func (c *Client) GetDriverServiceClient() (DriverServiceClient, error) {
 		return nil, errors.NewMsg("客户端是空")
 	}
 	return c.driverClient, nil
+}
+
+func (c *Client) GetDriverInstanceServiceClient() (DriverInstanceServiceClient, error) {
+	if c.conn == nil {
+		if err := c.createConn(); err != nil {
+			return nil, err
+		}
+	}
+	if c.driverInstanceServiceClient == nil {
+		return nil, errors.NewMsg("客户端是空")
+	}
+	return c.driverInstanceServiceClient, nil
 }
