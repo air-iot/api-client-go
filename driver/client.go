@@ -68,6 +68,7 @@ func (c *Client) createConn() error {
 		return errors.NewMsg("grpc.Dial error: %s", err)
 	}
 	c.driverClient = NewDriverServiceClient(cc)
+	c.driverInstanceServiceClient = NewDriverInstanceServiceClient(cc)
 	c.conn = cc
 	return nil
 }
