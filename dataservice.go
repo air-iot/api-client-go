@@ -19,6 +19,82 @@ type ProxyResult struct {
 	Body    []byte `json:"body"`
 }
 
+type QueryParam struct {
+	Fields     []SelectField  `json:"fields,omitempty"` // 包含查询列（原始列originalName或id）、别名和聚合方法
+	Where      WhereFilter    `json:"where,omitempty"`  // 查询条件
+	Group      []string       `json:"group,omitempty"`  // 聚合的列（原始列的originalName或id）
+	Limit      *uint          `json:"limit,omitempty"`  // 查询结果的最大条数
+	Offset     *uint          `json:"offset,omitempty"` // 查询结果的偏移量
+	Order      []OrderByField `json:"order,omitempty"`  // 排序
+	EchartType string         `json:"echartType"`
+	NoGroupBy  bool           `json:"noGroupBy"`            // false: groups和stack里的维度字段都会被group by
+	Stack      []string       `json:"stack,omitempty"`      // 字段id
+	Drill      []string       `json:"drill,omitempty"`      // 下钻，字段id
+	GroupAlias []string       `json:"groupAlias,omitempty"` // 聚合字段别名
+}
+
+// SelectField @Description	视图查询的列
+type SelectField struct {
+	Name   string             `json:"name"`             // 数据集的列的列名，使用count函数聚合时不写
+	Alias  string             `json:"alias,omitempty"`  // 别名
+	Option *SelectFieldOption `json:"option,omitempty"` // 聚合的列需要加上option
+}
+
+// SelectFieldOption model info
+//
+//	@Description	查询选项
+//	@Description	如果列涉及到聚合，在选项中配置聚合函
+type SelectFieldOption struct {
+	Aggregator   string          `json:"aggregator" example:"max"` // 聚合函数
+	DefaultValue interface{}     `json:"defaultValue,omitempty"`   // 默认值
+	Distinct     bool            `json:"distinct,omitempty"`       // 是否去重
+	Filter       *ConditionField `json:"filter,omitempty"`         // having过滤
+}
+
+// OrderByField @Description	视图排序
+type OrderByField struct {
+	Name string `json:"name"`           // 字段名
+	Desc bool   `json:"desc,omitempty"` // 是否降序，默认升序
+}
+
+// ConditionField
+//
+//	@Description	视图查询条件，如 name = value
+type ConditionField struct {
+	Name  string      `json:"name"`  // 字段名
+	Value interface{} `json:"value"` // 值
+	Op    string      `json:"op"`    // 符号
+}
+
+// WhereConditions 只为兼容原配置保留，不再使用
+type WhereConditions struct {
+	Conditions []ConditionField `json:"conditions"`
+	// 不同条件之间的关系，false: and, true: or
+	OR bool `json:"or,omitempty"`
+}
+
+// @Description	视图所有查询条件组，第一级的条件为或关系，第二级的条件为与关系
+type WhereFilter [][]ConditionField
+
+func (wf *WhereFilter) UnmarshalJSON(data []byte) error {
+	var condsv2 [][]ConditionField
+
+	err1 := json.Unmarshal(data, &condsv2)
+	if err1 == nil {
+		*wf = condsv2
+		return nil
+	}
+
+	var condsV1 WhereConditions
+	err := json.Unmarshal(data, &condsV1)
+	if err == nil {
+		*wf = nil
+		return nil
+	}
+
+	return err1
+}
+
 func (c *Client) QueryDataGroup(ctx context.Context, projectId string, query, result interface{}) (int64, error) {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
@@ -391,4 +467,45 @@ func (c *Client) DataInterfaceProxy(ctx context.Context, projectId, key string, 
 	//	return nil, errors.NewMsg("解析请求结果错误, %s", err)
 	//}
 	//return res.GetResult(), nil
+}
+
+func (c *Client) DatasetViewPreview(ctx context.Context, projectId, mode, id string, data *QueryParam, result interface{}) ([]byte, error) {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if mode == "" {
+		return nil, errors.NewMsg("mode为空")
+	}
+	if id == "" {
+		return nil, errors.NewMsg("id为空")
+	}
+	if data == nil {
+		return nil, errors.NewMsg("请求数据为空")
+	}
+	cli, err := c.DataServiceClient.GetDatasetViewServiceClient()
+	if err != nil {
+		return nil, errors.NewMsg("获取客户端错误,%s", err)
+	}
+	bts, err := json.Marshal(data)
+	if err != nil {
+		return nil, errors.NewMsg("序列化请求数据错误,%s", err)
+	}
+	res, err := cli.Preview(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &dataservice.ViewPreviewReq{
+		Mode: mode,
+		Id:   id,
+		Data: bts,
+	})
+	if err != nil {
+		return nil, errors.NewMsg("请求错误, %s", err)
+	}
+	if !res.GetStatus() {
+		return nil, cErrors.New400Response(int(res.GetCode()), "响应不成功, %s, %s", res.GetInfo(), res.GetDetail())
+	}
+	if result == nil {
+		return res.GetResult(), nil
+	}
+	if err := json.Unmarshal(res.GetResult(), result); err != nil {
+		return nil, errors.NewMsg("解析请求结果错误, %s", err)
+	}
+	return res.GetResult(), nil
 }

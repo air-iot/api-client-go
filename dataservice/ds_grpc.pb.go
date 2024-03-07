@@ -780,3 +780,89 @@ var DataService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "dataService/ds.proto",
 }
+
+// DatasetViewServiceClient is the client API for DatasetViewService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type DatasetViewServiceClient interface {
+	Preview(ctx context.Context, in *ViewPreviewReq, opts ...grpc.CallOption) (*api.Response, error)
+}
+
+type datasetViewServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewDatasetViewServiceClient(cc grpc.ClientConnInterface) DatasetViewServiceClient {
+	return &datasetViewServiceClient{cc}
+}
+
+func (c *datasetViewServiceClient) Preview(ctx context.Context, in *ViewPreviewReq, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/dataService.DatasetViewService/Preview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// DatasetViewServiceServer is the server API for DatasetViewService service.
+// All implementations must embed UnimplementedDatasetViewServiceServer
+// for forward compatibility
+type DatasetViewServiceServer interface {
+	Preview(context.Context, *ViewPreviewReq) (*api.Response, error)
+	mustEmbedUnimplementedDatasetViewServiceServer()
+}
+
+// UnimplementedDatasetViewServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedDatasetViewServiceServer struct {
+}
+
+func (UnimplementedDatasetViewServiceServer) Preview(context.Context, *ViewPreviewReq) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Preview not implemented")
+}
+func (UnimplementedDatasetViewServiceServer) mustEmbedUnimplementedDatasetViewServiceServer() {}
+
+// UnsafeDatasetViewServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to DatasetViewServiceServer will
+// result in compilation errors.
+type UnsafeDatasetViewServiceServer interface {
+	mustEmbedUnimplementedDatasetViewServiceServer()
+}
+
+func RegisterDatasetViewServiceServer(s grpc.ServiceRegistrar, srv DatasetViewServiceServer) {
+	s.RegisterService(&DatasetViewService_ServiceDesc, srv)
+}
+
+func _DatasetViewService_Preview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ViewPreviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DatasetViewServiceServer).Preview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dataService.DatasetViewService/Preview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DatasetViewServiceServer).Preview(ctx, req.(*ViewPreviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// DatasetViewService_ServiceDesc is the grpc.ServiceDesc for DatasetViewService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var DatasetViewService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "dataService.DatasetViewService",
+	HandlerType: (*DatasetViewServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Preview",
+			Handler:    _DatasetViewService_Preview_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "dataService/ds.proto",
+}

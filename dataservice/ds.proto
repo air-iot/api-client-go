@@ -42,6 +42,10 @@ service DataService {
   rpc Proxy (Request) returns (ProxyResponse) {}
 }
 
+service DatasetViewService {
+  rpc Preview (ViewPreviewReq) returns (api.Response) {}
+}
+
 message Request {
   string key = 1;
   bytes data = 2;
@@ -56,6 +60,12 @@ message ProxyResponse  {
   int64 count = 6;
   int32 http_code = 7;
   bytes headers = 8;
+}
+
+message ViewPreviewReq {
+  string mode = 1;
+  string id = 2;
+  bytes data = 3;
 }
 
 //
