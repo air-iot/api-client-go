@@ -64,8 +64,9 @@ message ProxyResponse  {
 
 message ViewPreviewReq {
   string mode = 1;
-  string id = 2;
-  bytes data = 3;
+  string datesetId = 2;
+  string viewId = 3;
+  bytes data = 4;
 }
 
 //

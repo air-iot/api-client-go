@@ -469,16 +469,16 @@ func (c *Client) DataInterfaceProxy(ctx context.Context, projectId, key string, 
 	//return res.GetResult(), nil
 }
 
-func (c *Client) DatasetViewPreview(ctx context.Context, projectId, mode, id string, data *QueryParam, result interface{}) ([]byte, error) {
+func (c *Client) DatasetViewPreview(ctx context.Context, projectId, mode, datesetId, viewId string, data *QueryParam, result interface{}) ([]byte, error) {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
-	if mode == "" {
-		return nil, errors.NewMsg("mode为空")
-	}
-	if id == "" {
-		return nil, errors.NewMsg("id为空")
-	}
+	//if mode == "" {
+	//	return nil, errors.NewMsg("mode为空")
+	//}
+	//if datesetId == "" {
+	//	return nil, errors.NewMsg("id为空")
+	//}
 	if data == nil {
 		return nil, errors.NewMsg("请求数据为空")
 	}
@@ -491,9 +491,10 @@ func (c *Client) DatasetViewPreview(ctx context.Context, projectId, mode, id str
 		return nil, errors.NewMsg("序列化请求数据错误,%s", err)
 	}
 	res, err := cli.Preview(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &dataservice.ViewPreviewReq{
-		Mode: mode,
-		Id:   id,
-		Data: bts,
+		DatesetId: datesetId,
+		ViewId:    viewId,
+		Mode:      mode,
+		Data:      bts,
 	})
 	if err != nil {
 		return nil, errors.NewMsg("请求错误, %s", err)
