@@ -34,6 +34,8 @@ service DriverService {
   rpc BatchCommand (api.CreateRequest) returns (api.Response) {}
   rpc ChangeCommand (api.UpdateRequest) returns (api.Response) {}
   rpc HttpProxy (ClientHttpProxyRequest) returns (api.Response) {}
+  rpc WriteTag (api.CreateRequest) returns (api.Response) {}
+  rpc BatchWriteTag (api.CreateRequest) returns (api.Response) {}
 }
 
 service DriverInstanceService {
