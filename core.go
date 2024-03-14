@@ -453,7 +453,10 @@ func (c *Client) RestQueryTableSchema(ctx context.Context, projectId string, que
 		params.Set("query", string(bts))
 		u.RawQuery = params.Encode()
 	}
-	cli, _ := c.CoreClient.GetRestClient()
+	cli, err := c.CoreClient.GetRestClient()
+	if err != nil {
+		return err
+	}
 	if err := cli.Invoke(apitransport.NewClientContext(ctx, &apitransport.Transport{ReqHeader: map[string]string{config.XRequestProject: projectId}}), netHttp.MethodGet, u.RequestURI(), map[string]interface{}{}, result); err != nil {
 		return err
 	}

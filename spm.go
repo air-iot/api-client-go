@@ -62,7 +62,10 @@ func (c *Client) RestQueryProject(ctx context.Context, query, result interface{}
 		params.Set("query", string(bts))
 		u.RawQuery = params.Encode()
 	}
-	cli, _ := c.SpmClient.GetRestClient()
+	cli, err := c.SpmClient.GetRestClient()
+	if err != nil {
+		return err
+	}
 	if err := cli.Invoke(ctx, netHttp.MethodGet, u.RequestURI(), map[string]interface{}{}, result); err != nil {
 		return err
 	}

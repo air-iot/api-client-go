@@ -306,8 +306,8 @@ func TestClient_QueryBackup(t *testing.T) {
 		query.Project[col] = 1
 	}
 	query.WithCount = &withCount
-
-	err := cli.QueryBackup(context.Background(), "625f6dbf5433487131f09ff7", query, &res)
+	var count int64
+	err := cli.QueryBackup(context.Background(), "625f6dbf5433487131f09ff7", query, &res, &count)
 	if err != nil {
 		t.Fatal(err)
 	}
