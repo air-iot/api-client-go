@@ -11,11 +11,9 @@ require (
 	github.com/go-kratos/kratos/contrib/registry/etcd/v2 v2.0.0-20230227131608-c65f823c38de
 	github.com/go-kratos/kratos/v2 v2.6.3
 	github.com/golang/protobuf v1.5.3
+	github.com/google/uuid v1.4.0
 	github.com/spf13/viper v1.16.0
 	go.etcd.io/etcd/client/v3 v3.5.9
-	go.opentelemetry.io/otel v1.18.0
-	go.opentelemetry.io/otel/sdk v1.18.0
-	go.opentelemetry.io/otel/trace v1.18.0
 	google.golang.org/grpc v1.61.0
 	google.golang.org/protobuf v1.32.0
 )
@@ -29,7 +27,6 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/form/v4 v4.2.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/google/uuid v1.4.0 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
@@ -51,7 +48,10 @@ require (
 	github.com/subosito/gotenv v1.4.2 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.9 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.9 // indirect
+	go.opentelemetry.io/otel v1.18.0 // indirect
 	go.opentelemetry.io/otel/metric v1.18.0 // indirect
+	go.opentelemetry.io/otel/sdk v1.18.0 // indirect
+	go.opentelemetry.io/otel/trace v1.18.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/goleak v1.2.1 // indirect
 	go.uber.org/multierr v1.9.0 // indirect

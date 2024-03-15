@@ -2858,3 +2858,48 @@ func (c *Client) QueryDashboard(ctx context.Context, projectId string, query, re
 	}
 	return int(res.Count), nil
 }
+
+// UploadFileFromUrl 将远程文件上传到媒体库
+//
+// sourceUrl 远程文件的下载 url
+//
+// catalog 上传到媒体库的目录
+//
+// filename 上传到媒体库后的文件名
+//
+// 上传成功后返回文件的访问地址
+func (c *Client) UploadFileFromUrl(ctx context.Context, projectId string, sourceUrl string, catalog string, filename string) (string, error) {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+
+	body := map[string]string{
+		"fileUrl":          sourceUrl,
+		"mediaLibraryPath": catalog,
+		"saveFileName":     filename,
+	}
+
+	cli, err := c.CoreClient.GetRestClient()
+	if err != nil {
+		return "", err
+	}
+
+	var result map[string]interface{}
+	if err := cli.Invoke(apitransport.NewClientContext(ctx, &apitransport.Transport{ReqHeader: map[string]string{config.XRequestProject: projectId}}),
+		"POST", "/core/mediaLibrary/saveFileFromUrl",
+		body, &result); err != nil {
+		return "", errors.NewMsg("请求错误, %s", err)
+	}
+
+	fileUrl, ok := result["url"]
+	if !ok {
+		return "", fmt.Errorf("上传媒体库成功, 但未返回文件的 url")
+	}
+
+	fileUrlStr, ok := fileUrl.(string)
+	if !ok {
+		return "", fmt.Errorf("上传媒体库成功, 但返回文件的 url 不是字符串, %+v", fileUrl)
+	}
+
+	return fileUrlStr, nil
+}
