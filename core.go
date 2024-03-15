@@ -2893,12 +2893,12 @@ func (c *Client) UploadFileFromUrl(ctx context.Context, projectId string, source
 
 	fileUrl, ok := result["url"]
 	if !ok {
-		return "", fmt.Errorf("上传媒体库成功, 但未返回文件的 url")
+		return "", errors.NewMsg("上传媒体库成功, 但未返回文件的 url")
 	}
 
 	fileUrlStr, ok := fileUrl.(string)
 	if !ok {
-		return "", fmt.Errorf("上传媒体库成功, 但返回文件的 url 不是字符串, %+v", fileUrl)
+		return "", errors.NewMsg("上传媒体库成功, 但返回文件的 url 不是字符串, %+v", fileUrl)
 	}
 
 	return fileUrlStr, nil
