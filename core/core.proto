@@ -44,6 +44,9 @@ service UserService {
   rpc Replace (api.UpdateRequest) returns (api.Response) {}
   rpc Create (api.CreateRequest) returns (api.Response) {}
   rpc GetCurrentUserInfo(LoginUserRequest) returns (api.Response) {}
+  rpc QueryBackup (api.QueryRequest) returns (api.Response) {}
+  rpc DeleteManyBackup (api.QueryRequest) returns (api.Response) {}
+  rpc CreateManyBackup (api.CreateRequest) returns (api.Response) {}
 }
 
 service TableSchemaService {
