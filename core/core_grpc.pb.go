@@ -450,6 +450,7 @@ type LogServiceClient interface {
 	Get(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
 	Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
 	QueryApiPermission(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
+	CreateApiPermission(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
 }
 
 type logServiceClient struct {
@@ -496,6 +497,15 @@ func (c *logServiceClient) QueryApiPermission(ctx context.Context, in *api.Query
 	return out, nil
 }
 
+func (c *logServiceClient) CreateApiPermission(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, "/core.LogService/CreateApiPermission", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LogServiceServer is the server API for LogService service.
 // All implementations must embed UnimplementedLogServiceServer
 // for forward compatibility
@@ -504,6 +514,7 @@ type LogServiceServer interface {
 	Get(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
 	Query(context.Context, *api.QueryRequest) (*api.Response, error)
 	QueryApiPermission(context.Context, *api.QueryRequest) (*api.Response, error)
+	CreateApiPermission(context.Context, *api.CreateRequest) (*api.Response, error)
 	mustEmbedUnimplementedLogServiceServer()
 }
 
@@ -522,6 +533,9 @@ func (UnimplementedLogServiceServer) Query(context.Context, *api.QueryRequest) (
 }
 func (UnimplementedLogServiceServer) QueryApiPermission(context.Context, *api.QueryRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryApiPermission not implemented")
+}
+func (UnimplementedLogServiceServer) CreateApiPermission(context.Context, *api.CreateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateApiPermission not implemented")
 }
 func (UnimplementedLogServiceServer) mustEmbedUnimplementedLogServiceServer() {}
 
@@ -608,6 +622,24 @@ func _LogService_QueryApiPermission_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LogService_CreateApiPermission_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.CreateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LogServiceServer).CreateApiPermission(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/core.LogService/CreateApiPermission",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LogServiceServer).CreateApiPermission(ctx, req.(*api.CreateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // LogService_ServiceDesc is the grpc.ServiceDesc for LogService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -630,6 +662,10 @@ var LogService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "QueryApiPermission",
 			Handler:    _LogService_QueryApiPermission_Handler,
+		},
+		{
+			MethodName: "CreateApiPermission",
+			Handler:    _LogService_CreateApiPermission_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

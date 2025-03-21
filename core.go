@@ -1146,6 +1146,31 @@ func (c *Client) QueryApiPermissionLog(ctx context.Context, projectId string, qu
 	return int(res.GetCount()), nil
 }
 
+func (c *Client) CreateApiPermission(ctx context.Context, projectId string, createData, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if createData == nil {
+		return errors.New("插入数据为空")
+	}
+
+	cli, err := c.CoreClient.GetLogServiceClient()
+	if err != nil {
+		return err
+	}
+	bts, err := json.Marshal(createData)
+	if err != nil {
+		return errors.Wrap(err, "序列化插入数据错误")
+	}
+	res, err := cli.CreateApiPermission(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.CreateRequest{Data: bts})
+	if _, err := parseRes(err, res, result); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (c *Client) PostLatest(ctx context.Context, projectId string, createData, result interface{}) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
