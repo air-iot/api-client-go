@@ -27,7 +27,10 @@ type FlowRunResponse struct {
 }
 
 type Client struct {
-	lock        sync.RWMutex
+	lock sync.RWMutex
+
+	cc grpc.ClientConnInterface
+
 	config      config.Config
 	registry    *etcd.Registry
 	conn        *grpc.ClientConn
@@ -66,6 +69,19 @@ func NewClient(cfg config.Config, registry *etcd.Registry, cred grpc.DialOption,
 			}
 		}
 	}
+	return c, cleanFunc, nil
+}
+
+func NewLocalClient(cfg config.Config, cc grpc.ClientConnInterface) (*Client, func(), error) {
+	c := &Client{
+		config: cfg,
+		cc:     cc,
+	}
+	c.engineServiceClient = NewEngineServiceClient(cc)
+	c.pluginServiceClient = NewPluginServiceClient(cc)
+	c.flowJobCronServiceClient = NewFlowJobCronServiceClient(cc)
+	c.flowLogCronServiceClient = NewFlowLogCronServiceClient(cc)
+	cleanFunc := func() {}
 	return c, cleanFunc, nil
 }
 
@@ -113,6 +129,9 @@ func (c *Client) GetRestClient() (*http.Client, error) {
 }
 
 func (c *Client) GetDataServiceClient() (EngineServiceClient, error) {
+	if c.engineServiceClient != nil {
+		return c.engineServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -125,6 +144,9 @@ func (c *Client) GetDataServiceClient() (EngineServiceClient, error) {
 }
 
 func (c *Client) GetPluginServiceClient() (PluginServiceClient, error) {
+	if c.pluginServiceClient != nil {
+		return c.pluginServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -137,6 +159,9 @@ func (c *Client) GetPluginServiceClient() (PluginServiceClient, error) {
 }
 
 func (c *Client) GetFlowJobCronServiceClient() (FlowJobCronServiceClient, error) {
+	if c.flowJobCronServiceClient != nil {
+		return c.flowJobCronServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -149,6 +174,9 @@ func (c *Client) GetFlowJobCronServiceClient() (FlowJobCronServiceClient, error)
 }
 
 func (c *Client) GetFlowLogCronServiceClient() (FlowLogCronServiceClient, error) {
+	if c.flowLogCronServiceClient != nil {
+		return c.flowLogCronServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err

@@ -21,6 +21,7 @@ import (
 	"github.com/air-iot/api-client-go/v4/flow"
 	"github.com/air-iot/api-client-go/v4/jsserver"
 	"github.com/air-iot/api-client-go/v4/live"
+	"github.com/air-iot/api-client-go/v4/local_grpc"
 	"github.com/air-iot/api-client-go/v4/report"
 	"github.com/air-iot/api-client-go/v4/spm"
 	"github.com/air-iot/api-client-go/v4/sync"
@@ -60,6 +61,132 @@ type Client struct {
 }
 
 func NewClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error) {
+	return newGrpcClient(cli, cfg)
+}
+
+func NewLocalClient(cfg config.Config, ss *local_grpc.Server) (*Client, func(), error) {
+	if cfg.EtcdConfig == "" {
+		cfg.EtcdConfig = "/airiot/config/pro.json"
+	}
+	if cfg.Timeout == 0 {
+		cfg.Timeout = 120
+	}
+	if cfg.Service.Expire == 0 {
+		cfg.Service.Expire = time.Second * 30
+	}
+	authCli := auth.NewClient(cfg)
+	f := func() *auth.Client {
+		return authCli
+	}
+
+	cc := local_grpc.NewClient(ss, f)
+	//authCC := auth.NewCustomCredential(f)
+	//cred := grpc.WithPerRPCCredentials(authCC)
+	//httpCred := authCC.HttpToken()
+	spmClient, cleanSpm, err := spm.NewLocalClient(cfg, cc)
+	if err != nil {
+		return nil, nil, err
+	}
+	coreClient, cleanCore, err := core.NewLocalClient(cfg, cc)
+	if err != nil {
+		return nil, nil, err
+	}
+	authCli.SetClient(spmClient, coreClient)
+	flowClient, cleanFlow, err := flow.NewLocalClient(cfg, cc)
+	if err != nil {
+		return nil, nil, err
+	}
+	warningClient, cleanWarning, err := warning.NewLocalClient(cfg, cc)
+	if err != nil {
+		return nil, nil, err
+	}
+	driverClient, cleanDriver, err := driver.NewLocalClient(cfg, cc)
+	if err != nil {
+		return nil, nil, err
+	}
+	dataServiceClient, cleanDataService, err := dataservice.NewLocalClient(cfg, cc)
+	if err != nil {
+		return nil, nil, err
+	}
+	flowEngineClient, cleanFlowEngine, err := engine.NewLocalClient(cfg, cc)
+	if err != nil {
+		return nil, nil, err
+	}
+	reportClient, cleanReport, err := report.NewLocalClient(cfg, cc)
+	if err != nil {
+		return nil, nil, err
+	}
+	liveClient, cleanLive, err := live.NewLocalClient(cfg, cc)
+	if err != nil {
+		return nil, nil, err
+	}
+	algorithmClient, cleanAlgorithm, err := algorithm.NewLocalClient(cfg, cc)
+	if err != nil {
+		return nil, nil, err
+	}
+	dataRelayClient, cleanDataRelay, err := datarelay.NewLocalClient(cfg, cc)
+	if err != nil {
+		return nil, nil, err
+	}
+	// TODO: jsServerClient, cleanJsServer, err := jsserver.NewLocalClient(cfg, r, cred, httpCred)
+	//jsServerClient, cleanJsServer, err := jsserver.NewLocalClient(cfg, r, cred, httpCred)
+	//if err != nil {
+	//	return nil, nil, err
+	//}
+	syncClient, cleanSync, err := sync.NewLocalClient(cfg, cc)
+	if err != nil {
+		return nil, nil, err
+	}
+	computeRecordClient, cleanComputeRecord, err := computerecord.NewLocalClient(cfg, cc)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	aiClient, cleanAI, err := ai.NewLocalClient(cfg, cc)
+	if err != nil {
+		return nil, nil, err
+	}
+	a := &Client{
+		Config: cfg,
+		//RegistryClient:    NewKartosRegistryClient(cli),
+		AuthClient:        authCli,
+		SpmClient:         spmClient,
+		CoreClient:        coreClient,
+		FlowClient:        flowClient,
+		WarningClient:     warningClient,
+		DriverClient:      driverClient,
+		DataServiceClient: dataServiceClient,
+		FlowEngineClient:  flowEngineClient,
+		ReportClient:      reportClient,
+		LiveClient:        liveClient,
+		AlgorithmClient:   algorithmClient,
+		DataRelayClient:   dataRelayClient,
+		//JsServerClient:      jsServerClient,
+		SyncClient:          syncClient,
+		ComputeRecordClient: computeRecordClient,
+		AIClient:            aiClient,
+	}
+	a.Service = newService(a)
+	return a, func() {
+		cleanSpm()
+		cleanCore()
+		cleanFlow()
+		cleanWarning()
+		cleanDriver()
+		cleanDataService()
+		cleanFlowEngine()
+		cleanReport()
+		cleanLive()
+		cleanAlgorithm()
+		cleanDataRelay()
+		//cleanJsServer()
+		cleanSync()
+		cleanComputeRecord()
+		cleanAI()
+	}, nil
+}
+
+func newGrpcClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), error) {
 	if cfg.EtcdConfig == "" {
 		cfg.EtcdConfig = "/airiot/config/pro.json"
 	}

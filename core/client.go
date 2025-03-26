@@ -16,7 +16,10 @@ import (
 const serviceName = "core"
 
 type Client struct {
-	lock        sync.RWMutex
+	lock sync.RWMutex
+
+	cc grpc.ClientConnInterface
+
 	conn        *grpc.ClientConn
 	restClient  *http.Client
 	config      config.Config
@@ -70,6 +73,34 @@ func NewClient(cfg config.Config, registry *etcd.Registry, cred grpc.DialOption,
 			}
 		}
 	}
+	return c, cleanFunc, nil
+}
+
+func NewLocalClient(cfg config.Config, cc grpc.ClientConnInterface) (*Client, func(), error) {
+	c := &Client{
+		config: cfg,
+		cc:     cc,
+	}
+	c.appServiceClient = NewAppServiceClient(cc)
+	c.licenseServiceClient = NewLicenseServiceClient(cc)
+	c.logServiceClient = NewLogServiceClient(cc)
+	c.userServiceClient = NewUserServiceClient(cc)
+	c.tableSchemaClient = NewTableSchemaServiceClient(cc)
+	c.tableRecordClient = NewTableRecordServiceClient(cc)
+	c.tableDataClient = NewTableDataServiceClient(cc)
+	c.messageClient = NewMessageServiceClient(cc)
+	c.dataQueryClient = NewDataQueryServiceClient(cc)
+	c.roleClient = NewRoleServiceClient(cc)
+	c.catalogClient = NewCatalogServiceClient(cc)
+	c.deptClient = NewDeptServiceClient(cc)
+	c.settingClient = NewSettingServiceClient(cc)
+	c.systemVariablServiceClient = NewSystemVariableServiceClient(cc)
+	c.backupServiceClient = NewBackupServiceClient(cc)
+	c.dashboardClient = NewDashboardServiceClient(cc)
+	c.taskManagerServiceClient = NewTaskManagerServiceClient(cc)
+	c.mediaLibraryClient = NewMediaLibraryServiceClient(cc)
+	c.mediaLibraryDirSettingClient = NewMediaLibraryDirSettingServiceClient(cc)
+	cleanFunc := func() {}
 	return c, cleanFunc, nil
 }
 
@@ -132,6 +163,9 @@ func (c *Client) GetRestClient() (*http.Client, error) {
 }
 
 func (c *Client) GetAppServiceClient() (AppServiceClient, error) {
+	if c.appServiceClient != nil {
+		return c.appServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -144,6 +178,9 @@ func (c *Client) GetAppServiceClient() (AppServiceClient, error) {
 }
 
 func (c *Client) GetLicenseServiceClient() (LicenseServiceClient, error) {
+	if c.licenseServiceClient != nil {
+		return c.licenseServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -156,6 +193,9 @@ func (c *Client) GetLicenseServiceClient() (LicenseServiceClient, error) {
 }
 
 func (c *Client) GetLogServiceClient() (LogServiceClient, error) {
+	if c.logServiceClient != nil {
+		return c.logServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -168,6 +208,9 @@ func (c *Client) GetLogServiceClient() (LogServiceClient, error) {
 }
 
 func (c *Client) GetUserServiceClient() (UserServiceClient, error) {
+	if c.userServiceClient != nil {
+		return c.userServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -180,6 +223,9 @@ func (c *Client) GetUserServiceClient() (UserServiceClient, error) {
 }
 
 func (c *Client) GetTableSchemaServiceClient() (TableSchemaServiceClient, error) {
+	if c.tableSchemaClient != nil {
+		return c.tableSchemaClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -192,6 +238,9 @@ func (c *Client) GetTableSchemaServiceClient() (TableSchemaServiceClient, error)
 }
 
 func (c *Client) GetTableRecordServiceClient() (TableRecordServiceClient, error) {
+	if c.tableRecordClient != nil {
+		return c.tableRecordClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -204,6 +253,9 @@ func (c *Client) GetTableRecordServiceClient() (TableRecordServiceClient, error)
 }
 
 func (c *Client) GetTableDataServiceClient() (TableDataServiceClient, error) {
+	if c.tableDataClient != nil {
+		return c.tableDataClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -216,6 +268,9 @@ func (c *Client) GetTableDataServiceClient() (TableDataServiceClient, error) {
 }
 
 func (c *Client) GetMessageServiceClient() (MessageServiceClient, error) {
+	if c.messageClient != nil {
+		return c.messageClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -228,6 +283,9 @@ func (c *Client) GetMessageServiceClient() (MessageServiceClient, error) {
 }
 
 func (c *Client) GetDataQueryServiceClient() (DataQueryServiceClient, error) {
+	if c.dataQueryClient != nil {
+		return c.dataQueryClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -240,6 +298,9 @@ func (c *Client) GetDataQueryServiceClient() (DataQueryServiceClient, error) {
 }
 
 func (c *Client) GetRoleServiceClient() (RoleServiceClient, error) {
+	if c.roleClient != nil {
+		return c.roleClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -252,6 +313,9 @@ func (c *Client) GetRoleServiceClient() (RoleServiceClient, error) {
 }
 
 func (c *Client) GetCatalogServiceClient() (CatalogServiceClient, error) {
+	if c.catalogClient != nil {
+		return c.catalogClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -264,6 +328,9 @@ func (c *Client) GetCatalogServiceClient() (CatalogServiceClient, error) {
 }
 
 func (c *Client) GetDeptServiceClient() (DeptServiceClient, error) {
+	if c.deptClient != nil {
+		return c.deptClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -276,6 +343,9 @@ func (c *Client) GetDeptServiceClient() (DeptServiceClient, error) {
 }
 
 func (c *Client) GetSettingServiceClient() (SettingServiceClient, error) {
+	if c.settingClient != nil {
+		return c.settingClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -288,6 +358,9 @@ func (c *Client) GetSettingServiceClient() (SettingServiceClient, error) {
 }
 
 func (c *Client) GetSystemVariableServiceClient() (SystemVariableServiceClient, error) {
+	if c.systemVariablServiceClient != nil {
+		return c.systemVariablServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -300,6 +373,9 @@ func (c *Client) GetSystemVariableServiceClient() (SystemVariableServiceClient, 
 }
 
 func (c *Client) GetBackupServiceClient() (BackupServiceClient, error) {
+	if c.backupServiceClient != nil {
+		return c.backupServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -312,6 +388,9 @@ func (c *Client) GetBackupServiceClient() (BackupServiceClient, error) {
 }
 
 func (c *Client) GetTaskManagerServiceClient() (TaskManagerServiceClient, error) {
+	if c.taskManagerServiceClient != nil {
+		return c.taskManagerServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -324,6 +403,9 @@ func (c *Client) GetTaskManagerServiceClient() (TaskManagerServiceClient, error)
 }
 
 func (c *Client) GetDashboardServiceClient() (DashboardServiceClient, error) {
+	if c.dashboardClient != nil {
+		return c.dashboardClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -336,6 +418,9 @@ func (c *Client) GetDashboardServiceClient() (DashboardServiceClient, error) {
 }
 
 func (c *Client) GetMediaLibraryServiceClient() (MediaLibraryServiceClient, error) {
+	if c.mediaLibraryClient != nil {
+		return c.mediaLibraryClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -348,6 +433,9 @@ func (c *Client) GetMediaLibraryServiceClient() (MediaLibraryServiceClient, erro
 }
 
 func (c *Client) GetMediaLibraryDirSettingServiceClient() (MediaLibraryDirSettingServiceClient, error) {
+	if c.mediaLibraryDirSettingClient != nil {
+		return c.mediaLibraryDirSettingClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err

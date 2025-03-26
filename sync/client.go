@@ -1,11 +1,11 @@
 package sync
 
 import (
-	"github.com/air-iot/errors"
 	"sync"
 
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/conn"
+	"github.com/air-iot/errors"
 	"github.com/air-iot/logger"
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
 	"github.com/go-kratos/kratos/v2/middleware"
@@ -16,7 +16,10 @@ import (
 const serviceName = "sync"
 
 type Client struct {
-	lock        sync.RWMutex
+	lock sync.RWMutex
+
+	cc ggrpc.ClientConnInterface
+
 	config      config.Config
 	registry    *etcd.Registry
 	conn        *ggrpc.ClientConn
@@ -52,6 +55,16 @@ func NewClient(cfg config.Config, registry *etcd.Registry, cred ggrpc.DialOption
 			}
 		}
 	}
+	return c, cleanFunc, nil
+}
+
+func NewLocalClient(cfg config.Config, cc ggrpc.ClientConnInterface) (*Client, func(), error) {
+	c := &Client{
+		config: cfg,
+		cc:     cc,
+	}
+	c.syncClient = NewSyncServiceClient(cc)
+	cleanFunc := func() {}
 	return c, cleanFunc, nil
 }
 
@@ -96,6 +109,9 @@ func (c *Client) GetRestClient() (*http.Client, error) {
 }
 
 func (c *Client) GetSyncServiceClient() (SyncServiceClient, error) {
+	if c.syncClient != nil {
+		return c.syncClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err

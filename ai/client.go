@@ -16,7 +16,10 @@ import (
 const serviceName = "ai"
 
 type Client struct {
-	lock        sync.RWMutex
+	lock sync.RWMutex
+
+	cc grpc.ClientConnInterface
+
 	conn        *grpc.ClientConn
 	restClient  *http.Client
 	config      config.Config
@@ -46,6 +49,16 @@ func NewClient(cfg config.Config, registry *etcd.Registry, cred grpc.DialOption,
 			}
 		}
 	}
+	return c, cleanFunc, nil
+}
+
+func NewLocalClient(cfg config.Config, cc grpc.ClientConnInterface) (*Client, func(), error) {
+	c := &Client{
+		config: cfg,
+		cc:     cc,
+	}
+	c.bigModelServiceClient = NewBigModelServiceClient(cc)
+	cleanFunc := func() {}
 	return c, cleanFunc, nil
 }
 
@@ -90,6 +103,9 @@ func (c *Client) GetRestClient() (*http.Client, error) {
 }
 
 func (c *Client) GetBigModelServiceClient() (BigModelServiceClient, error) {
+	if c.bigModelServiceClient != nil {
+		return c.bigModelServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err

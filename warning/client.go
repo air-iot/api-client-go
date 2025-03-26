@@ -16,7 +16,10 @@ import (
 const serviceName = "warning"
 
 type Client struct {
-	lock        sync.RWMutex
+	lock sync.RWMutex
+
+	cc grpc.ClientConnInterface
+
 	config      config.Config
 	registry    *etcd.Registry
 	conn        *grpc.ClientConn
@@ -53,6 +56,17 @@ func NewClient(cfg config.Config, registry *etcd.Registry, cred grpc.DialOption,
 			}
 		}
 	}
+	return c, cleanFunc, nil
+}
+
+func NewLocalClient(cfg config.Config, cc grpc.ClientConnInterface) (*Client, func(), error) {
+	c := &Client{
+		config: cfg,
+		cc:     cc,
+	}
+	c.warnClient = NewWarnServiceClient(cc)
+	c.ruleClient = NewRuleServiceClient(cc)
+	cleanFunc := func() {}
 	return c, cleanFunc, nil
 }
 
@@ -98,6 +112,9 @@ func (c *Client) GetRestClient() (*http.Client, error) {
 }
 
 func (c *Client) GetWarnServiceClient() (WarnServiceClient, error) {
+	if c.warnClient != nil {
+		return c.warnClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -110,6 +127,9 @@ func (c *Client) GetWarnServiceClient() (WarnServiceClient, error) {
 }
 
 func (c *Client) GetRuleServiceClient() (RuleServiceClient, error) {
+	if c.ruleClient != nil {
+		return c.ruleClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err

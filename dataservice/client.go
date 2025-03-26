@@ -16,7 +16,10 @@ import (
 const serviceName = "data-service"
 
 type Client struct {
-	lock        sync.RWMutex
+	lock sync.RWMutex
+
+	cc grpc.ClientConnInterface
+
 	config      config.Config
 	registry    *etcd.Registry
 	conn        *grpc.ClientConn
@@ -56,6 +59,20 @@ func NewClient(cfg config.Config, registry *etcd.Registry, cred grpc.DialOption,
 			}
 		}
 	}
+	return c, cleanFunc, nil
+}
+
+func NewLocalClient(cfg config.Config, cc grpc.ClientConnInterface) (*Client, func(), error) {
+	c := &Client{
+		config: cfg,
+		cc:     cc,
+	}
+	c.dataServiceClient = NewDataServiceClient(cc)
+	c.dataGroupServiceClient = NewDataGroupServiceClient(cc)
+	c.dataInterfaceServiceClient = NewDataInterfaceServiceClient(cc)
+	c.datasetViewServiceClient = NewDatasetViewServiceClient(cc)
+	c.datasetServiceClient = NewDatasetServiceClient(cc)
+	cleanFunc := func() {}
 	return c, cleanFunc, nil
 }
 
@@ -104,6 +121,9 @@ func (c *Client) GetRestClient() (*http.Client, error) {
 }
 
 func (c *Client) GetDataServiceClient() (DataServiceClient, error) {
+	if c.dataServiceClient != nil {
+		return c.dataServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -116,6 +136,9 @@ func (c *Client) GetDataServiceClient() (DataServiceClient, error) {
 }
 
 func (c *Client) GetDataGroupServiceClient() (DataGroupServiceClient, error) {
+	if c.dataGroupServiceClient != nil {
+		return c.dataGroupServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -128,6 +151,9 @@ func (c *Client) GetDataGroupServiceClient() (DataGroupServiceClient, error) {
 }
 
 func (c *Client) GetDataInterfaceServiceClient() (DataInterfaceServiceClient, error) {
+	if c.dataInterfaceServiceClient != nil {
+		return c.dataInterfaceServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -140,6 +166,9 @@ func (c *Client) GetDataInterfaceServiceClient() (DataInterfaceServiceClient, er
 }
 
 func (c *Client) GetDatasetViewServiceClient() (DatasetViewServiceClient, error) {
+	if c.datasetViewServiceClient != nil {
+		return c.datasetViewServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -152,6 +181,9 @@ func (c *Client) GetDatasetViewServiceClient() (DatasetViewServiceClient, error)
 }
 
 func (c *Client) GetDatasetServiceClient() (DatasetServiceClient, error) {
+	if c.datasetServiceClient != nil {
+		return c.datasetServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err

@@ -2,6 +2,13 @@ package config
 
 import "time"
 
+type ConnectType string
+
+const (
+	Local ConnectType = "local"
+	Grpc  ConnectType = "grpc"
+)
+
 type Config struct {
 	Gateway    string             `json:"gateway"`
 	EtcdConfig string             `json:"etcdConfig"`

@@ -1,11 +1,11 @@
 package driver
 
 import (
-	"github.com/air-iot/errors"
 	"sync"
 
 	"github.com/air-iot/api-client-go/v4/config"
 	"github.com/air-iot/api-client-go/v4/conn"
+	"github.com/air-iot/errors"
 	"github.com/air-iot/logger"
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
 	"github.com/go-kratos/kratos/v2/middleware"
@@ -16,7 +16,10 @@ import (
 const serviceName = "driver"
 
 type Client struct {
-	lock        sync.RWMutex
+	lock sync.RWMutex
+
+	cc grpc.ClientConnInterface
+
 	registry    *etcd.Registry
 	config      config.Config
 	conn        *grpc.ClientConn
@@ -56,6 +59,20 @@ func NewClient(cfg config.Config, registry *etcd.Registry, cred grpc.DialOption,
 			}
 		}
 	}
+	return c, cleanFunc, nil
+}
+
+func NewLocalClient(cfg config.Config, cc grpc.ClientConnInterface) (*Client, func(), error) {
+	c := &Client{
+		config: cfg,
+		cc:     cc,
+	}
+	c.driverClient = NewDriverServiceClient(cc)
+	c.driverInstanceServiceClient = NewDriverInstanceServiceClient(cc)
+	c.driverEventCronServiceClient = NewDriverEventCronServiceClient(cc)
+	c.driverInstructCronServiceClient = NewDriverInstructCronServiceClient(cc)
+	c.driverInstructServiceClient = NewDriverInstructServiceClient(cc)
+	cleanFunc := func() {}
 	return c, cleanFunc, nil
 }
 
@@ -104,6 +121,9 @@ func (c *Client) GetRestClient() (*http.Client, error) {
 }
 
 func (c *Client) GetDriverServiceClient() (DriverServiceClient, error) {
+	if c.driverClient != nil {
+		return c.driverClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -116,6 +136,9 @@ func (c *Client) GetDriverServiceClient() (DriverServiceClient, error) {
 }
 
 func (c *Client) GetDriverInstanceServiceClient() (DriverInstanceServiceClient, error) {
+	if c.driverInstanceServiceClient != nil {
+		return c.driverInstanceServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -128,6 +151,9 @@ func (c *Client) GetDriverInstanceServiceClient() (DriverInstanceServiceClient, 
 }
 
 func (c *Client) GetDriverEventCronServiceClient() (DriverEventCronServiceClient, error) {
+	if c.driverEventCronServiceClient != nil {
+		return c.driverEventCronServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -140,6 +166,9 @@ func (c *Client) GetDriverEventCronServiceClient() (DriverEventCronServiceClient
 }
 
 func (c *Client) GetDriverInstructCronServiceClient() (DriverEventCronServiceClient, error) {
+	if c.driverInstructCronServiceClient != nil {
+		return c.driverInstructCronServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -152,6 +181,9 @@ func (c *Client) GetDriverInstructCronServiceClient() (DriverEventCronServiceCli
 }
 
 func (c *Client) GetDriverInstructServiceClient() (DriverInstructServiceClient, error) {
+	if c.driverInstructServiceClient != nil {
+		return c.driverInstructServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err

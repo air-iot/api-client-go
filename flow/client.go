@@ -16,7 +16,10 @@ import (
 const serviceName = "flow"
 
 type Client struct {
-	lock        sync.RWMutex
+	lock sync.RWMutex
+
+	cc ggrpc.ClientConnInterface
+
 	config      config.Config
 	registry    *etcd.Registry
 	conn        *ggrpc.ClientConn
@@ -54,6 +57,18 @@ func NewClient(cfg config.Config, registry *etcd.Registry, cred ggrpc.DialOption
 			}
 		}
 	}
+	return c, cleanFunc, nil
+}
+
+func NewLocalClient(cfg config.Config, cc ggrpc.ClientConnInterface) (*Client, func(), error) {
+	c := &Client{
+		config: cfg,
+		cc:     cc,
+	}
+	c.flowTaskClient = NewFlowTaskServiceClient(cc)
+	c.flowClient = NewFlowServiceClient(cc)
+	c.flowTriggerRecordServiceClient = NewFlowTriggerRecordServiceClient(cc)
+	cleanFunc := func() {}
 	return c, cleanFunc, nil
 }
 
@@ -100,6 +115,9 @@ func (c *Client) GetRestClient() (*http.Client, error) {
 }
 
 func (c *Client) GetFlowServiceClient() (FlowServiceClient, error) {
+	if c.flowClient != nil {
+		return c.flowClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -112,6 +130,9 @@ func (c *Client) GetFlowServiceClient() (FlowServiceClient, error) {
 }
 
 func (c *Client) GetFlowTaskServiceClient() (FlowTaskServiceClient, error) {
+	if c.flowTaskClient != nil {
+		return c.flowTaskClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -124,6 +145,9 @@ func (c *Client) GetFlowTaskServiceClient() (FlowTaskServiceClient, error) {
 }
 
 func (c *Client) GetFlowTriggerRecordServiceClient() (FlowTriggerRecordServiceClient, error) {
+	if c.flowTriggerRecordServiceClient != nil {
+		return c.flowTriggerRecordServiceClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err

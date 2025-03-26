@@ -16,7 +16,10 @@ import (
 const serviceName = "algorithm"
 
 type Client struct {
-	lock        sync.RWMutex
+	lock sync.RWMutex
+
+	cc grpc.ClientConnInterface
+
 	registry    *etcd.Registry
 	config      config.Config
 	conn        *grpc.ClientConn
@@ -53,6 +56,17 @@ func NewClient(cfg config.Config, registry *etcd.Registry, cred grpc.DialOption,
 			}
 		}
 	}
+	return c, cleanFunc, nil
+}
+
+func NewLocalClient(cfg config.Config, cc grpc.ClientConnInterface) (*Client, func(), error) {
+	c := &Client{
+		config: cfg,
+		cc:     cc,
+	}
+	c.AlgorithmClient = NewAlgorithmServiceClient(cc)
+	c.LocalAlgorithmClient = NewLocalAlgorithmServiceClient(cc)
+	cleanFunc := func() {}
 	return c, cleanFunc, nil
 }
 
@@ -98,6 +112,9 @@ func (c *Client) GetRestClient() (*http.Client, error) {
 }
 
 func (c *Client) GetAlgorithmServiceClient() (AlgorithmServiceClient, error) {
+	if c.AlgorithmClient != nil {
+		return c.AlgorithmClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -110,6 +127,9 @@ func (c *Client) GetAlgorithmServiceClient() (AlgorithmServiceClient, error) {
 }
 
 func (c *Client) GetLocalAlgorithmClient() (LocalAlgorithmServiceClient, error) {
+	if c.LocalAlgorithmClient != nil {
+		return c.LocalAlgorithmClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err

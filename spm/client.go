@@ -16,7 +16,10 @@ import (
 const serviceName = "spm"
 
 type Client struct {
-	lock       sync.RWMutex
+	lock sync.RWMutex
+
+	cc grpc.ClientConnInterface
+
 	conn       *grpc.ClientConn
 	restClient *http.Client
 
@@ -54,6 +57,18 @@ func NewClient(cfg config.Config, registry *etcd.Registry, cred grpc.DialOption,
 			}
 		}
 	}
+	return c, cleanFunc, nil
+}
+
+func NewLocalClient(cfg config.Config, cc grpc.ClientConnInterface) (*Client, func(), error) {
+	c := &Client{
+		config: cfg,
+		cc:     cc,
+	}
+	c.projectClient = NewProjectServiceClient(cc)
+	c.userClient = NewUserServiceClient(cc)
+	c.settingClient = NewSettingServiceClient(cc)
+	cleanFunc := func() {}
 	return c, cleanFunc, nil
 }
 
@@ -100,6 +115,9 @@ func (c *Client) GetRestClient() (*http.Client, error) {
 }
 
 func (c *Client) GetProjectServiceClient() (ProjectServiceClient, error) {
+	if c.projectClient != nil {
+		return c.projectClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -112,6 +130,9 @@ func (c *Client) GetProjectServiceClient() (ProjectServiceClient, error) {
 }
 
 func (c *Client) GetUserServiceClient() (UserServiceClient, error) {
+	if c.userClient != nil {
+		return c.userClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -124,6 +145,9 @@ func (c *Client) GetUserServiceClient() (UserServiceClient, error) {
 }
 
 func (c *Client) GetSettingServiceClient() (SettingServiceClient, error) {
+	if c.settingClient != nil {
+		return c.settingClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err

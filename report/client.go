@@ -16,7 +16,10 @@ import (
 const serviceName = "report"
 
 type Client struct {
-	lock        sync.RWMutex
+	lock sync.RWMutex
+
+	cc grpc.ClientConnInterface
+
 	config      config.Config
 	registry    *etcd.Registry
 	conn        *grpc.ClientConn
@@ -53,6 +56,17 @@ func NewClient(cfg config.Config, registry *etcd.Registry, cred grpc.DialOption,
 			}
 		}
 	}
+	return c, cleanFunc, nil
+}
+
+func NewLocalClient(cfg config.Config, cc grpc.ClientConnInterface) (*Client, func(), error) {
+	c := &Client{
+		config: cfg,
+		cc:     cc,
+	}
+	c.reportClient = NewReportServiceClient(cc)
+	c.reportCopyClient = NewReportCopyServiceClient(cc)
+	cleanFunc := func() {}
 	return c, cleanFunc, nil
 }
 
@@ -98,6 +112,9 @@ func (c *Client) GetRestClient() (*http.Client, error) {
 }
 
 func (c *Client) GetReportServiceClient() (ReportServiceClient, error) {
+	if c.reportClient != nil {
+		return c.reportClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
@@ -110,6 +127,9 @@ func (c *Client) GetReportServiceClient() (ReportServiceClient, error) {
 }
 
 func (c *Client) GetReportCopyServiceClient() (ReportCopyServiceClient, error) {
+	if c.reportCopyClient != nil {
+		return c.reportCopyClient, nil
+	}
 	if c.conn == nil {
 		if err := c.createConn(); err != nil {
 			return nil, err
