@@ -2,6 +2,7 @@ package api_client_go
 
 import (
 	"context"
+	"github.com/air-iot/api-client-go/v4/apicontext"
 	netHttp "net/http"
 	"net/url"
 
@@ -19,7 +20,7 @@ func (c *Client) QueryProject(ctx context.Context, query, result interface{}) er
 	if err != nil {
 		return errors.Wrap(err, "序列化查询参数错误")
 	}
-	res, err := cli.Query(ctx, &api.QueryRequest{Query: bts})
+	res, err := cli.Query(apicontext.GetGrpcContext(ctx, map[string]string{}), &api.QueryRequest{Query: bts})
 	if _, err := parseRes(err, res, result); err != nil {
 		return err
 	}
@@ -31,7 +32,7 @@ func (c *Client) QueryProjectAvailable(ctx context.Context, result interface{}) 
 	if err != nil {
 		return err
 	}
-	res, err := cli.QueryAvailable(ctx, &api.EmptyRequest{})
+	res, err := cli.QueryAvailable(apicontext.GetGrpcContext(ctx, map[string]string{}), &api.EmptyRequest{})
 	if _, err := parseRes(err, res, result); err != nil {
 		return err
 	}
@@ -67,7 +68,7 @@ func (c *Client) GetProject(ctx context.Context, id string, result interface{}) 
 	if err != nil {
 		return nil, err
 	}
-	res, err := cli.Get(ctx, &api.GetOrDeleteRequest{Id: id})
+	res, err := cli.Get(apicontext.GetGrpcContext(ctx, map[string]string{}), &api.GetOrDeleteRequest{Id: id})
 	if err != nil {
 		return nil, errors.Wrap(err, "请求错误")
 	}
@@ -82,7 +83,7 @@ func (c *Client) DeleteProject(ctx context.Context, id string, result interface{
 	if err != nil {
 		return err
 	}
-	res, err := cli.Delete(ctx, &api.GetOrDeleteRequest{Id: id})
+	res, err := cli.Delete(apicontext.GetGrpcContext(ctx, map[string]string{}), &api.GetOrDeleteRequest{Id: id})
 	if _, err := parseRes(err, res, result); err != nil {
 		return err
 	}
@@ -104,7 +105,7 @@ func (c *Client) UpdateProject(ctx context.Context, id string, updateData, resul
 	if err != nil {
 		return errors.Wrap(err, "序列化更新数据错误")
 	}
-	res, err := cli.Update(ctx, &api.UpdateRequest{Id: id, Data: bts})
+	res, err := cli.Update(apicontext.GetGrpcContext(ctx, map[string]string{}), &api.UpdateRequest{Id: id, Data: bts})
 	if _, err := parseRes(err, res, result); err != nil {
 		return err
 	}
@@ -126,7 +127,7 @@ func (c *Client) UpdateProjectLicense(ctx context.Context, id string, updateData
 	if err != nil {
 		return errors.Wrap(err, "序列化更新数据错误")
 	}
-	res, err := cli.UpdateLicense(ctx, &api.UpdateRequest{Id: id, Data: bts})
+	res, err := cli.UpdateLicense(apicontext.GetGrpcContext(ctx, map[string]string{}), &api.UpdateRequest{Id: id, Data: bts})
 	if _, err := parseRes(err, res, nil); err != nil {
 		return err
 	}
@@ -148,7 +149,7 @@ func (c *Client) ReplaceProject(ctx context.Context, id string, updateData, resu
 	if err != nil {
 		return errors.Wrap(err, "序列化更新数据错误")
 	}
-	res, err := cli.Replace(ctx, &api.UpdateRequest{Id: id, Data: bts})
+	res, err := cli.Replace(apicontext.GetGrpcContext(ctx, map[string]string{}), &api.UpdateRequest{Id: id, Data: bts})
 	if _, err := parseRes(err, res, result); err != nil {
 		return err
 	}
@@ -167,7 +168,7 @@ func (c *Client) CreateProject(ctx context.Context, createData, result interface
 	if err != nil {
 		return errors.Wrap(err, "序列化插入数据错误")
 	}
-	res, err := cli.Create(ctx, &api.CreateRequest{Data: bts})
+	res, err := cli.Create(apicontext.GetGrpcContext(ctx, map[string]string{}), &api.CreateRequest{Data: bts})
 	if _, err := parseRes(err, res, result); err != nil {
 		return err
 	}
@@ -183,7 +184,7 @@ func (c *Client) QueryPmSetting(ctx context.Context, query, result interface{}) 
 	if err != nil {
 		return errors.Wrap(err, "序列化查询参数错误")
 	}
-	res, err := cli.Query(ctx, &api.QueryRequest{Query: bts})
+	res, err := cli.Query(apicontext.GetGrpcContext(ctx, map[string]string{}), &api.QueryRequest{Query: bts})
 	if _, err := parseRes(err, res, result); err != nil {
 		return err
 	}
