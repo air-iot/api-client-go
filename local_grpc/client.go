@@ -21,7 +21,12 @@ func NewClient(s *Server, f auth.GetAuthClient) grpc.ClientConnInterface {
 
 func (cc *Client) Invoke(ctx context.Context, method string, args any, reply any, opts ...grpc.CallOption) error {
 	metadataIn, ok := metadata.FromOutgoingContext(ctx)
-	if ok {
+	if method != "/spm.UserService/GetToken" &&
+		method != "/grpc.health.v1.Health/Watch" &&
+		method != "/core.LicenseService/FindMachineCode" &&
+		method != "/core.AppService/GetToken" &&
+		//method != "/core.SettingService/Query" &&
+		ok {
 		headers := metadataIn.Get(config.XRequestHeaderAuthorization)
 		if len(headers) == 0 && cc.f != nil {
 			token, err := (cc.f)().Token()
@@ -30,8 +35,8 @@ func (cc *Client) Invoke(ctx context.Context, method string, args any, reply any
 			}
 			metadataIn.Set(config.XRequestHeaderAuthorization, token)
 		}
-		ctx = metadata.NewIncomingContext(ctx, metadataIn)
 	}
+	ctx = metadata.NewIncomingContext(ctx, metadataIn)
 	return cc.s.Invoke(ctx, method, args, reply)
 }
 
