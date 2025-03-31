@@ -2309,12 +2309,12 @@ func (c *Client) CreateManyTableDataByDB(ctx context.Context, projectId, tableNa
 }
 
 func (c *Client) UpdateManyTableDataByDB(ctx context.Context, projectId, tableName string, updateDataList, result interface{}) error {
-	if projectId == "" {
-		projectId = config.XRequestProjectDefault
-	}
-	if tableName == "" {
-		return errors.New("表为空")
-	}
+	//if projectId == "" {
+	//	projectId = config.XRequestProjectDefault
+	//}
+	//if tableName == "" {
+	//	return errors.New("表为空")
+	//}
 	cli, err := c.CoreClient.GetTableDataServiceClient()
 	if err != nil {
 		return err
