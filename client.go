@@ -2,6 +2,7 @@ package api_client_go
 
 import (
 	"fmt"
+	"github.com/air-iot/api-client-go/v4/syslog"
 	"log"
 	"time"
 
@@ -55,6 +56,7 @@ type Client struct {
 	DataRelayClient     *datarelay.Client
 	JsServerClient      *jsserver.Client
 	SyncClient          *sync.Client
+	SyslogClient        *syslog.Client
 	ComputeRecordClient *computerecord.Client
 	AIClient            *ai.Client
 	Service             *Service
@@ -137,6 +139,10 @@ func NewLocalClient(cfg config.Config, ss *local_grpc.Server) (*Client, func(), 
 	if err != nil {
 		return nil, nil, err
 	}
+	syslogClient, cleanSyslog, err := syslog.NewLocalClient(cfg, cc)
+	if err != nil {
+		return nil, nil, err
+	}
 	computeRecordClient, cleanComputeRecord, err := computerecord.NewLocalClient(cfg, cc)
 	if err != nil {
 		return nil, nil, err
@@ -163,6 +169,7 @@ func NewLocalClient(cfg config.Config, ss *local_grpc.Server) (*Client, func(), 
 		DataRelayClient:   dataRelayClient,
 		//JsServerClient:      jsServerClient,
 		SyncClient:          syncClient,
+		SyslogClient:        syslogClient,
 		ComputeRecordClient: computeRecordClient,
 		AIClient:            aiClient,
 	}
@@ -181,6 +188,7 @@ func NewLocalClient(cfg config.Config, ss *local_grpc.Server) (*Client, func(), 
 		cleanDataRelay()
 		//cleanJsServer()
 		cleanSync()
+		cleanSyslog()
 		cleanComputeRecord()
 		cleanAI()
 	}, nil
@@ -296,6 +304,10 @@ func newGrpcClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), er
 	if err != nil {
 		return nil, nil, err
 	}
+	syslogClient, cleanSyslog, err := syslog.NewClient(cfg, r, cred, httpCred)
+	if err != nil {
+		return nil, nil, err
+	}
 	computeRecordClient, cleanComputeRecord, err := computerecord.NewClient(cfg, r, cred, httpCred)
 	if err != nil {
 		return nil, nil, err
@@ -322,6 +334,7 @@ func newGrpcClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), er
 		DataRelayClient:     dataRelayClient,
 		JsServerClient:      jsServerClient,
 		SyncClient:          syncClient,
+		SyslogClient:        syslogClient,
 		ComputeRecordClient: computeRecordClient,
 		AIClient:            aiClient,
 	}
@@ -340,6 +353,7 @@ func newGrpcClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), er
 		cleanDataRelay()
 		cleanJsServer()
 		cleanSync()
+		cleanSyslog()
 		cleanComputeRecord()
 		cleanAI()
 	}, nil

@@ -1,0 +1,21 @@
+// Copyright 2015 The gRPC Authors
+// protoc -I . --go_out=plugins=grpc:. ./syslog.proto
+
+// protoc -I ./ --go_out=. ./syslog/syslog.proto
+// protoc -I ./ --go-grpc_out=. syslog/syslog.proto
+
+syntax = "proto3";
+
+package syslog;
+
+import "api/api.proto";
+
+option go_package = "./syslog;syslog";
+option java_package = "cn.airiot.sdk.client.dubbo.grpc.syslog";
+option java_multiple_files = true;
+option java_generate_equals_and_hash = true;
+option java_generic_services = true;
+
+service SyslogService {
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+}
