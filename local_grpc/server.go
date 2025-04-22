@@ -100,10 +100,12 @@ func (s *Server) Invoke(ctx context.Context, method string, args any, reply any)
 	service := sm[:pos]
 	method1 := sm[pos+1:]
 	srv, knownService := s.GetService(service)
-	codec := encoding.GetCodec(proto.Name)
+	codec := encoding.GetCodecV2(proto.Name)
 	if knownService {
 		if md, ok := srv.GetMethods(method1); ok {
 			df := func(v any) error {
+				fmt.Println("codec", codec)
+				fmt.Println("args", args)
 				d, err := codec.Marshal(args)
 				if err != nil {
 					return status.Errorf(codes.Internal, "grpc: error marshalling request: %v", err)
