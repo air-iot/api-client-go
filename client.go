@@ -2,7 +2,6 @@ package api_client_go
 
 import (
 	"fmt"
-	"github.com/air-iot/api-client-go/v4/syslog"
 	"log"
 	"time"
 
@@ -26,6 +25,7 @@ import (
 	"github.com/air-iot/api-client-go/v4/report"
 	"github.com/air-iot/api-client-go/v4/spm"
 	"github.com/air-iot/api-client-go/v4/sync"
+	"github.com/air-iot/api-client-go/v4/syslog"
 	"github.com/air-iot/api-client-go/v4/warning"
 	"github.com/air-iot/errors"
 	"github.com/air-iot/json"

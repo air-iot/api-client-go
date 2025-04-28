@@ -67,36 +67,70 @@ func CreateRestConn(serviceName string, cfg config.Config, r *etcd.Registry, mid
 		cfg.Timeout = 60
 	}
 	logger.Infof("http create conn,serviceName: %s config: %+v", serviceName, cfg)
-	cli, err := http.NewClient(
-		context.Background(),
-		http.WithEndpoint(fmt.Sprintf("discovery:///%s", serviceName)),
-		http.WithDiscovery(r),
-		http.WithMiddleware(
-			recovery.Recovery(),
-		),
-		http.WithMiddleware(middlewares...),
-		http.WithErrorDecoder(func(ctx context.Context, res *netHttp.Response) error {
-			if res.StatusCode >= 200 && res.StatusCode <= 299 {
-				return nil
-			}
-			defer func(Body io.ReadCloser) {
-				err := Body.Close()
-				if err != nil {
-
+	if r != nil {
+		cli, err := http.NewClient(
+			context.Background(),
+			http.WithEndpoint(fmt.Sprintf("discovery:///%s", serviceName)),
+			http.WithDiscovery(r),
+			http.WithMiddleware(
+				recovery.Recovery(),
+			),
+			http.WithMiddleware(middlewares...),
+			http.WithErrorDecoder(func(ctx context.Context, res *netHttp.Response) error {
+				if res.StatusCode >= 200 && res.StatusCode <= 299 {
+					return nil
 				}
-			}(res.Body)
-			data, err := io.ReadAll(res.Body)
-			if err == nil {
-				return internalError.ParseBody(res.StatusCode, data)
-			}
-			return errors.Wrap(err, "未知原因,解析响应错误")
-		}),
-		http.WithNodeFilter(filter.Metadata(metadataTmp)),
-		http.WithTimeout(time.Second*time.Duration(cfg.Timeout)),
-	)
+				defer func(Body io.ReadCloser) {
+					err := Body.Close()
+					if err != nil {
 
-	if err != nil {
-		return nil, errors.Wrap(err, "create http client err")
+					}
+				}(res.Body)
+				data, err := io.ReadAll(res.Body)
+				if err == nil {
+					return internalError.ParseBody(res.StatusCode, data)
+				}
+				return errors.Wrap(err, "未知原因,解析响应错误")
+			}),
+			http.WithNodeFilter(filter.Metadata(metadataTmp)),
+			http.WithTimeout(time.Second*time.Duration(cfg.Timeout)),
+		)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "create http client err")
+		}
+		return cli, nil
+	} else {
+		cli, err := http.NewClient(
+			context.Background(),
+			http.WithEndpoint(cfg.Gateway),
+			http.WithMiddleware(
+				recovery.Recovery(),
+			),
+			http.WithMiddleware(middlewares...),
+			http.WithErrorDecoder(func(ctx context.Context, res *netHttp.Response) error {
+				if res.StatusCode >= 200 && res.StatusCode <= 299 {
+					return nil
+				}
+				defer func(Body io.ReadCloser) {
+					err := Body.Close()
+					if err != nil {
+
+					}
+				}(res.Body)
+				data, err := io.ReadAll(res.Body)
+				if err == nil {
+					return internalError.ParseBody(res.StatusCode, data)
+				}
+				return errors.Wrap(err, "未知原因,解析响应错误")
+			}),
+			http.WithNodeFilter(filter.Metadata(metadataTmp)),
+			http.WithTimeout(time.Second*time.Duration(cfg.Timeout)),
+		)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "create http client err")
+		}
+		return cli, nil
 	}
-	return cli, nil
 }

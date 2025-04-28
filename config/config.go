@@ -10,6 +10,7 @@ const (
 )
 
 type Config struct {
+	LiteMode   bool               `json:"liteMode"`
 	Gateway    string             `json:"gateway"`
 	EtcdConfig string             `json:"etcdConfig"`
 	Metadata   map[string]string  `json:"metadata"`
