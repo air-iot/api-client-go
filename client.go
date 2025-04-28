@@ -201,6 +201,9 @@ func newGrpcClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), er
 	if cfg.EtcdConfig == "" {
 		cfg.EtcdConfig = "/airiot/config/pro.json"
 	}
+	if cfg.ExpirePrecision == 0 {
+		cfg.ExpirePrecision = 120
+	}
 	etcdSource, err := etcdConfig.New(cli, etcdConfig.WithPath(cfg.EtcdConfig), etcdConfig.WithPrefix(true))
 	if err != nil {
 		return nil, nil, fmt.Errorf("查询配置中心错误, %w", err)
