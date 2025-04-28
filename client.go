@@ -73,6 +73,9 @@ func NewLocalClient(cfg config.Config, ss *local_grpc.Server) (*Client, func(), 
 	if cfg.Timeout == 0 {
 		cfg.Timeout = 120
 	}
+	if cfg.ExpirePrecision == 0 {
+		cfg.ExpirePrecision = 120
+	}
 	if cfg.Service.Expire == 0 {
 		cfg.Service.Expire = time.Second * 30
 	}

@@ -26,6 +26,7 @@ type Config struct {
 		//Enable bool          `json:"enable"`
 		Expire time.Duration `json:"expire"`
 	} `json:"service"`
+	ExpirePrecision int64 `json:"expirePrecision"`
 }
 
 type KeyType string

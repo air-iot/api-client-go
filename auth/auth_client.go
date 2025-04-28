@@ -94,7 +94,7 @@ func (a *Client) Token() (token string, err error) {
 			return "", err
 		}
 	} else {
-		if a.authToken.ExpiresAt <= (time.Now().Unix() - 120) {
+		if a.authToken.ExpiresAt <= (time.Now().Unix() - a.cfg.ExpirePrecision) {
 			authToken, err = a.getToken()
 			if err != nil {
 				return "", err
