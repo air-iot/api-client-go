@@ -10,19 +10,20 @@ const (
 )
 
 type Config struct {
-	LiteMode   bool               `json:"liteMode"`
-	Gateway    string             `json:"gateway"`
-	EtcdConfig string             `json:"etcdConfig"`
-	Metadata   map[string]string  `json:"metadata"`
-	Services   map[string]Service `json:"services"`
-	Type       KeyType            `json:"type"`
-	ProjectId  string             `json:"projectId"`
-	AK         string             `json:"ak"`
-	SK         string             `json:"sk"`
-	Timeout    uint               `json:"timeout"`
-	Limit      int                `json:"limit"`
-	Debug      bool               `json:"debug"`
-	Service    struct {
+	LiteMode    bool               `json:"liteMode"`
+	Gateway     string             `json:"gateway"`
+	GatewayGrpc string             `json:"gatewayGrpc"`
+	EtcdConfig  string             `json:"etcdConfig"`
+	Metadata    map[string]string  `json:"metadata"`
+	Services    map[string]Service `json:"services"`
+	Type        KeyType            `json:"type"`
+	ProjectId   string             `json:"projectId"`
+	AK          string             `json:"ak"`
+	SK          string             `json:"sk"`
+	Timeout     uint               `json:"timeout"`
+	Limit       int                `json:"limit"`
+	Debug       bool               `json:"debug"`
+	Service     struct {
 		//Enable bool          `json:"enable"`
 		Expire time.Duration `json:"expire"`
 	} `json:"service"`
@@ -38,6 +39,7 @@ const (
 
 type Service struct {
 	Metadata map[string]string `json:"metadata"`
+	GrpcAddr string            `json:"grpcAddr"`
 }
 
 const (

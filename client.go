@@ -204,43 +204,6 @@ func newGrpcClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), er
 	if cfg.ExpirePrecision == 0 {
 		cfg.ExpirePrecision = 120
 	}
-	etcdSource, err := etcdConfig.New(cli, etcdConfig.WithPath(cfg.EtcdConfig), etcdConfig.WithPrefix(true))
-	if err != nil {
-		return nil, nil, fmt.Errorf("查询配置中心错误, %w", err)
-	}
-	// create a config instance with source
-	c2 := kratosConfig.New(kratosConfig.WithSource(
-		etcdSource,
-		env.NewSource("")),
-	)
-	defer func() {
-		if err := c2.Close(); err != nil {
-			log.Println("配置中心关闭错误, ", err.Error())
-		}
-	}()
-	if err := c2.Load(); err != nil {
-		return nil, nil, errors.Wrap(err, "加载配置中心错误")
-	}
-	var c2m map[string]interface{}
-	if err := c2.Scan(&c2m); err != nil {
-		return nil, nil, errors.Wrap(err, "配置解析错误")
-	}
-	if err := viper.MergeConfigMap(c2m); err != nil {
-		return nil, nil, errors.Wrap(err, "合并配置错误")
-	}
-	cfgApi := viper.GetStringMap("App.API")
-	if cfgApi != nil && len(cfgApi) > 0 {
-		var paramMap map[string]interface{}
-		if err := json.CopyByJson(&paramMap, cfg); err != nil {
-			return nil, nil, errors.Wrap(err, "复制配置错误")
-		}
-		if err := mergo.Map(&paramMap, cfgApi); err != nil {
-			return nil, nil, errors.Wrap(err, "合并配置错误")
-		}
-		if err := json.CopyByJson(&cfg, paramMap); err != nil {
-			return nil, nil, errors.Wrap(err, "复制结构配置错误")
-		}
-	}
 	if cfg.Timeout == 0 {
 		cfg.Timeout = 120
 	}
@@ -248,8 +211,50 @@ func newGrpcClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), er
 	if cfg.Service.Expire == 0 {
 		cfg.Service.Expire = time.Second * 30
 	}
+	var r *etcd.Registry
+	if !cfg.LiteMode {
+		etcdSource, err := etcdConfig.New(cli, etcdConfig.WithPath(cfg.EtcdConfig), etcdConfig.WithPrefix(true))
+		if err != nil {
+			return nil, nil, fmt.Errorf("查询配置中心错误, %w", err)
+		}
+		// create a config instance with source
+		c2 := kratosConfig.New(kratosConfig.WithSource(
+			etcdSource,
+			env.NewSource("")),
+		)
+		defer func() {
+			if err := c2.Close(); err != nil {
+				log.Println("配置中心关闭错误, ", err.Error())
+			}
+		}()
+		if err := c2.Load(); err != nil {
+			return nil, nil, errors.Wrap(err, "加载配置中心错误")
+		}
+		var c2m map[string]interface{}
+		if err := c2.Scan(&c2m); err != nil {
+			return nil, nil, errors.Wrap(err, "配置解析错误")
+		}
+		if err := viper.MergeConfigMap(c2m); err != nil {
+			return nil, nil, errors.Wrap(err, "合并配置错误")
+		}
+		cfgApi := viper.GetStringMap("App.API")
+		if cfgApi != nil && len(cfgApi) > 0 {
+			var paramMap map[string]interface{}
+			if err := json.CopyByJson(&paramMap, cfg); err != nil {
+				return nil, nil, errors.Wrap(err, "复制配置错误")
+			}
+			if err := mergo.Map(&paramMap, cfgApi); err != nil {
+				return nil, nil, errors.Wrap(err, "合并配置错误")
+			}
+			if err := json.CopyByJson(&cfg, paramMap); err != nil {
+				return nil, nil, errors.Wrap(err, "复制结构配置错误")
+			}
+		}
+		r = etcd.New(cli)
+	} else {
+		r = nil
+	}
 
-	r := etcd.New(cli)
 	authCli := auth.NewClient(cfg)
 	f := func() *auth.Client {
 		return authCli
@@ -318,14 +323,12 @@ func newGrpcClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), er
 	if err != nil {
 		return nil, nil, err
 	}
-
 	aiClient, cleanAI, err := ai.NewClient(cfg, r, cred, httpCred)
 	if err != nil {
 		return nil, nil, err
 	}
 	a := &Client{
 		Config:              cfg,
-		RegistryClient:      NewKartosRegistryClient(cli),
 		AuthClient:          authCli,
 		SpmClient:           spmClient,
 		CoreClient:          coreClient,
@@ -343,6 +346,9 @@ func newGrpcClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), er
 		SyslogClient:        syslogClient,
 		ComputeRecordClient: computeRecordClient,
 		AIClient:            aiClient,
+	}
+	if !cfg.LiteMode {
+		a.RegistryClient = NewKartosRegistryClient(cli)
 	}
 	a.Service = newService(a)
 	return a, func() {

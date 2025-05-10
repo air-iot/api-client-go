@@ -53,6 +53,10 @@ func (c *Service) IsExist(ctx context.Context, serviceName string) (bool, error)
 			envs = []string{metaEnv}
 		}
 	}
+	// TODO 暂时先处理
+	if c.parent.RegistryClient == nil {
+		return true, nil
+	}
 	serviceInstances, err := c.parent.RegistryClient.GetServiceInstances(ctx, serviceName, false, envs...)
 	if err != nil {
 		return false, err

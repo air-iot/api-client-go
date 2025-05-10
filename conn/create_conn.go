@@ -24,9 +24,13 @@ import (
 
 func CreateConn(serviceName string, cfg config.Config, r *etcd.Registry, opts ...ggrpc.DialOption) (*ggrpc.ClientConn, error) {
 	metadataTmp := cfg.Metadata
+	addr := cfg.GatewayGrpc
 	if srv, ok := cfg.Services[serviceName]; ok {
 		if srv.Metadata != nil && len(srv.Metadata) > 0 {
 			metadataTmp = srv.Metadata
+		}
+		if srv.GrpcAddr != "" {
+			addr = srv.GrpcAddr
 		}
 	}
 	if cfg.Timeout == 0 {
@@ -37,23 +41,43 @@ func CreateConn(serviceName string, cfg config.Config, r *etcd.Registry, opts ..
 	}
 	opts = append(opts, ggrpc.WithDefaultCallOptions(ggrpc.MaxCallRecvMsgSize(cfg.Limit*1024*1024), ggrpc.MaxCallSendMsgSize(cfg.Limit*1024*1024)))
 	logger.Infof("grpc create conn,serviceName: %s config: %+v", serviceName, cfg)
-	cli, err := grpc.DialInsecure(
-		context.Background(),
-		grpc.WithEndpoint(fmt.Sprintf("discovery:///%s", serviceName)),
-		grpc.WithDiscovery(r),
-		grpc.WithMiddleware(
-			tracing.Client(),
-			recovery.Recovery(),
-		),
-		grpc.WithOptions(opts...),
-		grpc.WithPrintDiscoveryDebugLog(cfg.Debug),
-		grpc.WithNodeFilter(filter.Metadata(metadataTmp)),
-		grpc.WithTimeout(time.Second*time.Duration(cfg.Timeout)),
-	)
-	if err != nil {
-		return nil, errors.Wrap(err, "grpc.Dial err")
+	if r != nil {
+		cli, err := grpc.DialInsecure(
+			context.Background(),
+			grpc.WithEndpoint(fmt.Sprintf("discovery:///%s", serviceName)),
+			grpc.WithDiscovery(r),
+			grpc.WithMiddleware(
+				tracing.Client(),
+				recovery.Recovery(),
+			),
+			grpc.WithOptions(opts...),
+			grpc.WithPrintDiscoveryDebugLog(cfg.Debug),
+			grpc.WithNodeFilter(filter.Metadata(metadataTmp)),
+			grpc.WithTimeout(time.Second*time.Duration(cfg.Timeout)),
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "grpc.Dial err")
+		}
+		return cli, nil
+	} else {
+
+		cli, err := grpc.DialInsecure(
+			context.Background(),
+			grpc.WithEndpoint(addr),
+			grpc.WithMiddleware(
+				tracing.Client(),
+				recovery.Recovery(),
+			),
+			grpc.WithOptions(opts...),
+			grpc.WithPrintDiscoveryDebugLog(cfg.Debug),
+			grpc.WithNodeFilter(filter.Metadata(metadataTmp)),
+			grpc.WithTimeout(time.Second*time.Duration(cfg.Timeout)),
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "grpc.Dial err")
+		}
+		return cli, nil
 	}
-	return cli, nil
 }
 
 func CreateRestConn(serviceName string, cfg config.Config, r *etcd.Registry, middlewares ...middleware.Middleware) (*http.Client, error) {
