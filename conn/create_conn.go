@@ -115,7 +115,7 @@ func CreateRestConn(serviceName string, cfg config.Config, r *etcd.Registry, mid
 		}),
 		http.WithNodeFilter(filter.Metadata(metadataTmp)),
 		http.WithTimeout(time.Second * time.Duration(cfg.Timeout)),
-		http.WithTransport(tr),
+		//http.WithTransport(tr),
 	}
 	if r != nil {
 		opts = append(opts,
