@@ -231,6 +231,10 @@ message ConfigUpdateRequest {
   enum OpsType {
     ADD_DEVICE = 0;
     DEL_DEVICE = 1;
+    EDIT_DEVICE = 2;
+    ADD_TABLE = 3;
+    DEL_TABLE = 4;
+    EDIT_TABLE = 5;
   }
 
   OpsType opsType = 2;
@@ -238,9 +242,18 @@ message ConfigUpdateRequest {
   oneof data {
     AddDeviceData add_device_data = 3;
     DelDeviceData del_device_data = 4;
+    EditDeviceData edit_device_data = 5;
+    AddTable  add_table = 6;
+    DelTable del_table = 7;
+    EditTable edit_table = 8;
   }
 
   message AddDeviceData {
+    string tableId = 1;
+    bytes tableData = 2; // 字节数组
+  }
+
+  message EditDeviceData {
     string tableId = 1;
     bytes tableData = 2; // 字节数组
   }
@@ -249,6 +262,19 @@ message ConfigUpdateRequest {
     string tableId = 1;
     string tableDataId = 2;
   }
+
+  message AddTable {
+    bytes table = 2; // 字节数组
+  }
+
+  message DelTable {
+    string tableId = 1;
+  }
+
+  message EditTable {
+    bytes table = 1; // 字节数组
+  }
+
 }
 
 message ConfigUpdateResponse {
