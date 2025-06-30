@@ -264,7 +264,7 @@ message ConfigUpdateRequest {
   }
 
   message AddTable {
-    bytes table = 2; // 字节数组
+    bytes table = 1; // 字节数组
   }
 
   message DelTable {
