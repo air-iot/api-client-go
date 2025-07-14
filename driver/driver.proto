@@ -235,6 +235,7 @@ message ConfigUpdateRequest {
     ADD_TABLE = 3;
     DEL_TABLE = 4;
     EDIT_TABLE = 5;
+    EDIT_DRIVER = 6; // 编辑驱动
   }
 
   OpsType opsType = 2;
@@ -246,16 +247,19 @@ message ConfigUpdateRequest {
     AddTable  add_table = 6;
     DelTable del_table = 7;
     EditTable edit_table = 8;
+    EditDriver edit_driver = 9;
   }
 
   message AddDeviceData {
     string tableId = 1;
-    bytes tableData = 2; // 字节数组
+    string tableDataId = 2;
+    bytes tableData = 3; // 字节数组
   }
 
   message EditDeviceData {
     string tableId = 1;
-    bytes tableData = 2; // 字节数组
+    string tableDataId = 2;
+    bytes tableData = 3; // 字节数组
   }
 
   message DelDeviceData {
@@ -264,7 +268,8 @@ message ConfigUpdateRequest {
   }
 
   message AddTable {
-    bytes table = 1; // 字节数组
+    string tableId = 1;
+    bytes table = 2; // 字节数组
   }
 
   message DelTable {
@@ -272,9 +277,13 @@ message ConfigUpdateRequest {
   }
 
   message EditTable {
-    bytes table = 1; // 字节数组
+    string tableId = 1;
+    bytes table = 2; // 字节数组
   }
 
+  message EditDriver {
+    bytes driver = 1; // 字节数组
+  }
 }
 
 message ConfigUpdateResponse {
