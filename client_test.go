@@ -637,11 +637,9 @@ func Test_RestQueryTableSchema(t *testing.T) {
 
 func Test_MediaLibraryDirMkDir(t *testing.T) {
 
-	var res []map[string]interface{}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
 	defer cancel()
-	if err := cli.MediaLibraryMkdir(ctx, "625f6dbf5433487131f09ff9", "1", "22", &res); err != nil {
+	if err := cli.MediaLibraryMkdir(ctx, "625f6dbf5433487131f09ff9", "1", "22"); err != nil {
 		t.Error(err)
 	}
-	t.Log(res)
 }

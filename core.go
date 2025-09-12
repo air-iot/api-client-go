@@ -2521,7 +2521,7 @@ func (c *Client) QueryMediaLibrary(ctx context.Context, projectId string, catalo
 	return int(res.GetCount()), nil
 }
 
-func (c *Client) MediaLibraryMkdir(ctx context.Context, projectId string, catalog, dirName string, result interface{}) error {
+func (c *Client) MediaLibraryMkdir(ctx context.Context, projectId string, catalog, dirName string) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
 	}
@@ -2535,7 +2535,7 @@ func (c *Client) MediaLibraryMkdir(ctx context.Context, projectId string, catalo
 			Catalog: catalog,
 			Name:    dirName,
 		})
-	_, err = parseRes(err, res, result)
+	_, err = parseRes(err, res, nil)
 	if err != nil {
 		return err
 	}
