@@ -3,11 +3,146 @@ package api_client_go
 import (
 	"context"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
 	"github.com/go-kratos/kratos/v2/registry"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
+
+type watchOptions struct {
+	reconnectInterval time.Duration
+	allowEmptyEnv     bool
+	envs              map[string]struct{}
+}
+
+type WatchOption interface {
+	Apply(options *watchOptions)
+}
+
+type WatchOptionFn func(options *watchOptions)
+
+func (f WatchOptionFn) Apply(options *watchOptions) {
+	f(options)
+}
+
+func WithEnvs(envs ...string) WatchOptionFn {
+	return func(options *watchOptions) {
+		options.envs = make(map[string]struct{}, len(envs))
+		for i := range envs {
+			options.envs[envs[i]] = struct{}{}
+		}
+	}
+}
+
+func WithAllowEmptyEnv(allowEmptyEnv bool) WatchOptionFn {
+	return func(options *watchOptions) {
+		options.allowEmptyEnv = allowEmptyEnv
+	}
+}
+
+func WithReconnectInterval(interval time.Duration) WatchOptionFn {
+	return func(options *watchOptions) {
+		options.reconnectInterval = interval
+	}
+}
+
+type KratosRegistryWatchClient struct {
+	serviceName string
+	options     *watchOptions
+	err         error
+	registry    *etcd.Registry
+	instances   []*registry.ServiceInstance
+	lock        sync.RWMutex
+}
+
+func newKratosRegistryWatchClient(reg *etcd.Registry, serviceName string, options *watchOptions) *KratosRegistryWatchClient {
+	return &KratosRegistryWatchClient{
+		registry:    reg,
+		serviceName: serviceName,
+		options:     options,
+		instances:   make([]*registry.ServiceInstance, 0, 8),
+	}
+}
+
+func (rwc *KratosRegistryWatchClient) start(ctx context.Context) error {
+	go func() {
+		interval := rwc.options.reconnectInterval
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+
+			}
+
+			watcher, err := rwc.registry.Watch(ctx, rwc.serviceName)
+			if err != nil {
+				rwc.err = err
+				continue
+			}
+
+			for {
+				instances, err := watcher.Next()
+				if err != nil {
+					rwc.err = err
+					break
+				}
+
+				rwc.lock.Lock()
+				rwc.instances = rwc.filter(instances)
+				rwc.lock.Unlock()
+			}
+
+			time.Sleep(interval)
+		}
+	}()
+
+	return nil
+}
+
+func (rwc *KratosRegistryWatchClient) filter(instances []*registry.ServiceInstance) []*registry.ServiceInstance {
+	if len(instances) == 0 {
+		return instances
+	}
+
+	filtered := make([]*registry.ServiceInstance, 0, len(instances))
+	for i := range instances {
+		inst := instances[i]
+		env, ok := inst.Metadata["env"]
+		if (!ok || env == "") && !rwc.options.allowEmptyEnv {
+			continue
+		}
+
+		if rwc.options.allowEmptyEnv && env == "" {
+			filtered = append(filtered, inst)
+			continue
+		}
+
+		if _, ok := rwc.options.envs[env]; ok {
+			filtered = append(filtered, inst)
+		}
+	}
+
+	return filtered
+}
+
+func (rwc *KratosRegistryWatchClient) Error() error {
+	return rwc.err
+}
+
+func (rwc *KratosRegistryWatchClient) GetServiceInstances() ([]*registry.ServiceInstance, error) {
+	rwc.lock.RLock()
+	defer rwc.lock.RUnlock()
+	return rwc.instances, nil
+}
+
+func (rwc *KratosRegistryWatchClient) GetServiceEndpointsByServiceName(schemes ...string) ([]string, error) {
+	rwc.lock.RLock()
+	defer rwc.lock.RUnlock()
+	return getEndpoints(rwc.instances, schemes...), nil
+}
 
 type KratosRegistryClient struct {
 	registry *etcd.Registry
@@ -62,24 +197,7 @@ func (reg *KratosRegistryClient) GetServiceInstances(ctx context.Context, servic
 //
 // schemes: 协议列表, 例如: http, https, grpc 等. 如果为空, 则返回所有端点. 如果不为空, 则返回指定协议的端点
 func (reg *KratosRegistryClient) GetServiceEndpoints(serviceInstances []*registry.ServiceInstance, schemes ...string) []string {
-	var endpoints []string
-	for i := range serviceInstances {
-		inst := serviceInstances[i]
-		for j := range inst.Endpoints {
-			ep := inst.Endpoints[j]
-			if len(schemes) == 0 {
-				endpoints = append(endpoints, ep)
-			} else {
-				for k := range schemes {
-					if strings.HasPrefix(ep, schemes[k]) {
-						endpoints = append(endpoints, ep)
-						break
-					}
-				}
-			}
-		}
-	}
-	return endpoints
+	return getEndpoints(serviceInstances, schemes...)
 }
 
 // GetServiceEndpointsByServiceName 从注册中心查询指定服务的实例列表, 并获取指定协议的端点
@@ -99,4 +217,47 @@ func (reg *KratosRegistryClient) GetServiceEndpointsByServiceName(ctx context.Co
 		return nil, nil
 	}
 	return reg.GetServiceEndpoints(serviceInstances, schemes...), nil
+}
+
+func (reg *KratosRegistryClient) Watch(ctx context.Context, serviceName string, options ...WatchOption) (*KratosRegistryWatchClient, error) {
+	opts := new(watchOptions)
+	for i := range options {
+		options[i].Apply(opts)
+	}
+
+	if opts.envs == nil {
+		opts.envs = make(map[string]struct{})
+	}
+
+	if opts.reconnectInterval == 0 {
+		opts.reconnectInterval = 5 * time.Second
+	}
+
+	watcher := newKratosRegistryWatchClient(reg.registry, serviceName, opts)
+	if err := watcher.start(ctx); err != nil {
+		return nil, err
+	}
+
+	return watcher, nil
+}
+
+func getEndpoints(serviceInstances []*registry.ServiceInstance, schemes ...string) []string {
+	var endpoints []string
+	for i := range serviceInstances {
+		inst := serviceInstances[i]
+		for j := range inst.Endpoints {
+			ep := inst.Endpoints[j]
+			if len(schemes) == 0 {
+				endpoints = append(endpoints, ep)
+			} else {
+				for k := range schemes {
+					if strings.HasPrefix(ep, schemes[k]) {
+						endpoints = append(endpoints, ep)
+						break
+					}
+				}
+			}
+		}
+	}
+	return endpoints
 }

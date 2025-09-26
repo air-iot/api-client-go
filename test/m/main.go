@@ -19,6 +19,7 @@ func main() {
 		sk       string
 		driverId string
 		groupId  string
+		tableId  string
 	)
 
 	flag.StringVar(&coreAddr, "core_addr", "", "core grpc地址")
@@ -29,13 +30,14 @@ func main() {
 	flag.StringVar(&sk, "sk", "", "sk")
 	flag.StringVar(&driverId, "driverId", "", "驱动id")
 	flag.StringVar(&groupId, "groupId", "", "组id")
+	flag.StringVar(&tableId, "tableId", "", "表ID")
 
 	// 解析命令行参数
 	flag.Parse()
 
 	cli1, clean, err := api_client_go.NewClient(nil, config.Config{
 		LiteMode:   true,
-		EtcdConfig: "/airiot/config/dev.json",
+		EtcdConfig: "/airiot/config/pro.json",
 		//Metadata:    map[string]string{"env": "aliyun"},
 		//Gateway:     coreAddr,
 		GatewayGrpc: coreAddr,
@@ -66,7 +68,12 @@ func main() {
 	}
 	defer clean()
 	var arr []map[string]interface{}
-	err = cli1.QueryTableSchemaDeviceByDriverAndGroup(context.Background(), project, driverId, groupId, &arr)
+
+	if tableId == "" {
+		err = cli1.QueryTableSchemaDeviceByDriverAndGroup(context.Background(), project, driverId, groupId, &arr)
+	} else {
+		_, err = cli1.QueryTableData(context.Background(), project, tableId, map[string]interface{}{}, &arr)
+	}
 	if err != nil {
 		panic(err)
 	}
