@@ -2613,9 +2613,17 @@ func (c *Client) UploadFile(ctx context.Context, projectId string, mediaLibraryP
 	return f.Url, nil
 }
 
+// DownloadFile 下载媒体库文件到本地
+//
+// projectId: 项目ID
+// path: 媒体库文件路径. /core/fileServer/mediaLibrary/projectId/{filePath} 或 {filePath}
+// saveFile: 保存到本地文件的路径
 func (c *Client) DownloadFile(ctx context.Context, projectId string, path string, saveFile string) error {
 	filePath := bytes.NewBuffer(make([]byte, 0, 128))
-	if strings.HasPrefix(path, "/core") {
+
+	if strings.HasPrefix(path, "/rest") {
+		filePath.WriteString(strings.TrimPrefix(path, "/rest"))
+	} else if strings.HasPrefix(path, "/core") {
 		filePath.WriteString(path)
 	} else {
 		filePath.WriteString("/core/fileServer/mediaLibrary/")
@@ -2626,7 +2634,12 @@ func (c *Client) DownloadFile(ctx context.Context, projectId string, path string
 		filePath.WriteString(path)
 	}
 
-	req, err := netHttp.NewRequest(netHttp.MethodGet, filePath.String(), nil)
+	fullPath := filePath.String()
+	if strings.HasPrefix(fullPath, "//") {
+		fullPath = fullPath[1:]
+	}
+
+	req, err := netHttp.NewRequest(netHttp.MethodGet, fullPath, nil)
 	if err != nil {
 		return errors.Wrap(err, "创建 http 请求失败")
 	}
@@ -2658,9 +2671,18 @@ func (c *Client) DownloadFile(ctx context.Context, projectId string, path string
 	return nil
 }
 
+// DownloadFileData 下载媒体库文件到本地
+//
+// projectId: 项目ID
+// path: 媒体库文件路径. /core/fileServer/mediaLibrary/projectId/{filePath} 或 {filePath}
+//
+// 返回值: 文件的字节数组, 错误
 func (c *Client) DownloadFileData(ctx context.Context, projectId string, path string) ([]byte, error) {
 	filePath := bytes.NewBuffer(make([]byte, 0, 128))
-	if strings.HasPrefix(path, "/core") {
+
+	if strings.HasPrefix(path, "/rest") {
+		filePath.WriteString(strings.TrimPrefix(path, "/rest"))
+	} else if strings.HasPrefix(path, "/core") {
 		filePath.WriteString(path)
 	} else {
 		filePath.WriteString("/core/fileServer/mediaLibrary/")
@@ -2671,14 +2693,19 @@ func (c *Client) DownloadFileData(ctx context.Context, projectId string, path st
 		filePath.WriteString(path)
 	}
 
-	req, err := netHttp.NewRequest(netHttp.MethodGet, filePath.String(), nil)
+	fullPath := filePath.String()
+	if strings.HasPrefix(fullPath, "//") {
+		fullPath = fullPath[1:]
+	}
+
+	req, err := netHttp.NewRequest(netHttp.MethodGet, fullPath, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "创建 http 请求失败")
 	}
 
 	resp, err := c.doRestRequest(ctx, projectId, req)
 	if err != nil {
-		return nil, errors.Wrapf(err, "下载文件 '%s' 失败", filePath.String())
+		return nil, errors.Wrapf(err, "下载文件 '%s' 失败", fullPath)
 	}
 
 	if resp.StatusCode != netHttp.StatusOK {
@@ -2692,7 +2719,7 @@ func (c *Client) DownloadFileData(ctx context.Context, projectId string, path st
 	defer bodyReader.Close()
 	_, err = io.Copy(writer, bodyReader)
 	if err != nil {
-		return nil, errors.Wrapf(err, "下载文件 '%s' 失败", filePath.String())
+		return nil, errors.Wrapf(err, "下载文件 '%s' 失败", fullPath)
 	}
 
 	return writer.Bytes(), nil

@@ -727,3 +727,30 @@ func Test_MediaLibraryDownloadFileData1(t *testing.T) {
 		t.Fatalf("写入文件失败, %+v", err)
 	}
 }
+
+func Test_MediaLibraryDownloadFile2(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+
+	f := "C:\\Users\\Administrator\\Desktop\\logo24.bmp"
+	err := cli.DownloadFile(ctx, "647d3f6db395ea47865d4b9e", "/rest//core/fileServer/mediaLibrary/647d3f6db395ea47865d4b9e/1/logo.bmp", f)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func Test_MediaLibraryDownloadFileData3(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+
+	f := "C:\\Users\\Administrator\\Desktop\\logo23.bmp"
+	data, err := cli.DownloadFileData(ctx, "647d3f6db395ea47865d4b9e", "/rest//core/fileServer/mediaLibrary/647d3f6db395ea47865d4b9e/1/logo.bmp")
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = os.WriteFile(f, data, 0755)
+	if err != nil {
+		t.Fatalf("写入文件失败, %+v", err)
+	}
+}
