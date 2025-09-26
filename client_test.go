@@ -643,3 +643,87 @@ func Test_MediaLibraryDirMkDir(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func Test_MediaLibraryUploadFile(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+
+	url, err := cli.UploadFile(ctx, "647d3f6db395ea47865d4b9e", "1", "logo.bmp", "cover", "C:\\Users\\Administrator\\Desktop\\logo.bmp")
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Logf("url: %s", url)
+}
+
+func Test_MediaLibraryUploadFileData(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+
+	f, err := os.OpenFile("C:\\Users\\Administrator\\Desktop\\logo.bmp", os.O_RDONLY, 0666)
+	if err != nil {
+		t.Fatalf("open file err: %v", err)
+	}
+	defer f.Close()
+
+	url, err := cli.UploadFileData(ctx, "647d3f6db395ea47865d4b9e", "1", "logo1.bmp", "cover", f)
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Logf("url: %s", url)
+}
+
+func Test_MediaLibraryDownloadFile(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+
+	f := "C:\\Users\\Administrator\\Desktop\\logo11.bmp"
+	err := cli.DownloadFile(ctx, "647d3f6db395ea47865d4b9e", "1/logo.bmp", f)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func Test_MediaLibraryDownloadFile1(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+
+	f := "C:\\Users\\Administrator\\Desktop\\logo12.bmp"
+	err := cli.DownloadFile(ctx, "647d3f6db395ea47865d4b9e", "/core/fileServer/mediaLibrary/647d3f6db395ea47865d4b9e/1/logo.bmp", f)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func Test_MediaLibraryDownloadFileData(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+
+	f := "C:\\Users\\Administrator\\Desktop\\logo21.bmp"
+	data, err := cli.DownloadFileData(ctx, "647d3f6db395ea47865d4b9e", "1/logo.bmp")
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = os.WriteFile(f, data, 0755)
+	if err != nil {
+		t.Fatalf("写入文件失败, %+v", err)
+	}
+}
+
+func Test_MediaLibraryDownloadFileData1(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+
+	f := "C:\\Users\\Administrator\\Desktop\\logo22.bmp"
+	data, err := cli.DownloadFileData(ctx, "647d3f6db395ea47865d4b9e", "/core/fileServer/mediaLibrary/647d3f6db395ea47865d4b9e/1/logo.bmp")
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = os.WriteFile(f, data, 0755)
+	if err != nil {
+		t.Fatalf("写入文件失败, %+v", err)
+	}
+}

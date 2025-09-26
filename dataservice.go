@@ -410,7 +410,7 @@ func (c *Client) DataInterfaceProxy(ctx context.Context, projectId, key string, 
 		return nil, errors.NewResErrorMsg(err, "请求错误")
 	}
 	if !res.GetStatus() {
-		return nil, errors.Wrap400Response(fmt.Errorf(res.GetDetail()), int(res.GetCode()), res.GetInfo())
+		return nil, errors.Wrap400Response(fmt.Errorf("%s", res.GetDetail()), int(res.GetCode()), "%s", res.GetInfo())
 	}
 	return &ProxyResult{
 		Code:    res.GetHttpCode(),

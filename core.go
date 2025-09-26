@@ -1,12 +1,16 @@
 package api_client_go
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
+	"mime/multipart"
 	netHttp "net/http"
 	"net/url"
+	"os"
 	"strconv"
+	"strings"
 
 	"github.com/air-iot/api-client-go/v4/api"
 	"github.com/air-iot/api-client-go/v4/apicontext"
@@ -17,6 +21,12 @@ import (
 	"github.com/air-iot/json"
 	"github.com/air-iot/logger"
 )
+
+// MediaFile 媒体库文件
+type MediaFile struct {
+	Name string `json:"name"`
+	Url  string `json:"url"`
+}
 
 func (c *Client) GetFileLicense(ctx context.Context, result interface{}) error {
 	cli, err := c.CoreClient.GetLicenseServiceClient()
@@ -2495,6 +2505,199 @@ func (c *Client) UploadFileFromBase64(ctx context.Context, projectId string, bas
 	return fileUrlStr, size, nil
 }
 
+// UploadFileData 上传文件到媒体库
+//
+// projectId: 项目ID
+// mediaLibraryPath: 媒体库目录
+// saveFileName: 保存文件名
+// action: 文件重复时的行为处理方式. cover: 覆盖, rename: 文件名自动加1
+// reader: 上传文件的 io.Reader
+//
+// 返回值: 文件访问地址, 错误
+func (c *Client) UploadFileData(ctx context.Context, projectId string, mediaLibraryPath, saveFileName, action string, reader io.Reader) (string, error) {
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("file", saveFileName)
+	if err != nil {
+		return "", errors.Wrapf(err, "创建 multipart 失改, 文件名 '%s'", saveFileName)
+	}
+	_, err = io.Copy(part, reader)
+
+	err = writer.Close()
+	if err != nil {
+		return "", errors.Wrapf(err, "读取上传文件 '%s' 失败", saveFileName)
+	}
+
+	req, err := netHttp.NewRequest(netHttp.MethodPost, fmt.Sprintf("/core/mediaLibrary/upload?action=%s&catalog=%s", action, mediaLibraryPath), body)
+	if err != nil {
+		return "", errors.Wrap(err, "创建 http 请求失败")
+	}
+
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	resp, err := c.doRestRequest(ctx, projectId, req)
+	if err != nil {
+		return "", errors.Wrapf(err, "上传文件 '%s' 失败", saveFileName)
+	}
+
+	if resp.StatusCode != netHttp.StatusOK {
+		err = parseFailedRestResponse(resp)
+		return "", fmt.Errorf("读取响应结果失败, %s, %+v", body, err)
+	}
+
+	f := MediaFile{}
+	err = parseSuccessRestResponse(resp, &f)
+	if err != nil {
+		return "", fmt.Errorf("解析文件上传结果失败, %+v", err)
+	} else if f.Url == "" {
+		return "", fmt.Errorf("返回文件访问地址为空")
+	}
+
+	return f.Url, nil
+}
+
+// UploadFile 上传文件到媒体库
+//
+// projectId: 项目ID
+// mediaLibraryPath: 媒体库目录
+// saveFileName: 保存文件名
+// action: 文件重复时的行为处理方式. cover: 覆盖, rename: 文件名自动加1
+// uploadFile: 本地待上传的文件路径
+//
+// 返回值: 文件访问地址, 错误
+func (c *Client) UploadFile(ctx context.Context, projectId string, mediaLibraryPath, saveFileName, action, uploadFile string) (string, error) {
+	file, err := os.Open(uploadFile)
+	if os.IsNotExist(err) {
+		return "", errors.Errorf("文件 '%s' 不存在", uploadFile)
+	} else if err != nil {
+		return "", errors.Wrapf(err, "打开文件 '%s' 失败", uploadFile)
+	}
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("file", saveFileName)
+	if err != nil {
+		return "", errors.Wrapf(err, "创建 multipart 失改, 文件名 '%s'", saveFileName)
+	}
+	_, err = io.Copy(part, file)
+
+	err = writer.Close()
+	if err != nil {
+		return "", errors.Wrapf(err, "读取上传文件 '%s' 失败", uploadFile)
+	}
+
+	req, err := netHttp.NewRequest(netHttp.MethodPost, fmt.Sprintf("/core/mediaLibrary/upload?action=%s&catalog=%s", action, mediaLibraryPath), body)
+	if err != nil {
+		return "", errors.Wrap(err, "创建 http 请求失败")
+	}
+
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	resp, err := c.doRestRequest(ctx, projectId, req)
+	if err != nil {
+		return "", errors.Wrapf(err, "上传文件 '%s' 失败", uploadFile)
+	}
+
+	if resp.StatusCode != netHttp.StatusOK {
+		err = parseFailedRestResponse(resp)
+		return "", fmt.Errorf("读取响应结果失败, %s, %+v", body, err)
+	}
+
+	f := MediaFile{}
+	err = parseSuccessRestResponse(resp, &f)
+	if err != nil {
+		return "", fmt.Errorf("解析文件上传结果失败, %+v", err)
+	} else if f.Url == "" {
+		return "", fmt.Errorf("返回文件访问地址为空")
+	}
+
+	return f.Url, nil
+}
+
+func (c *Client) DownloadFile(ctx context.Context, projectId string, path string, saveFile string) error {
+	filePath := bytes.NewBuffer(make([]byte, 0, 128))
+	if strings.HasPrefix(path, "/core") {
+		filePath.WriteString(path)
+	} else {
+		filePath.WriteString("/core/fileServer/mediaLibrary/")
+		filePath.WriteString(projectId)
+		if !strings.HasPrefix(path, "/") {
+			filePath.WriteString("/")
+		}
+		filePath.WriteString(path)
+	}
+
+	req, err := netHttp.NewRequest(netHttp.MethodGet, filePath.String(), nil)
+	if err != nil {
+		return errors.Wrap(err, "创建 http 请求失败")
+	}
+
+	resp, err := c.doRestRequest(ctx, projectId, req)
+	if err != nil {
+		err = parseFailedRestResponse(resp)
+		return errors.Wrapf(err, "下载文件 '%s' 失败", filePath.String())
+	}
+
+	if resp.StatusCode != netHttp.StatusOK {
+		err = parseFailedRestResponse(resp)
+		return fmt.Errorf("读取下载文件失败, %+v", err)
+	}
+
+	f, err := os.OpenFile(saveFile, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0755)
+	if err != nil {
+		return errors.Wrapf(err, "创建本地文件 '%s' 失败", saveFile)
+	}
+	defer f.Close()
+
+	bodyReader := resp.Body
+	defer bodyReader.Close()
+	_, err = io.Copy(f, bodyReader)
+	if err != nil {
+		return errors.Wrapf(err, "保存文件 '%s' 到本地失败", saveFile)
+	}
+
+	return nil
+}
+
+func (c *Client) DownloadFileData(ctx context.Context, projectId string, path string) ([]byte, error) {
+	filePath := bytes.NewBuffer(make([]byte, 0, 128))
+	if strings.HasPrefix(path, "/core") {
+		filePath.WriteString(path)
+	} else {
+		filePath.WriteString("/core/fileServer/mediaLibrary/")
+		filePath.WriteString(projectId)
+		if !strings.HasPrefix(path, "/") {
+			filePath.WriteString("/")
+		}
+		filePath.WriteString(path)
+	}
+
+	req, err := netHttp.NewRequest(netHttp.MethodGet, filePath.String(), nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "创建 http 请求失败")
+	}
+
+	resp, err := c.doRestRequest(ctx, projectId, req)
+	if err != nil {
+		return nil, errors.Wrapf(err, "下载文件 '%s' 失败", filePath.String())
+	}
+
+	if resp.StatusCode != netHttp.StatusOK {
+		err = parseFailedRestResponse(resp)
+		return nil, fmt.Errorf("读取下载文件失败, %+v", err)
+	}
+
+	writer := bytes.NewBuffer(make([]byte, 0, 1024))
+
+	bodyReader := resp.Body
+	defer bodyReader.Close()
+	_, err = io.Copy(writer, bodyReader)
+	if err != nil {
+		return nil, errors.Wrapf(err, "下载文件 '%s' 失败", filePath.String())
+	}
+
+	return writer.Bytes(), nil
+}
+
 func (c *Client) QueryMediaLibrary(ctx context.Context, projectId string, catalog string, isFile, addBase64 bool, query, result interface{}) (int, error) {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
@@ -2720,5 +2923,107 @@ func (c *Client) CallAIModel(ctx context.Context, projectId string, createData, 
 	if _, err := parseRes(err, res, result); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (c *Client) doRestRequest(ctx context.Context, projectId string, request *netHttp.Request) (*netHttp.Response, error) {
+	client, err := c.CoreClient.GetRestClient()
+	if err != nil {
+		return nil, errors.Wrapf(err, "获取 RestClient 失败")
+	}
+
+	token, err := c.GetToken()
+	if err != nil {
+		return nil, errors.Wrapf(err, "获取平台 Token 失败")
+	}
+
+	request.WithContext(ctx)
+	request.Header.Set(config.XRequestProject, projectId)
+	request.Header.Set(config.XRequestHeaderAuthorization, token)
+	return client.Do(request)
+}
+
+func parseFailedRestResponse(resp *netHttp.Response) error {
+	if resp == nil || resp.Body == nil {
+		return fmt.Errorf("响应结果为空")
+	}
+
+	respBody := resp.Body
+	defer respBody.Close()
+
+	bodyLen := 1024
+	if resp.ContentLength > 0 {
+		bodyLen = int(resp.ContentLength)
+	}
+
+	bodyReader := bytes.NewBuffer(make([]byte, 0, bodyLen))
+	_, err := io.Copy(bodyReader, respBody)
+	if err != nil {
+		return errors.Wrapf(err, "读取文件上传结果失败")
+	}
+
+	result := map[string]interface{}{}
+	respData := bodyReader.Bytes()
+	if len(respData) == 0 {
+		return fmt.Errorf("响应结果为空")
+	}
+
+	body := bodyReader.String()
+	err = json.Unmarshal(respData, &result)
+	if err != nil {
+		return fmt.Errorf("响应结果不是有效对象 '%s'", body)
+	}
+
+	var message string
+	var detail string
+
+	messageRaw, ok := result["message"]
+	if ok {
+		if v, ok := messageRaw.(string); ok {
+			message = v
+		}
+	}
+
+	detailRaw, ok := result["detail"]
+	if ok {
+		if v, ok := detailRaw.(string); ok {
+			detail = v
+		}
+	}
+
+	if message == "" && detail == "" {
+		return fmt.Errorf("未知的响应结果, %s", body)
+	} else if message != "" && detail == "" {
+		return fmt.Errorf("%s", message)
+	} else {
+		return fmt.Errorf("%s, %s", message, detail)
+	}
+}
+
+func parseSuccessRestResponse(resp *netHttp.Response, target interface{}) error {
+	respBody := resp.Body
+	defer respBody.Close()
+
+	bodyLen := 1024
+	if resp.ContentLength > 0 {
+		bodyLen = int(resp.ContentLength)
+	}
+
+	bodyReader := bytes.NewBuffer(make([]byte, 0, bodyLen))
+	_, err := io.Copy(bodyReader, respBody)
+	if err != nil {
+		return fmt.Errorf("读取响应结果失败, %+v", err)
+	}
+
+	respData := bodyReader.Bytes()
+	if len(respData) == 0 {
+		return fmt.Errorf("响应结果为空")
+	}
+
+	err = json.Unmarshal(respData, target)
+	if err != nil {
+		return fmt.Errorf("响应结果不是有效对象, %+v", err)
+	}
+
 	return nil
 }

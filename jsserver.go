@@ -28,6 +28,6 @@ func (c *Client) RunJsScript(ctx context.Context, variables interface{}, script 
 	if res.GetStatus() {
 		return res.GetResult(), nil
 	} else {
-		return nil, errors.Wrap(fmt.Errorf(res.GetDetail()), res.GetInfo())
+		return nil, errors.Wrap(fmt.Errorf("%s", res.GetDetail()), res.GetInfo())
 	}
 }
