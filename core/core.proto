@@ -173,6 +173,7 @@ service MediaLibraryService {
   rpc Query (MediaLibraryQueryRequest) returns (api.Response) {}
   rpc UploadFromUrl(MediaLibraryUploadFromUrlRequest) returns (api.Response) {}
   rpc UploadFromBase64(MediaLibraryUploadFromBase64Request) returns (api.Response) {}
+  rpc Mkdir(MediaLibraryDirMkDirRequest) returns (api.Response) {}
 }
 
 service MediaLibraryDirSettingService {
@@ -266,4 +267,9 @@ message MediaLibraryUploadFromBase64Request {
 
 message MediaLibraryDirSettingQueryByPathRequest {
   string path = 1;
+}
+
+message MediaLibraryDirMkDirRequest {
+  string catalog = 1;
+  string name = 2;
 }

@@ -2521,6 +2521,27 @@ func (c *Client) QueryMediaLibrary(ctx context.Context, projectId string, catalo
 	return int(res.GetCount()), nil
 }
 
+func (c *Client) MediaLibraryMkdir(ctx context.Context, projectId string, catalog, dirName string) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	cli, err := c.CoreClient.GetMediaLibraryServiceClient()
+	if err != nil {
+		return err
+	}
+	res, err := cli.Mkdir(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&core.MediaLibraryDirMkDirRequest{
+			Catalog: catalog,
+			Name:    dirName,
+		})
+	_, err = parseRes(err, res, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // CreateMediaLibraryDirSetting 媒体库文件夹设置
 func (c *Client) CreateMediaLibraryDirSetting(ctx context.Context, projectId string, createData, result interface{}) error {
 	if projectId == "" {

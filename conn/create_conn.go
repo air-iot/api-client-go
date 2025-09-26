@@ -70,7 +70,7 @@ func CreateConn(serviceName string, cfg config.Config, r *etcd.Registry, opts ..
 			),
 			grpc.WithOptions(opts...),
 			grpc.WithPrintDiscoveryDebugLog(cfg.Debug),
-			grpc.WithNodeFilter(filter.Metadata(metadataTmp)),
+			//grpc.WithNodeFilter(filter.Metadata(metadataTmp)),
 			grpc.WithTimeout(time.Second*time.Duration(cfg.Timeout)),
 		)
 		if err != nil {
