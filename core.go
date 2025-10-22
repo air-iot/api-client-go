@@ -3,14 +3,18 @@ package api_client_go
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
 	"fmt"
 	"io"
-	"mime/multipart"
+	"maps"
 	netHttp "net/http"
+	"net/textproto"
 	"net/url"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/air-iot/api-client-go/v4/api"
 	"github.com/air-iot/api-client-go/v4/apicontext"
@@ -2505,6 +2509,100 @@ func (c *Client) UploadFileFromBase64(ctx context.Context, projectId string, bas
 	return fileUrlStr, size, nil
 }
 
+var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
+
+func escapeQuotes(s string) string {
+	return quoteEscaper.Replace(s)
+}
+
+var _ io.Reader = (*MultipartReader)(nil)
+
+type MultipartReader struct {
+	headers  textproto.MIMEHeader
+	boundary string
+	body     io.Reader
+	header   io.Reader
+	tailer   io.Reader
+}
+
+func NewMultipart(fieldName, filename string, reader io.Reader) (*MultipartReader, error) {
+	var buf [30]byte
+	_, err := io.ReadFull(rand.Reader, buf[:])
+	if err != nil {
+		return nil, fmt.Errorf("生成 boundary 失败, %+v", err)
+	}
+
+	boundary := fmt.Sprintf("%x", buf[:])
+	if strings.ContainsAny(boundary, `()<>@,;:\"/[]?= `) {
+		boundary = `"` + boundary + `"`
+	}
+
+	h := textproto.MIMEHeader{}
+	h.Set("Content-Type", "application/octet-stream")
+	h.Set("Content-Disposition",
+		fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
+			escapeQuotes(fieldName), escapeQuotes(filename)))
+
+	headerReader := bytes.NewBuffer(make([]byte, 0, 1024))
+	headerReader.WriteString(fmt.Sprintf("--%s\r\n", boundary))
+
+	for _, k := range slices.Sorted(maps.Keys(h)) {
+		for _, v := range h[k] {
+			headerReader.WriteString(fmt.Sprintf("%s: %s\r\n", k, v))
+		}
+	}
+	headerReader.WriteString("\r\n")
+
+	return &MultipartReader{
+		headers:  h,
+		boundary: boundary,
+		body:     reader,
+		header:   headerReader,
+		tailer:   bytes.NewReader([]byte(fmt.Sprintf("\r\n--%s--\r\n", boundary))),
+	}, nil
+}
+
+func (m *MultipartReader) FormDataContentType() string {
+	return fmt.Sprintf("multipart/form-data; boundary=%s", m.boundary)
+}
+
+func (m *MultipartReader) Read(p []byte) (n int, err error) {
+	if m.header != nil {
+		n, err = m.header.Read(p)
+		if err != nil && err != io.EOF {
+			return n, err
+		} else if n != 0 {
+			return n, nil
+		} else if err == io.EOF {
+			m.header = nil
+		}
+	}
+
+	if m.body != nil {
+		n, err = m.body.Read(p)
+		if err != nil && err != io.EOF {
+			return n, err
+		} else if n != 0 {
+			return n, nil
+		} else if err == io.EOF {
+			m.body = nil
+		}
+	}
+
+	if m.tailer != nil {
+		n, err = m.tailer.Read(p)
+		if err != nil && err != io.EOF {
+			return n, err
+		} else if n != 0 {
+			return n, nil
+		} else if err == io.EOF {
+			m.tailer = nil
+		}
+	}
+
+	return 0, io.EOF
+}
+
 // UploadFileData 上传文件到媒体库
 //
 // projectId: 项目ID
@@ -2515,17 +2613,22 @@ func (c *Client) UploadFileFromBase64(ctx context.Context, projectId string, bas
 //
 // 返回值: 文件访问地址, 错误
 func (c *Client) UploadFileData(ctx context.Context, projectId string, mediaLibraryPath, saveFileName, action string, reader io.Reader) (string, error) {
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile("file", saveFileName)
-	if err != nil {
-		return "", errors.Wrapf(err, "创建 multipart 失改, 文件名 '%s'", saveFileName)
-	}
-	_, err = io.Copy(part, reader)
+	//body := &bytes.Buffer{}
+	//writer := multipart.NewWriter(body)
+	//part, err := writer.CreateFormFile("file", saveFileName)
+	//if err != nil {
+	//	return "", errors.Wrapf(err, "创建 multipart 失改, 文件名 '%s'", saveFileName)
+	//}
+	//_, err = io.Copy(part, reader)
+	//
+	//err = writer.Close()
+	//if err != nil {
+	//	return "", errors.Wrapf(err, "读取上传文件 '%s' 失败", saveFileName)
+	//}
 
-	err = writer.Close()
+	body, err := NewMultipart("file", saveFileName, reader)
 	if err != nil {
-		return "", errors.Wrapf(err, "读取上传文件 '%s' 失败", saveFileName)
+		return "", fmt.Errorf("创建 multipart 失败, %+v", err)
 	}
 
 	req, err := netHttp.NewRequest(netHttp.MethodPost, fmt.Sprintf("/core/mediaLibrary/upload?action=%s&catalog=%s", action, mediaLibraryPath), body)
@@ -2533,7 +2636,7 @@ func (c *Client) UploadFileData(ctx context.Context, projectId string, mediaLibr
 		return "", errors.Wrap(err, "创建 http 请求失败")
 	}
 
-	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("Content-Type", body.FormDataContentType())
 	resp, err := c.doRestRequest(ctx, projectId, req)
 	if err != nil {
 		return "", errors.Wrapf(err, "上传文件 '%s' 失败", saveFileName)
@@ -2573,25 +2676,30 @@ func (c *Client) UploadFile(ctx context.Context, projectId string, mediaLibraryP
 	}
 	defer file.Close()
 
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile("file", saveFileName)
-	if err != nil {
-		return "", errors.Wrapf(err, "创建 multipart 失改, 文件名 '%s'", saveFileName)
-	}
-	_, err = io.Copy(part, file)
+	//body := &bytes.Buffer{}
+	//writer := multipart.NewWriter(body)
+	//part, err := writer.CreateFormFile("file", saveFileName)
+	//if err != nil {
+	//	return "", errors.Wrapf(err, "创建 multipart 失改, 文件名 '%s'", saveFileName)
+	//}
+	//_, err = io.Copy(part, file)
+	//
+	//err = writer.Close()
+	//if err != nil {
+	//	return "", errors.Wrapf(err, "读取上传文件 '%s' 失败", uploadFile)
+	//}
 
-	err = writer.Close()
+	body, err := NewMultipart("file", saveFileName, file)
 	if err != nil {
-		return "", errors.Wrapf(err, "读取上传文件 '%s' 失败", uploadFile)
+		return "", fmt.Errorf("创建 multipart 失败, %+v", err)
 	}
 
 	req, err := netHttp.NewRequest(netHttp.MethodPost, fmt.Sprintf("/core/mediaLibrary/upload?action=%s&catalog=%s", action, mediaLibraryPath), body)
 	if err != nil {
 		return "", errors.Wrap(err, "创建 http 请求失败")
 	}
+	req.Header.Set("Content-Type", body.FormDataContentType())
 
-	req.Header.Set("Content-Type", writer.FormDataContentType())
 	resp, err := c.doRestRequest(ctx, projectId, req)
 	if err != nil {
 		return "", errors.Wrapf(err, "上传文件 '%s' 失败", uploadFile)
@@ -2967,7 +3075,16 @@ func (c *Client) doRestRequest(ctx context.Context, projectId string, request *n
 	request.WithContext(ctx)
 	request.Header.Set(config.XRequestProject, projectId)
 	request.Header.Set(config.XRequestHeaderAuthorization, token)
-	return client.Do(request)
+	resp, err := client.Do(request)
+	if err != nil && strings.Contains(err.Error(), "NODE_NOT_FOUND") {
+		select {
+		case <-ctx.Done():
+			return nil, context.DeadlineExceeded
+		case <-time.After(time.Second * 3):
+			return client.Do(request)
+		}
+	}
+	return resp, err
 }
 
 func parseFailedRestResponse(resp *netHttp.Response) error {
