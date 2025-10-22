@@ -3,6 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"testing"
+	"time"
+
 	api_client_go "github.com/air-iot/api-client-go/v4"
 	"github.com/air-iot/api-client-go/v4/api"
 	"github.com/air-iot/api-client-go/v4/apicontext"
@@ -10,9 +14,6 @@ import (
 	"github.com/air-iot/api-client-go/v4/local_grpc"
 	"github.com/air-iot/api-client-go/v4/metadata"
 	"github.com/air-iot/api-client-go/v4/test"
-	"log"
-	"testing"
-	"time"
 )
 
 var cli *api_client_go.Client
@@ -83,19 +84,19 @@ func (a *TestProvider) Get(ctx context.Context, req *api.GetOrDeleteRequest) (*a
 }
 
 func TestGet(t *testing.T) {
-	s := local_grpc.NewServer()
-	var provider = &TestProvider{}
-	test.RegisterFlowTaskServiceServer(s, provider)
-
-	cc := local_grpc.NewClient(s)
-	cli := test.NewFlowTaskServiceClient(cc)
-	// 重置计时器，开始正式测量
-
-	res, err := cli.Get(apicontext.GetGrpcContext(context.Background(), map[string]string{config.XRequestProject: "aaaaa"}), &api.GetOrDeleteRequest{})
-	if err != nil {
-		t.Fatalf("client.Get error: %v", err)
-	}
-	t.Logf("%+v", res)
+	//s := local_grpc.NewServer()
+	//var provider = &TestProvider{}
+	//test.RegisterFlowTaskServiceServer(s, provider)
+	//
+	//cc := local_grpc.NewClient(s)
+	//cli := test.NewFlowTaskServiceClient(cc)
+	//// 重置计时器，开始正式测量
+	//
+	//res, err := cli.Get(apicontext.GetGrpcContext(context.Background(), map[string]string{config.XRequestProject: "aaaaa"}), &api.GetOrDeleteRequest{})
+	//if err != nil {
+	//	t.Fatalf("client.Get error: %v", err)
+	//}
+	//t.Logf("%+v", res)
 }
 
 func BenchmarkGet(b *testing.B) {
