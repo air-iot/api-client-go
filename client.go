@@ -22,6 +22,7 @@ import (
 	"github.com/air-iot/api-client-go/v4/jsserver"
 	"github.com/air-iot/api-client-go/v4/live"
 	"github.com/air-iot/api-client-go/v4/local_grpc"
+	"github.com/air-iot/api-client-go/v4/record"
 	"github.com/air-iot/api-client-go/v4/report"
 	"github.com/air-iot/api-client-go/v4/spm"
 	"github.com/air-iot/api-client-go/v4/sync"
@@ -59,6 +60,7 @@ type Client struct {
 	SyslogClient        *syslog.Client
 	ComputeRecordClient *computerecord.Client
 	AIClient            *ai.Client
+	RecordClient        *record.Client
 	Service             *Service
 }
 
@@ -155,6 +157,12 @@ func NewLocalClient(cfg config.Config, ss *local_grpc.Server) (*Client, func(), 
 	if err != nil {
 		return nil, nil, err
 	}
+
+	recordClient, cleanRecord, err := record.NewLocalClient(cfg, cc)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	a := &Client{
 		Config: cfg,
 		//RegistryClient:    NewKartosRegistryClient(cli),
@@ -175,6 +183,7 @@ func NewLocalClient(cfg config.Config, ss *local_grpc.Server) (*Client, func(), 
 		SyslogClient:        syslogClient,
 		ComputeRecordClient: computeRecordClient,
 		AIClient:            aiClient,
+		RecordClient:        recordClient,
 	}
 	a.Service = newService(a)
 	return a, func() {
@@ -194,6 +203,7 @@ func NewLocalClient(cfg config.Config, ss *local_grpc.Server) (*Client, func(), 
 		cleanSyslog()
 		cleanComputeRecord()
 		cleanAI()
+		cleanRecord()
 	}, nil
 }
 
@@ -327,6 +337,10 @@ func newGrpcClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), er
 	if err != nil {
 		return nil, nil, err
 	}
+	recordClient, cleanRecord, err := record.NewClient(cfg, r, cred, httpCred)
+	if err != nil {
+		return nil, nil, err
+	}
 	a := &Client{
 		Config:              cfg,
 		AuthClient:          authCli,
@@ -346,6 +360,7 @@ func newGrpcClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), er
 		SyslogClient:        syslogClient,
 		ComputeRecordClient: computeRecordClient,
 		AIClient:            aiClient,
+		RecordClient:        recordClient,
 	}
 	if !cfg.LiteMode {
 		a.RegistryClient = NewKartosRegistryClient(cli)
@@ -368,6 +383,7 @@ func newGrpcClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), er
 		cleanSyslog()
 		cleanComputeRecord()
 		cleanAI()
+		cleanRecord()
 	}, nil
 }
 
