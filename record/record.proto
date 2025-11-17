@@ -14,16 +14,32 @@ option go_package = "./record;record";
 service RecordService {
   // 删除报警录制相关信息. 包括录制视频和抓图信息
   rpc DeleteWarning (DeleteWarningRecordRequest) returns (api.Response) {}
+  // 批量删除报警录制相关信息. 包括录制视频和抓图信息
+  rpc BatchDeleteWarnings (BatchDeleteWarningRecordRequest) returns (api.Response) {}
+
   // 删除报警录制视频信息
   rpc DeleteWarningPlayback (DeleteWarningRecordRequest) returns (api.Response) {}
+  // 批量删除报警录制视频信息
+  rpc BatchDeleteWarningPlaybacks (BatchDeleteWarningRecordRequest) returns (api.Response) {}
+
   // 删除报警录制抓图信息
   rpc DeleteWarningCapture (DeleteWarningRecordRequest) returns (api.Response) {}
+  // 批量删除报警录制抓图信息
+  rpc BatchDeleteWarningCaptures (BatchDeleteWarningRecordRequest) returns (api.Response) {}
 }
 
 // 删除报警录制相关信息. 同时删除报警录制的视频和抓图信息
 message DeleteWarningRecordRequest {
   // 报警ID
   string warningId = 1;
+  // 是否删除录制视频和抓图
+  bool deleteFiles = 2;
+}
+
+// 批量删除报警录制相关信息. 同时删除报警录制的视频和抓图信息
+message BatchDeleteWarningRecordRequest {
+  // 报警ID
+  repeated string warningIds = 1;
   // 是否删除录制视频和抓图
   bool deleteFiles = 2;
 }

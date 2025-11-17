@@ -25,9 +25,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	RecordService_DeleteWarning_FullMethodName         = "/record.RecordService/DeleteWarning"
-	RecordService_DeleteWarningPlayback_FullMethodName = "/record.RecordService/DeleteWarningPlayback"
-	RecordService_DeleteWarningCapture_FullMethodName  = "/record.RecordService/DeleteWarningCapture"
+	RecordService_DeleteWarning_FullMethodName               = "/record.RecordService/DeleteWarning"
+	RecordService_BatchDeleteWarnings_FullMethodName         = "/record.RecordService/BatchDeleteWarnings"
+	RecordService_DeleteWarningPlayback_FullMethodName       = "/record.RecordService/DeleteWarningPlayback"
+	RecordService_BatchDeleteWarningPlaybacks_FullMethodName = "/record.RecordService/BatchDeleteWarningPlaybacks"
+	RecordService_DeleteWarningCapture_FullMethodName        = "/record.RecordService/DeleteWarningCapture"
+	RecordService_BatchDeleteWarningCaptures_FullMethodName  = "/record.RecordService/BatchDeleteWarningCaptures"
 )
 
 // RecordServiceClient is the client API for RecordService service.
@@ -36,10 +39,16 @@ const (
 type RecordServiceClient interface {
 	// 删除报警录制相关信息. 包括录制视频和抓图信息
 	DeleteWarning(ctx context.Context, in *DeleteWarningRecordRequest, opts ...grpc.CallOption) (*api.Response, error)
+	// 批量删除报警录制相关信息. 包括录制视频和抓图信息
+	BatchDeleteWarnings(ctx context.Context, in *BatchDeleteWarningRecordRequest, opts ...grpc.CallOption) (*api.Response, error)
 	// 删除报警录制视频信息
 	DeleteWarningPlayback(ctx context.Context, in *DeleteWarningRecordRequest, opts ...grpc.CallOption) (*api.Response, error)
+	// 批量删除报警录制视频信息
+	BatchDeleteWarningPlaybacks(ctx context.Context, in *BatchDeleteWarningRecordRequest, opts ...grpc.CallOption) (*api.Response, error)
 	// 删除报警录制抓图信息
 	DeleteWarningCapture(ctx context.Context, in *DeleteWarningRecordRequest, opts ...grpc.CallOption) (*api.Response, error)
+	// 批量删除报警录制抓图信息
+	BatchDeleteWarningCaptures(ctx context.Context, in *BatchDeleteWarningRecordRequest, opts ...grpc.CallOption) (*api.Response, error)
 }
 
 type recordServiceClient struct {
@@ -60,10 +69,30 @@ func (c *recordServiceClient) DeleteWarning(ctx context.Context, in *DeleteWarni
 	return out, nil
 }
 
+func (c *recordServiceClient) BatchDeleteWarnings(ctx context.Context, in *BatchDeleteWarningRecordRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, RecordService_BatchDeleteWarnings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *recordServiceClient) DeleteWarningPlayback(ctx context.Context, in *DeleteWarningRecordRequest, opts ...grpc.CallOption) (*api.Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(api.Response)
 	err := c.cc.Invoke(ctx, RecordService_DeleteWarningPlayback_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *recordServiceClient) BatchDeleteWarningPlaybacks(ctx context.Context, in *BatchDeleteWarningRecordRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, RecordService_BatchDeleteWarningPlaybacks_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,16 +109,32 @@ func (c *recordServiceClient) DeleteWarningCapture(ctx context.Context, in *Dele
 	return out, nil
 }
 
+func (c *recordServiceClient) BatchDeleteWarningCaptures(ctx context.Context, in *BatchDeleteWarningRecordRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, RecordService_BatchDeleteWarningCaptures_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RecordServiceServer is the server API for RecordService service.
 // All implementations must embed UnimplementedRecordServiceServer
 // for forward compatibility.
 type RecordServiceServer interface {
 	// 删除报警录制相关信息. 包括录制视频和抓图信息
 	DeleteWarning(context.Context, *DeleteWarningRecordRequest) (*api.Response, error)
+	// 批量删除报警录制相关信息. 包括录制视频和抓图信息
+	BatchDeleteWarnings(context.Context, *BatchDeleteWarningRecordRequest) (*api.Response, error)
 	// 删除报警录制视频信息
 	DeleteWarningPlayback(context.Context, *DeleteWarningRecordRequest) (*api.Response, error)
+	// 批量删除报警录制视频信息
+	BatchDeleteWarningPlaybacks(context.Context, *BatchDeleteWarningRecordRequest) (*api.Response, error)
 	// 删除报警录制抓图信息
 	DeleteWarningCapture(context.Context, *DeleteWarningRecordRequest) (*api.Response, error)
+	// 批量删除报警录制抓图信息
+	BatchDeleteWarningCaptures(context.Context, *BatchDeleteWarningRecordRequest) (*api.Response, error)
 	mustEmbedUnimplementedRecordServiceServer()
 }
 
@@ -103,11 +148,20 @@ type UnimplementedRecordServiceServer struct{}
 func (UnimplementedRecordServiceServer) DeleteWarning(context.Context, *DeleteWarningRecordRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteWarning not implemented")
 }
+func (UnimplementedRecordServiceServer) BatchDeleteWarnings(context.Context, *BatchDeleteWarningRecordRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BatchDeleteWarnings not implemented")
+}
 func (UnimplementedRecordServiceServer) DeleteWarningPlayback(context.Context, *DeleteWarningRecordRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteWarningPlayback not implemented")
 }
+func (UnimplementedRecordServiceServer) BatchDeleteWarningPlaybacks(context.Context, *BatchDeleteWarningRecordRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BatchDeleteWarningPlaybacks not implemented")
+}
 func (UnimplementedRecordServiceServer) DeleteWarningCapture(context.Context, *DeleteWarningRecordRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteWarningCapture not implemented")
+}
+func (UnimplementedRecordServiceServer) BatchDeleteWarningCaptures(context.Context, *BatchDeleteWarningRecordRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BatchDeleteWarningCaptures not implemented")
 }
 func (UnimplementedRecordServiceServer) mustEmbedUnimplementedRecordServiceServer() {}
 func (UnimplementedRecordServiceServer) testEmbeddedByValue()                       {}
@@ -148,6 +202,24 @@ func _RecordService_DeleteWarning_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RecordService_BatchDeleteWarnings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatchDeleteWarningRecordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RecordServiceServer).BatchDeleteWarnings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RecordService_BatchDeleteWarnings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RecordServiceServer).BatchDeleteWarnings(ctx, req.(*BatchDeleteWarningRecordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _RecordService_DeleteWarningPlayback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteWarningRecordRequest)
 	if err := dec(in); err != nil {
@@ -162,6 +234,24 @@ func _RecordService_DeleteWarningPlayback_Handler(srv interface{}, ctx context.C
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RecordServiceServer).DeleteWarningPlayback(ctx, req.(*DeleteWarningRecordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RecordService_BatchDeleteWarningPlaybacks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatchDeleteWarningRecordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RecordServiceServer).BatchDeleteWarningPlaybacks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RecordService_BatchDeleteWarningPlaybacks_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RecordServiceServer).BatchDeleteWarningPlaybacks(ctx, req.(*BatchDeleteWarningRecordRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -184,6 +274,24 @@ func _RecordService_DeleteWarningCapture_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RecordService_BatchDeleteWarningCaptures_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatchDeleteWarningRecordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RecordServiceServer).BatchDeleteWarningCaptures(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RecordService_BatchDeleteWarningCaptures_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RecordServiceServer).BatchDeleteWarningCaptures(ctx, req.(*BatchDeleteWarningRecordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RecordService_ServiceDesc is the grpc.ServiceDesc for RecordService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -196,12 +304,24 @@ var RecordService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _RecordService_DeleteWarning_Handler,
 		},
 		{
+			MethodName: "BatchDeleteWarnings",
+			Handler:    _RecordService_BatchDeleteWarnings_Handler,
+		},
+		{
 			MethodName: "DeleteWarningPlayback",
 			Handler:    _RecordService_DeleteWarningPlayback_Handler,
 		},
 		{
+			MethodName: "BatchDeleteWarningPlaybacks",
+			Handler:    _RecordService_BatchDeleteWarningPlaybacks_Handler,
+		},
+		{
 			MethodName: "DeleteWarningCapture",
 			Handler:    _RecordService_DeleteWarningCapture_Handler,
+		},
+		{
+			MethodName: "BatchDeleteWarningCaptures",
+			Handler:    _RecordService_BatchDeleteWarningCaptures_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

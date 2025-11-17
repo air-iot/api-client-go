@@ -2,6 +2,7 @@ package record
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/air-iot/api-client-go/v4/api"
@@ -133,9 +134,35 @@ func (c *Client) DeleteWarning(ctx context.Context, projectId, warningId string,
 		return nil, err
 	}
 
+	if projectId == "" {
+		return nil, fmt.Errorf("项目ID不能为空")
+	} else if warningId == "" {
+		return nil, fmt.Errorf("报警ID不能为空")
+	}
+
 	return cli.DeleteWarning(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
 		&DeleteWarningRecordRequest{
 			WarningId:   warningId,
+			DeleteFiles: deleteFiles,
+		}, opts...)
+}
+
+// BatchDeleteWarnings 批量删除报警录制相关信息. 包括录制视频和抓图信息
+func (c *Client) BatchDeleteWarnings(ctx context.Context, projectId string, warningIds []string, deleteFiles bool, opts ...ggrpc.CallOption) (*api.Response, error) {
+	cli, err := c.GetRecordServiceClient()
+	if err != nil {
+		return nil, err
+	}
+
+	if projectId == "" {
+		return nil, fmt.Errorf("项目ID不能为空")
+	} else if len(warningIds) == 0 {
+		return nil, fmt.Errorf("报警ID不能为空")
+	}
+
+	return cli.BatchDeleteWarnings(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&BatchDeleteWarningRecordRequest{
+			WarningIds:  warningIds,
 			DeleteFiles: deleteFiles,
 		}, opts...)
 }
@@ -147,8 +174,33 @@ func (c *Client) DeleteWarningPlayback(ctx context.Context, projectId, warningId
 		return nil, err
 	}
 
+	if projectId == "" {
+		return nil, fmt.Errorf("项目ID不能为空")
+	} else if warningId == "" {
+		return nil, fmt.Errorf("报警ID不能为空")
+	}
+
 	return cli.DeleteWarningPlayback(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &DeleteWarningRecordRequest{
 		WarningId:   warningId,
+		DeleteFiles: deleteFiles,
+	}, opts...)
+}
+
+// BatchDeleteWarningPlaybacks 批量删除报警录制视频信息
+func (c *Client) BatchDeleteWarningPlaybacks(ctx context.Context, projectId string, warningIds []string, deleteFiles bool, opts ...ggrpc.CallOption) (*api.Response, error) {
+	cli, err := c.GetRecordServiceClient()
+	if err != nil {
+		return nil, err
+	}
+
+	if projectId == "" {
+		return nil, fmt.Errorf("项目ID不能为空")
+	} else if len(warningIds) == 0 {
+		return nil, fmt.Errorf("报警ID不能为空")
+	}
+
+	return cli.BatchDeleteWarningPlaybacks(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &BatchDeleteWarningRecordRequest{
+		WarningIds:  warningIds,
 		DeleteFiles: deleteFiles,
 	}, opts...)
 }
@@ -160,8 +212,33 @@ func (c *Client) DeleteWarningCapture(ctx context.Context, projectId, warningId 
 		return nil, err
 	}
 
+	if projectId == "" {
+		return nil, fmt.Errorf("项目ID不能为空")
+	} else if warningId == "" {
+		return nil, fmt.Errorf("报警ID不能为空")
+	}
+
 	return cli.DeleteWarningCapture(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &DeleteWarningRecordRequest{
 		WarningId:   warningId,
+		DeleteFiles: deleteFiles,
+	}, opts...)
+}
+
+// BatchDeleteWarningCaptures 批量删除报警录制抓图信息
+func (c *Client) BatchDeleteWarningCaptures(ctx context.Context, projectId string, warningIds []string, deleteFiles bool, opts ...ggrpc.CallOption) (*api.Response, error) {
+	cli, err := c.GetRecordServiceClient()
+	if err != nil {
+		return nil, err
+	}
+
+	if projectId == "" {
+		return nil, fmt.Errorf("项目ID不能为空")
+	} else if len(warningIds) == 0 {
+		return nil, fmt.Errorf("报警ID不能为空")
+	}
+
+	return cli.BatchDeleteWarningCaptures(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &BatchDeleteWarningRecordRequest{
+		WarningIds:  warningIds,
 		DeleteFiles: deleteFiles,
 	}, opts...)
 }

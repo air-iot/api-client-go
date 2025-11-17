@@ -82,6 +82,61 @@ func (x *DeleteWarningRecordRequest) GetDeleteFiles() bool {
 	return false
 }
 
+// 批量删除报警录制相关信息. 同时删除报警录制的视频和抓图信息
+type BatchDeleteWarningRecordRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 报警ID
+	WarningIds []string `protobuf:"bytes,1,rep,name=warningIds,proto3" json:"warningIds,omitempty"`
+	// 是否删除录制视频和抓图
+	DeleteFiles   bool `protobuf:"varint,2,opt,name=deleteFiles,proto3" json:"deleteFiles,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BatchDeleteWarningRecordRequest) Reset() {
+	*x = BatchDeleteWarningRecordRequest{}
+	mi := &file_record_record_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BatchDeleteWarningRecordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BatchDeleteWarningRecordRequest) ProtoMessage() {}
+
+func (x *BatchDeleteWarningRecordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_record_record_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BatchDeleteWarningRecordRequest.ProtoReflect.Descriptor instead.
+func (*BatchDeleteWarningRecordRequest) Descriptor() ([]byte, []int) {
+	return file_record_record_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *BatchDeleteWarningRecordRequest) GetWarningIds() []string {
+	if x != nil {
+		return x.WarningIds
+	}
+	return nil
+}
+
+func (x *BatchDeleteWarningRecordRequest) GetDeleteFiles() bool {
+	if x != nil {
+		return x.DeleteFiles
+	}
+	return false
+}
+
 var File_record_record_proto protoreflect.FileDescriptor
 
 const file_record_record_proto_rawDesc = "" +
@@ -89,11 +144,19 @@ const file_record_record_proto_rawDesc = "" +
 	"\x13record/record.proto\x12\x06record\x1a\rapi/api.proto\"\\\n" +
 	"\x1aDeleteWarningRecordRequest\x12\x1c\n" +
 	"\twarningId\x18\x01 \x01(\tR\twarningId\x12 \n" +
-	"\vdeleteFiles\x18\x02 \x01(\bR\vdeleteFiles2\xf0\x01\n" +
+	"\vdeleteFiles\x18\x02 \x01(\bR\vdeleteFiles\"c\n" +
+	"\x1fBatchDeleteWarningRecordRequest\x12\x1e\n" +
+	"\n" +
+	"warningIds\x18\x01 \x03(\tR\n" +
+	"warningIds\x12 \n" +
+	"\vdeleteFiles\x18\x02 \x01(\bR\vdeleteFiles2\xf2\x03\n" +
 	"\rRecordService\x12D\n" +
-	"\rDeleteWarning\x12\".record.DeleteWarningRecordRequest\x1a\r.api.Response\"\x00\x12L\n" +
-	"\x15DeleteWarningPlayback\x12\".record.DeleteWarningRecordRequest\x1a\r.api.Response\"\x00\x12K\n" +
-	"\x14DeleteWarningCapture\x12\".record.DeleteWarningRecordRequest\x1a\r.api.Response\"\x00B\x11Z\x0f./record;recordb\x06proto3"
+	"\rDeleteWarning\x12\".record.DeleteWarningRecordRequest\x1a\r.api.Response\"\x00\x12O\n" +
+	"\x13BatchDeleteWarnings\x12'.record.BatchDeleteWarningRecordRequest\x1a\r.api.Response\"\x00\x12L\n" +
+	"\x15DeleteWarningPlayback\x12\".record.DeleteWarningRecordRequest\x1a\r.api.Response\"\x00\x12W\n" +
+	"\x1bBatchDeleteWarningPlaybacks\x12'.record.BatchDeleteWarningRecordRequest\x1a\r.api.Response\"\x00\x12K\n" +
+	"\x14DeleteWarningCapture\x12\".record.DeleteWarningRecordRequest\x1a\r.api.Response\"\x00\x12V\n" +
+	"\x1aBatchDeleteWarningCaptures\x12'.record.BatchDeleteWarningRecordRequest\x1a\r.api.Response\"\x00B\x11Z\x0f./record;recordb\x06proto3"
 
 var (
 	file_record_record_proto_rawDescOnce sync.Once
@@ -107,20 +170,27 @@ func file_record_record_proto_rawDescGZIP() []byte {
 	return file_record_record_proto_rawDescData
 }
 
-var file_record_record_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_record_record_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_record_record_proto_goTypes = []any{
-	(*DeleteWarningRecordRequest)(nil), // 0: record.DeleteWarningRecordRequest
-	(*api.Response)(nil),               // 1: api.Response
+	(*DeleteWarningRecordRequest)(nil),      // 0: record.DeleteWarningRecordRequest
+	(*BatchDeleteWarningRecordRequest)(nil), // 1: record.BatchDeleteWarningRecordRequest
+	(*api.Response)(nil),                    // 2: api.Response
 }
 var file_record_record_proto_depIdxs = []int32{
 	0, // 0: record.RecordService.DeleteWarning:input_type -> record.DeleteWarningRecordRequest
-	0, // 1: record.RecordService.DeleteWarningPlayback:input_type -> record.DeleteWarningRecordRequest
-	0, // 2: record.RecordService.DeleteWarningCapture:input_type -> record.DeleteWarningRecordRequest
-	1, // 3: record.RecordService.DeleteWarning:output_type -> api.Response
-	1, // 4: record.RecordService.DeleteWarningPlayback:output_type -> api.Response
-	1, // 5: record.RecordService.DeleteWarningCapture:output_type -> api.Response
-	3, // [3:6] is the sub-list for method output_type
-	0, // [0:3] is the sub-list for method input_type
+	1, // 1: record.RecordService.BatchDeleteWarnings:input_type -> record.BatchDeleteWarningRecordRequest
+	0, // 2: record.RecordService.DeleteWarningPlayback:input_type -> record.DeleteWarningRecordRequest
+	1, // 3: record.RecordService.BatchDeleteWarningPlaybacks:input_type -> record.BatchDeleteWarningRecordRequest
+	0, // 4: record.RecordService.DeleteWarningCapture:input_type -> record.DeleteWarningRecordRequest
+	1, // 5: record.RecordService.BatchDeleteWarningCaptures:input_type -> record.BatchDeleteWarningRecordRequest
+	2, // 6: record.RecordService.DeleteWarning:output_type -> api.Response
+	2, // 7: record.RecordService.BatchDeleteWarnings:output_type -> api.Response
+	2, // 8: record.RecordService.DeleteWarningPlayback:output_type -> api.Response
+	2, // 9: record.RecordService.BatchDeleteWarningPlaybacks:output_type -> api.Response
+	2, // 10: record.RecordService.DeleteWarningCapture:output_type -> api.Response
+	2, // 11: record.RecordService.BatchDeleteWarningCaptures:output_type -> api.Response
+	6, // [6:12] is the sub-list for method output_type
+	0, // [0:6] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -137,7 +207,7 @@ func file_record_record_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_record_record_proto_rawDesc), len(file_record_record_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
