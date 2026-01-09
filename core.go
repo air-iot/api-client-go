@@ -2408,24 +2408,32 @@ func (c *Client) UploadFileFromUrl(ctx context.Context, projectId string, source
 	// 布尔值转字符串
 	addBase64Str := strconv.FormatBool(addBase64)
 
-	body := map[string]string{
-		"fileUrl":          sourceUrl,
-		"mediaLibraryPath": catalog,
-		"saveFileName":     filename,
-		"action":           action,
-		"addBase64":        addBase64Str,
-	}
+	//body := map[string]string{
+	//	"fileUrl":          sourceUrl,
+	//	"mediaLibraryPath": catalog,
+	//	"saveFileName":     filename,
+	//	"action":           action,
+	//	"addBase64":        addBase64Str,
+	//}
 
-	cli, err := c.CoreClient.GetRestClient()
+	cli, err := c.CoreClient.GetMediaLibraryServiceClient()
 	if err != nil {
 		return "", "", 0, err
 	}
 
+	res, err := cli.UploadFromUrl(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&core.MediaLibraryUploadFromUrlRequest{
+			FileUrl:          sourceUrl,
+			MediaLibraryPath: catalog,
+			SaveFileName:     filename,
+			Action:           action,
+			AddBase64:        addBase64Str,
+		})
 	var result map[string]interface{}
-	if err := cli.Invoke(apitransport.NewClientContext(ctx, &apitransport.Transport{ReqHeader: map[string]string{config.XRequestProject: projectId}}),
-		"POST", "/core/mediaLibrary/saveFileFromUrl",
-		body, &result); err != nil {
-		return "", "", 0, errors.NewResErrorMsg(err, "请求错误")
+	_, err = parseRes(err, res, &result)
+	if err != nil {
+		return "", "", 0, err
 	}
 
 	fileUrl, ok := result["url"]

@@ -257,6 +257,7 @@ message MediaLibraryUploadFromUrlRequest {
   string mediaLibraryPath = 2;
   string saveFileName = 3;
   string action = 4;
+  string addBase64 = 5;
 }
 
 message MediaLibraryUploadFromBase64Request {
