@@ -2408,14 +2408,6 @@ func (c *Client) UploadFileFromUrl(ctx context.Context, projectId string, source
 	// 布尔值转字符串
 	addBase64Str := strconv.FormatBool(addBase64)
 
-	//body := map[string]string{
-	//	"fileUrl":          sourceUrl,
-	//	"mediaLibraryPath": catalog,
-	//	"saveFileName":     filename,
-	//	"action":           action,
-	//	"addBase64":        addBase64Str,
-	//}
-
 	cli, err := c.CoreClient.GetMediaLibraryServiceClient()
 	if err != nil {
 		return "", "", 0, err
