@@ -103,6 +103,26 @@ func (c *Client) Revert(ctx context.Context, projectId, jobId, elementId string,
 	return nil
 }
 
+func (c *Client) Recall(ctx context.Context, projectId, jobId, elementId string, variables map[string]interface{}) error {
+	b, err := json.Marshal(variables)
+	if err != nil {
+		return errors.Wrap(err, "序列化变量错误")
+	}
+	cli, err := c.FlowEngineClient.GetDataServiceClient()
+	if err != nil {
+		return err
+	}
+	if _, err := cli.Recall(apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}), &engine.ResumeRequest{
+		ProjectId: projectId,
+		JobId:     jobId,
+		ElementId: elementId,
+		Variables: b,
+	}); err != nil {
+		return errors.NewResErrorMsg(err, "流程执行错误")
+	}
+	return nil
+}
+
 func (c *Client) Fail(ctx context.Context, projectId, jobId, elementId, errMessage string) error {
 	cli, err := c.FlowEngineClient.GetDataServiceClient()
 	if err != nil {

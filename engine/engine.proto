@@ -18,6 +18,7 @@ service EngineService {
   rpc Run (RunRequest) returns (RunResponse) {}
   rpc Resume (ResumeRequest) returns (google.protobuf.Empty) {}
   rpc Revert (ResumeRequest) returns (google.protobuf.Empty) {}
+  rpc Recall (ResumeRequest) returns (google.protobuf.Empty) {}
   rpc Fail (FailRequest) returns (google.protobuf.Empty) {}
 }
 
@@ -176,4 +177,3 @@ message ExtensionResult {
   string detail = 4;
   bytes result = 5;
 }
-
