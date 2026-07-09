@@ -311,6 +311,61 @@ func (c *Client) DeleteUser(ctx context.Context, projectId, id string, result in
 	return nil
 }
 
+func (c *Client) QueryAPIKey(ctx context.Context, projectId string, query, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	bts, err := json.Marshal(query)
+	if err != nil {
+		return errors.Wrap(err, "序列化查询参数为空")
+	}
+	cli, err := c.CoreClient.GetAPIKeyServiceClient()
+	if err != nil {
+		return err
+	}
+	res, err := cli.Query(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.QueryRequest{Query: bts})
+	if _, err := parseRes(err, res, result); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *Client) GetAPIKey(ctx context.Context, projectId, id string, result interface{}) ([]byte, error) {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if id == "" {
+		return nil, errors.New("id为空")
+	}
+	cli, err := c.CoreClient.GetAPIKeyServiceClient()
+	if err != nil {
+		return nil, err
+	}
+	res, err := cli.Get(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.GetOrDeleteRequest{Id: id})
+	return parseRes(err, res, result)
+}
+
+func (c *Client) GetAPIKeyByKeyID(ctx context.Context, projectId, keyID string, result interface{}) ([]byte, error) {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if keyID == "" {
+		return nil, errors.New("keyId为空")
+	}
+	cli, err := c.CoreClient.GetAPIKeyServiceClient()
+	if err != nil {
+		return nil, err
+	}
+	res, err := cli.GetByKeyID(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&core.GetRequestName{Name: keyID})
+	return parseRes(err, res, result)
+}
+
 func (c *Client) UpdateUser(ctx context.Context, projectId, id string, updateData, result interface{}) error {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault

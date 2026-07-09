@@ -53,6 +53,13 @@ service UserService {
   rpc CallAIModel (api.CreateRequest) returns (api.Response) {}
 }
 
+service APIKeyService {
+  rpc Query (api.QueryRequest) returns (api.Response) {}
+  rpc Get (api.GetOrDeleteRequest) returns (api.Response) {}
+  rpc GetByKeyID (GetRequestName) returns (api.Response) {}
+  rpc Verify (VerifyAPIKeyRequest) returns (VerifyAPIKeyResponse) {}
+}
+
 service TableSchemaService {
   rpc Query (api.QueryRequest) returns (api.Response) {}
   rpc QueryDeviceByDriverAndGroup (GetDeviceRequest) returns (api.Response) {}
@@ -201,6 +208,14 @@ message GetDataDeviceRequest {
 
 message GetRequestName {
   string name = 1;
+}
+
+message VerifyAPIKeyRequest {
+  string fullKey = 1;
+}
+
+message VerifyAPIKeyResponse {
+  string userId = 1;
 }
 
 message QueryDataRequest {

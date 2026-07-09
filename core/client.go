@@ -30,6 +30,7 @@ type Client struct {
 	appServiceClient             AppServiceClient
 	licenseServiceClient         LicenseServiceClient
 	userServiceClient            UserServiceClient
+	apiKeyServiceClient          APIKeyServiceClient
 	logServiceClient             LogServiceClient
 	tableSchemaClient            TableSchemaServiceClient
 	tableRecordClient            TableRecordServiceClient
@@ -85,6 +86,7 @@ func NewLocalClient(cfg config.Config, cc grpc.ClientConnInterface) (*Client, fu
 	c.licenseServiceClient = NewLicenseServiceClient(cc)
 	c.logServiceClient = NewLogServiceClient(cc)
 	c.userServiceClient = NewUserServiceClient(cc)
+	c.apiKeyServiceClient = NewAPIKeyServiceClient(cc)
 	c.tableSchemaClient = NewTableSchemaServiceClient(cc)
 	c.tableRecordClient = NewTableRecordServiceClient(cc)
 	c.tableDataClient = NewTableDataServiceClient(cc)
@@ -119,6 +121,7 @@ func (c *Client) createConn() error {
 	c.licenseServiceClient = NewLicenseServiceClient(cc)
 	c.logServiceClient = NewLogServiceClient(cc)
 	c.userServiceClient = NewUserServiceClient(cc)
+	c.apiKeyServiceClient = NewAPIKeyServiceClient(cc)
 	c.tableSchemaClient = NewTableSchemaServiceClient(cc)
 	c.tableRecordClient = NewTableRecordServiceClient(cc)
 	c.tableDataClient = NewTableDataServiceClient(cc)
@@ -220,6 +223,21 @@ func (c *Client) GetUserServiceClient() (UserServiceClient, error) {
 		return nil, errors.New("客户端是空")
 	}
 	return c.userServiceClient, nil
+}
+
+func (c *Client) GetAPIKeyServiceClient() (APIKeyServiceClient, error) {
+	if c.apiKeyServiceClient != nil {
+		return c.apiKeyServiceClient, nil
+	}
+	if c.conn == nil {
+		if err := c.createConn(); err != nil {
+			return nil, err
+		}
+	}
+	if c.apiKeyServiceClient == nil {
+		return nil, errors.New("客户端是空")
+	}
+	return c.apiKeyServiceClient, nil
 }
 
 func (c *Client) GetTableSchemaServiceClient() (TableSchemaServiceClient, error) {
