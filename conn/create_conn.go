@@ -42,6 +42,9 @@ func CreateConn(serviceName string, cfg config.Config, r *etcd.Registry, opts ..
 	opts = append(opts, ggrpc.WithDefaultCallOptions(ggrpc.MaxCallRecvMsgSize(cfg.Limit*1024*1024), ggrpc.MaxCallSendMsgSize(cfg.Limit*1024*1024)))
 	logger.Infof("grpc create conn,serviceName: %s config: %+v", serviceName, cfg)
 	if r != nil {
+		// WithBlock: 阻塞到 discovery 首次解析出可用节点后再返回,
+		// 避免 gRPC 客户端懒创建时,首次请求早于服务发现就绪而报 no_available_node。
+		opts = append(opts, ggrpc.WithBlock())
 		cli, err := grpc.DialInsecure(
 			context.Background(),
 			grpc.WithEndpoint(fmt.Sprintf("discovery:///%s", serviceName)),
@@ -121,6 +124,9 @@ func CreateRestConn(serviceName string, cfg config.Config, r *etcd.Registry, mid
 		opts = append(opts,
 			http.WithEndpoint(fmt.Sprintf("discovery:///%s", serviceName)),
 			http.WithDiscovery(r),
+			// WithBlock: 阻塞到 discovery 首次解析出可用节点后再返回,
+			// 避免 REST 客户端懒创建时,首次请求早于服务发现就绪而报 no_available_node。
+			http.WithBlock(),
 		)
 		//cli, err := http.NewClient(
 		//	context.Background(),

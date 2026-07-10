@@ -85,6 +85,10 @@ func (a *Client) getToken() (*Token, error) {
 }
 
 func (a *Client) Token() (token string, err error) {
+	// API Key 认证:直接返回配置的 ApiKey,无需获取 token
+	if a.cfg.AuthType == config.AuthTypeApiKey {
+		return a.cfg.ApiKey, nil
+	}
 	a.lock.Lock()
 	defer a.lock.Unlock()
 	var authToken *Token
@@ -104,4 +108,17 @@ func (a *Client) Token() (token string, err error) {
 		}
 	}
 	return authToken.AccessToken, nil
+}
+
+// Authorization 返回 HTTP Authorization 头的完整值。
+// token 认证为 "Bearer <token>";API Key 认证直接返回 ApiKey。
+func (a *Client) Authorization() (string, error) {
+	token, err := a.Token()
+	if err != nil {
+		return "", err
+	}
+	if a.cfg.AuthType == config.AuthTypeApiKey {
+		return token, nil
+	}
+	return fmt.Sprintf("Bearer %s", token), nil
 }

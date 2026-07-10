@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/air-iot/api-client-go/v4/apitransport"
 	"github.com/air-iot/api-client-go/v4/config"
@@ -46,11 +45,11 @@ func (c *CustomCredential) HttpToken() middleware.Middleware {
 			transporter.RequestHeader().Set("Request-Type", "service")
 			token := transporter.RequestHeader().Get(config.XRequestHeaderAuthorization)
 			if token == "" {
-				token, err = (c.f)().Token()
+				token, err = (c.f)().Authorization()
 				if err != nil {
 					return nil, err
 				}
-				transporter.RequestHeader().Set(config.XRequestHeaderAuthorization, fmt.Sprintf("Bearer %s", token))
+				transporter.RequestHeader().Set(config.XRequestHeaderAuthorization, token)
 			}
 			return handler(ctx, req)
 		}
