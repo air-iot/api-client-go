@@ -1200,6 +1200,8 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 const (
 	APIKeyService_Query_FullMethodName      = "/core.APIKeyService/Query"
 	APIKeyService_Get_FullMethodName        = "/core.APIKeyService/Get"
+	APIKeyService_Create_FullMethodName     = "/core.APIKeyService/Create"
+	APIKeyService_Delete_FullMethodName     = "/core.APIKeyService/Delete"
 	APIKeyService_GetByKeyID_FullMethodName = "/core.APIKeyService/GetByKeyID"
 	APIKeyService_Verify_FullMethodName     = "/core.APIKeyService/Verify"
 )
@@ -1210,6 +1212,8 @@ const (
 type APIKeyServiceClient interface {
 	Query(ctx context.Context, in *api.QueryRequest, opts ...grpc.CallOption) (*api.Response, error)
 	Get(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Create(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error)
+	Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error)
 	GetByKeyID(ctx context.Context, in *GetRequestName, opts ...grpc.CallOption) (*api.Response, error)
 	Verify(ctx context.Context, in *VerifyAPIKeyRequest, opts ...grpc.CallOption) (*VerifyAPIKeyResponse, error)
 }
@@ -1240,6 +1244,24 @@ func (c *aPIKeyServiceClient) Get(ctx context.Context, in *api.GetOrDeleteReques
 	return out, nil
 }
 
+func (c *aPIKeyServiceClient) Create(ctx context.Context, in *api.CreateRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, APIKeyService_Create_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIKeyServiceClient) Delete(ctx context.Context, in *api.GetOrDeleteRequest, opts ...grpc.CallOption) (*api.Response, error) {
+	out := new(api.Response)
+	err := c.cc.Invoke(ctx, APIKeyService_Delete_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *aPIKeyServiceClient) GetByKeyID(ctx context.Context, in *GetRequestName, opts ...grpc.CallOption) (*api.Response, error) {
 	out := new(api.Response)
 	err := c.cc.Invoke(ctx, APIKeyService_GetByKeyID_FullMethodName, in, out, opts...)
@@ -1264,6 +1286,8 @@ func (c *aPIKeyServiceClient) Verify(ctx context.Context, in *VerifyAPIKeyReques
 type APIKeyServiceServer interface {
 	Query(context.Context, *api.QueryRequest) (*api.Response, error)
 	Get(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
+	Create(context.Context, *api.CreateRequest) (*api.Response, error)
+	Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error)
 	GetByKeyID(context.Context, *GetRequestName) (*api.Response, error)
 	Verify(context.Context, *VerifyAPIKeyRequest) (*VerifyAPIKeyResponse, error)
 	mustEmbedUnimplementedAPIKeyServiceServer()
@@ -1278,6 +1302,12 @@ func (UnimplementedAPIKeyServiceServer) Query(context.Context, *api.QueryRequest
 }
 func (UnimplementedAPIKeyServiceServer) Get(context.Context, *api.GetOrDeleteRequest) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedAPIKeyServiceServer) Create(context.Context, *api.CreateRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (UnimplementedAPIKeyServiceServer) Delete(context.Context, *api.GetOrDeleteRequest) (*api.Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedAPIKeyServiceServer) GetByKeyID(context.Context, *GetRequestName) (*api.Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetByKeyID not implemented")
@@ -1334,6 +1364,42 @@ func _APIKeyService_Get_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _APIKeyService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.CreateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIKeyServiceServer).Create(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIKeyService_Create_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIKeyServiceServer).Create(ctx, req.(*api.CreateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIKeyService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.GetOrDeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIKeyServiceServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIKeyService_Delete_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIKeyServiceServer).Delete(ctx, req.(*api.GetOrDeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _APIKeyService_GetByKeyID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetRequestName)
 	if err := dec(in); err != nil {
@@ -1384,6 +1450,14 @@ var APIKeyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Get",
 			Handler:    _APIKeyService_Get_Handler,
+		},
+		{
+			MethodName: "Create",
+			Handler:    _APIKeyService_Create_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _APIKeyService_Delete_Handler,
 		},
 		{
 			MethodName: "GetByKeyID",

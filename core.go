@@ -349,6 +349,53 @@ func (c *Client) GetAPIKey(ctx context.Context, projectId, id string, result int
 	return parseRes(err, res, result)
 }
 
+// CreateAPIKey creates an API key. The full plaintext key is returned by the
+// server only in this call, so callers must consume result immediately.
+func (c *Client) CreateAPIKey(ctx context.Context, projectId string, createData, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if createData == nil {
+		return errors.New("插入数据为空")
+	}
+	cli, err := c.CoreClient.GetAPIKeyServiceClient()
+	if err != nil {
+		return err
+	}
+	bts, err := json.Marshal(createData)
+	if err != nil {
+		return errors.Wrap(err, "序列化插入数据错误")
+	}
+	res, err := cli.Create(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.CreateRequest{Data: bts})
+	if _, err := parseRes(err, res, result); err != nil {
+		return err
+	}
+	return nil
+}
+
+// DeleteAPIKey permanently deletes an API key record.
+func (c *Client) DeleteAPIKey(ctx context.Context, projectId, id string, result interface{}) error {
+	if projectId == "" {
+		projectId = config.XRequestProjectDefault
+	}
+	if id == "" {
+		return errors.New("id为空")
+	}
+	cli, err := c.CoreClient.GetAPIKeyServiceClient()
+	if err != nil {
+		return err
+	}
+	res, err := cli.Delete(
+		apicontext.GetGrpcContext(ctx, map[string]string{config.XRequestProject: projectId}),
+		&api.GetOrDeleteRequest{Id: id})
+	if _, err := parseRes(err, res, result); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (c *Client) GetAPIKeyByKeyID(ctx context.Context, projectId, keyID string, result interface{}) ([]byte, error) {
 	if projectId == "" {
 		projectId = config.XRequestProjectDefault
