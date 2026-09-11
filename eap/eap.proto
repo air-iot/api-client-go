@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package eap;
+
+option go_package = "github.com/air-iot/api-client-go/v4/eap";
+
+service TaskService {
+  rpc SendMessage(SendTaskMessageRequest) returns (SendTaskMessageResponse) {}
+}
+
+message Attachment {
+  string url = 1;
+  string filename = 2;
+  string content_type = 3;
+}
+
+message SendTaskMessageRequest {
+  string task_id = 1;
+  string content = 2;
+  string system_prompt = 3;
+  repeated Attachment attachments = 4;
+}
+
+message SendTaskMessageResponse {
+  string task_id = 1;
+  string run_id = 2;
+  string message_id = 3;
+}

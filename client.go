@@ -16,6 +16,7 @@ import (
 	"github.com/air-iot/api-client-go/v4/datarelay"
 	"github.com/air-iot/api-client-go/v4/dataservice"
 	"github.com/air-iot/api-client-go/v4/driver"
+	"github.com/air-iot/api-client-go/v4/eap"
 	"github.com/air-iot/api-client-go/v4/engine"
 	internalError "github.com/air-iot/api-client-go/v4/errors"
 	"github.com/air-iot/api-client-go/v4/flow"
@@ -60,6 +61,7 @@ type Client struct {
 	SyslogClient        *syslog.Client
 	ComputeRecordClient *computerecord.Client
 	AIClient            *ai.Client
+	EAPClient           *eap.Client
 	RecordClient        *record.Client
 	Service             *Service
 }
@@ -157,6 +159,10 @@ func NewLocalClient(cfg config.Config, ss *local_grpc.Server) (*Client, func(), 
 	if err != nil {
 		return nil, nil, err
 	}
+	eapClient, cleanEAP, err := eap.NewLocalClient(cfg, cc)
+	if err != nil {
+		return nil, nil, err
+	}
 
 	recordClient, cleanRecord, err := record.NewLocalClient(cfg, cc)
 	if err != nil {
@@ -183,6 +189,7 @@ func NewLocalClient(cfg config.Config, ss *local_grpc.Server) (*Client, func(), 
 		SyslogClient:        syslogClient,
 		ComputeRecordClient: computeRecordClient,
 		AIClient:            aiClient,
+		EAPClient:           eapClient,
 		RecordClient:        recordClient,
 	}
 	a.Service = newService(a)
@@ -203,6 +210,7 @@ func NewLocalClient(cfg config.Config, ss *local_grpc.Server) (*Client, func(), 
 		cleanSyslog()
 		cleanComputeRecord()
 		cleanAI()
+		cleanEAP()
 		cleanRecord()
 	}, nil
 }
@@ -337,6 +345,10 @@ func newGrpcClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), er
 	if err != nil {
 		return nil, nil, err
 	}
+	eapClient, cleanEAP, err := eap.NewClient(cfg, r, cred)
+	if err != nil {
+		return nil, nil, err
+	}
 	recordClient, cleanRecord, err := record.NewClient(cfg, r, cred, httpCred)
 	if err != nil {
 		return nil, nil, err
@@ -360,6 +372,7 @@ func newGrpcClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), er
 		SyslogClient:        syslogClient,
 		ComputeRecordClient: computeRecordClient,
 		AIClient:            aiClient,
+		EAPClient:           eapClient,
 		RecordClient:        recordClient,
 	}
 	if !cfg.LiteMode {
@@ -383,6 +396,7 @@ func newGrpcClient(cli *clientv3.Client, cfg config.Config) (*Client, func(), er
 		cleanSyslog()
 		cleanComputeRecord()
 		cleanAI()
+		cleanEAP()
 		cleanRecord()
 	}, nil
 }
